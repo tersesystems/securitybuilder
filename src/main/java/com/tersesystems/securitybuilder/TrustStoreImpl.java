@@ -5,6 +5,7 @@ import java.security.KeyStore.Builder;
 import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -15,6 +16,11 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
 
   protected TrustStoreImpl(@NotNull final Builder builder) {
     super(builder);
+  }
+
+  @NotNull
+  public TrustedCertificateEntry putCertificate(@NotNull String key, @NotNull Certificate certificate) {
+    return put(key, new KeyStore.TrustedCertificateEntry(certificate));
   }
 
   @NotNull

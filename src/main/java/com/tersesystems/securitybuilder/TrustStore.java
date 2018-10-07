@@ -9,6 +9,7 @@ import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.X509CertSelector;
+import java.security.cert.X509Certificate;
 import java.util.*;
 import java.util.function.Function;
 import org.jetbrains.annotations.NotNull;
@@ -18,6 +19,8 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
 
   @NotNull
   KeyStore getKeyStore();
+
+  TrustedCertificateEntry putCertificate(@NotNull String key, @NotNull Certificate certificate);
 
   Optional<String> getCertificateAlias(@NotNull Certificate certificate)
       throws RuntimeKeyStoreException;

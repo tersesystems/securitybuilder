@@ -4,7 +4,7 @@ import java.security.GeneralSecurityException;
 import org.assertj.core.api.Assertions;
 import org.junit.jupiter.api.Test;
 
-class KeyPairGeneratorBuilderTest {
+class KeyPairBuilderTest {
 
   @Test
   void testWithAlgorithm() throws GeneralSecurityException {
