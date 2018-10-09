@@ -64,7 +64,7 @@
     <dependency>
       <groupId>org.jetbrains</groupId>
       <artifactId>annotations</artifactId>
-      <version>RELEASE</version>
+      <version>16.0.2</version>
       <scope>compile</scope>
     </dependency>
     <dependency>
@@ -90,19 +90,19 @@
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-api</artifactId>
-      <version>RELEASE</version>
+      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.junit.jupiter</groupId>
       <artifactId>junit-jupiter-engine</artifactId>
-      <version>RELEASE</version>
+      <version>${junit.jupiter.version}</version>
       <scope>test</scope>
     </dependency>
     <dependency>
       <groupId>org.assertj</groupId>
       <artifactId>assertj-core</artifactId>
-      <version>RELEASE</version>
+      <version>3.11.1</version>
       <scope>test</scope>
     </dependency>
   </dependencies>
@@ -135,7 +135,7 @@
             <dependency>
               <groupId>org.junit.jupiter</groupId>
               <artifactId>junit-jupiter-engine</artifactId>
-              <version>RELEASE</version>
+              <version>${junit.jupiter.version}</version>
             </dependency>
           </dependencies>
         </plugin>
