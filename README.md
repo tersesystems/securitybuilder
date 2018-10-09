@@ -1,3 +1,5 @@
+[![Bintray](https://img.shields.io/bintray/v/tersesystems/maven/securitybuilder.svg?maxAge=2592000)](https://bintray.com/tersesystems/maven/securitybuilder)
+
 # Security Builders
 
 The [Java Cryptography Architecture](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) lays out how to create and initialize certificates, keystores, and so on, but typically does so in frustrating ways.  
@@ -55,14 +57,6 @@ From Bintray:
 In your pom.xml:
 
 ```xml
-<repositories>
-  <repository>
-    <id>central</id>
-    <name>bintray</name>
-    <url>http://jcenter.bintray.com</url>
-  </repository>
-</repositories>
-
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
