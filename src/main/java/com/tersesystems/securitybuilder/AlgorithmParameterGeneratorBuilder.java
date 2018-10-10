@@ -5,37 +5,41 @@ import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
-import org.jetbrains.annotations.NotNull;
 import org.slieb.throwables.SupplierWithThrowable;
 
 public class AlgorithmParameterGeneratorBuilder {
 
   // https://docs.oracle.com/javase/8/docs/api/java/security/AlgorithmParameterGenerator.html
 
+  public static InstanceStage builder() {
+    return new InstanceStageImpl();
+  }
+
   public interface InstanceStage {
 
-    @NotNull
-    ParametersStage withAlgorithm(@NotNull String algorithm);
 
-    @NotNull
-    ParametersStage withAlgorithmAndProvider(@NotNull String algorithm, @NotNull String provider);
+    ParametersStage withAlgorithm(String algorithm);
+
+
+    ParametersStage withAlgorithmAndProvider(String algorithm, String provider);
   }
 
   public interface ParametersStage {
-    @NotNull
-    FinalStage withSpec(@NotNull AlgorithmParameterSpec genParamSpec);
 
-    @NotNull
-    FinalStage withSpec(@NotNull AlgorithmParameterSpec genParamSpec, @NotNull SecureRandom random);
+    FinalStage withSpec(AlgorithmParameterSpec genParamSpec);
 
-    @NotNull
+
+    FinalStage withSpec(AlgorithmParameterSpec genParamSpec, SecureRandom random);
+
+
     FinalStage withKeySize(int size);
 
-    @NotNull
-    FinalStage withKeySize(int size, @NotNull SecureRandom random);
+
+    FinalStage withKeySize(int size, SecureRandom random);
   }
 
   public interface FinalStage {
+
     AlgorithmParameters build();
   }
 
@@ -43,16 +47,16 @@ public class AlgorithmParameterGeneratorBuilder {
       extends InstanceGenerator<AlgorithmParameterGenerator, GeneralSecurityException>
       implements InstanceStage {
 
-    @NotNull
+
     @Override
-    public ParametersStage withAlgorithm(@NotNull final String algorithm) {
+    public ParametersStage withAlgorithm(final String algorithm) {
       return new ParametersStageImpl(getInstance().withAlgorithm(algorithm));
     }
 
-    @NotNull
+
     @Override
     public ParametersStage withAlgorithmAndProvider(
-        @NotNull final String algorithm, @NotNull final String provider) {
+        final String algorithm, final String provider) {
       return new ParametersStageImpl(getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
   }
@@ -68,9 +72,9 @@ public class AlgorithmParameterGeneratorBuilder {
       this.supplier = supplier;
     }
 
-    @NotNull
+
     @Override
-    public FinalStage withSpec(@NotNull final AlgorithmParameterSpec genParamSpec) {
+    public FinalStage withSpec(final AlgorithmParameterSpec genParamSpec) {
       return new FinalStageImpl(
           () -> {
             final AlgorithmParameterGenerator parameterGenerator = supplier.getWithThrowable();
@@ -79,10 +83,10 @@ public class AlgorithmParameterGeneratorBuilder {
           });
     }
 
-    @NotNull
+
     @Override
     public FinalStage withSpec(
-        @NotNull final AlgorithmParameterSpec genParamSpec, @NotNull final SecureRandom random) {
+        final AlgorithmParameterSpec genParamSpec, final SecureRandom random) {
       return new FinalStageImpl(
           () -> {
             final AlgorithmParameterGenerator parameterGenerator = supplier.getWithThrowable();
@@ -91,7 +95,7 @@ public class AlgorithmParameterGeneratorBuilder {
           });
     }
 
-    @NotNull
+
     @Override
     public FinalStage withKeySize(final int size) {
       return new FinalStageImpl(
@@ -102,9 +106,9 @@ public class AlgorithmParameterGeneratorBuilder {
           });
     }
 
-    @NotNull
+
     @Override
-    public FinalStage withKeySize(final int size, @NotNull final SecureRandom random) {
+    public FinalStage withKeySize(final int size, final SecureRandom random) {
       return new FinalStageImpl(
           () -> {
             final AlgorithmParameterGenerator parameterGenerator = supplier.getWithThrowable();
@@ -115,6 +119,7 @@ public class AlgorithmParameterGeneratorBuilder {
   }
 
   static class FinalStageImpl implements FinalStage {
+
     private final SupplierWithThrowable<AlgorithmParameterGenerator, GeneralSecurityException>
         supplier;
 
@@ -124,13 +129,10 @@ public class AlgorithmParameterGeneratorBuilder {
       this.supplier = supplier;
     }
 
+
     @Override
     public AlgorithmParameters build() {
       return supplier.get().generateParameters();
     }
-  }
-
-  public static InstanceStage builder() {
-    return new InstanceStageImpl();
   }
 }

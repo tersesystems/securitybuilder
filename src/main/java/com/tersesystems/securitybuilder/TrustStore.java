@@ -9,32 +9,24 @@ import java.security.cert.CertStore;
 import java.security.cert.CertStoreException;
 import java.security.cert.Certificate;
 import java.security.cert.X509CertSelector;
-import java.security.cert.X509Certificate;
-import java.util.*;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry> {
 
-  @NotNull
-  KeyStore getKeyStore();
 
-  TrustedCertificateEntry putCertificate(@NotNull String key, @NotNull Certificate certificate);
-
-  Optional<String> getCertificateAlias(@NotNull Certificate certificate)
-      throws RuntimeKeyStoreException;
-
-  static TrustStore create(@NotNull final KeyStore keyStore) {
+  static TrustStore create(final KeyStore keyStore) {
     return new TrustStoreImpl(
         new Builder() {
-          @NotNull
+
           @Override
           public KeyStore getKeyStore() throws KeyStoreException {
             return keyStore;
           }
 
-          @Nullable
+
           @Override
           public ProtectionParameter getProtectionParameter(final String alias)
               throws KeyStoreException {
@@ -44,7 +36,7 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
   }
 
   static TrustStore create(
-      @NotNull final Map<? extends String, ? extends Certificate> certificates) {
+      final Map<? extends String, ? extends Certificate> certificates) {
     TrustStore trustStore = create();
     certificates.forEach(
         (alias, cert) -> {
@@ -54,7 +46,7 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
   }
 
   static <T extends Certificate> TrustStore create(
-      @NotNull final List<T> certificates, @NotNull final Function<T, String> aliasFunction) {
+      final List<T> certificates, final Function<T, String> aliasFunction) {
     TrustStore trustStore = create();
     certificates.forEach(
         (cert) -> {
@@ -65,8 +57,8 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
   }
 
   static TrustStore create(
-      @NotNull final CertStore certStore,
-      @NotNull final Function<Certificate, String> aliasFunction) {
+      final CertStore certStore,
+      final Function<Certificate, String> aliasFunction) {
     try {
       TrustStore trustStore = create();
       certStore
@@ -93,8 +85,15 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
   static TrustStore system() {
     try {
       return TrustStore.create(KeyStoreDefaults.getCacertsKeyStore());
-    } catch (@NotNull final Exception e) {
+    } catch (final Exception e) {
       throw new RuntimeKeyStoreException(e);
     }
   }
+
+  KeyStore getKeyStore();
+
+  TrustedCertificateEntry putCertificate(String key, Certificate certificate);
+
+  Optional<String> getCertificateAlias(Certificate certificate)
+      throws RuntimeKeyStoreException;
 }

@@ -12,11 +12,11 @@ import java.security.KeyStore;
 import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 
 public class KeyStoreDefaults {
-  private KeyStoreDefaults() {}
+
+  private KeyStoreDefaults() {
+  }
 
   // https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
   // https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#T6
@@ -29,7 +29,7 @@ public class KeyStoreDefaults {
   // property is specified.
   // If no keystore password is specified, then it is assumed to be a blank string "".
   // From sun.security.ssl.SSLContextImpl
-  @NotNull
+
   public static KeyStore getKeyStore() throws Exception {
     final String NONE = "NONE";
 
@@ -90,7 +90,7 @@ public class KeyStoreDefaults {
   }
 
   // From sun.security.ssl.TrustManagerFactoryImpl
-  @NotNull
+
   public static KeyStore getCacertsKeyStore() throws Exception {
     String storeFileName = null;
     File storeFile = null;
@@ -161,8 +161,9 @@ public class KeyStoreDefaults {
         }
         char[] passwd = null;
         final String defaultTrustStorePassword = props.get("trustStorePasswd");
-        if (defaultTrustStorePassword.length() != 0)
+        if (defaultTrustStorePassword.length() != 0) {
           passwd = defaultTrustStorePassword.toCharArray();
+        }
 
         // if trustStore is NONE, fis will be null
         ks.load(fis, passwd);
@@ -186,11 +187,11 @@ public class KeyStoreDefaults {
   /*
    * Try to get an InputStream based on the file we pass in.
    */
-  @Nullable
-  private static FileInputStream getFileInputStream(@NotNull final File file) throws Exception {
+
+  private static FileInputStream getFileInputStream(final File file) throws Exception {
     return AccessController.doPrivileged(
         new PrivilegedExceptionAction<FileInputStream>() {
-          @Nullable
+
           @Override
           public FileInputStream run() throws Exception {
             try {
@@ -199,7 +200,7 @@ public class KeyStoreDefaults {
               } else {
                 return null;
               }
-            } catch (@NotNull final FileNotFoundException e) {
+            } catch (final FileNotFoundException e) {
               // couldn't find it, oh well.
               return null;
             }

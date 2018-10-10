@@ -11,101 +11,113 @@ import java.util.function.Supplier;
 import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.KeyStoreBuilderParameters;
 import javax.net.ssl.X509ExtendedKeyManager;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.slieb.throwables.SupplierWithThrowable;
 
 public class KeyManagerBuilder {
-  private KeyManagerBuilder() {}
+
+  private KeyManagerBuilder() {
+  }
+
+  public static KeyManagerFactoryStage builder() {
+    return new KeyManagerFactoryStageImpl();
+  }
 
   public interface KeyManagerFactoryStage {
-    @NotNull
+
     SunParametersStage withSunX509();
 
-    @NotNull
-    SunParametersStage withSunX509(@NotNull String provider);
 
-    @NotNull
+    SunParametersStage withSunX509(String provider);
+
+
     NewSunParametersStage withNewSunX509();
 
-    @NotNull
-    NewSunParametersStage withNewSunX509(@NotNull String provider);
+
+    NewSunParametersStage withNewSunX509(String provider);
   }
 
   public interface SunParametersStage {
-    @NotNull
-    SunPasswordStage withKeyStore(@NotNull KeyStore keyStore);
 
-    @NotNull
-    BuilderFinal withPrivateKeyStore(@NotNull PrivateKeyStore privateKeyStore);
+    SunPasswordStage withKeyStore(KeyStore keyStore);
 
-    @NotNull
+
+    BuilderFinal withPrivateKeyStore(PrivateKeyStore privateKeyStore);
+
+
     SunPasswordStage withKeyStore(
-        @NotNull SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
+        SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
 
-    @NotNull
+
     SunPasswordStage withDefaultKeyStore();
   }
 
   public interface NewSunParametersStage {
-    @NotNull
-    BuilderFinal withKeyStore(@NotNull KeyStore keyStore, @NotNull char[] password);
 
-    @NotNull
-    BuilderFinal withPrivateKeyStore(@NotNull PrivateKeyStore privateKeyStore);
+    BuilderFinal withKeyStore(KeyStore keyStore, char[] password);
 
-    @NotNull
-    BuilderFinal withBuilders(@NotNull List<KeyStore.Builder> builders);
 
-    @NotNull
-    BuilderFinal withBuilders(@NotNull Supplier<List<KeyStore.Builder>> builders);
+    BuilderFinal withPrivateKeyStore(PrivateKeyStore privateKeyStore);
+
+
+    BuilderFinal withBuilders(List<KeyStore.Builder> builders);
+
+
+    BuilderFinal withBuilders(Supplier<List<KeyStore.Builder>> builders);
 
     // Technically there should be a NewSunPasswordStage, but under what circumstance
     // are you going to do that?
-    @NotNull
+
     BuilderFinal withDefaultKeyStoreAndPassword();
+  }
+
+  public interface SunPasswordStage {
+
+
+    BuilderFinal withPassword(PasswordProtection passwordProtection);
+
+
+    BuilderFinal withPassword(char[] password);
+
+    /**
+     * Uses the password defined in the system property `javax.net.ssl.keyStorePassword`.
+     */
+
+    BuilderFinal withDefaultPassword();
+  }
+
+  public interface BuilderFinal {
+
+
+    X509ExtendedKeyManager build() throws GeneralSecurityException;
   }
 
   static class KeyManagerFactoryStageImpl
       extends InstanceGenerator<KeyManagerFactory, GeneralSecurityException>
       implements KeyManagerFactoryStage {
-    @NotNull
+
     @Override
     public SunParametersStage withSunX509() {
       return new SunParametersStageImpl();
     }
 
-    @NotNull
+
     @Override
-    public SunParametersStage withSunX509(@NotNull final String provider) {
+    public SunParametersStage withSunX509(final String provider) {
       return new SunParametersStageImpl(provider);
     }
 
-    @NotNull
+
     @Override
     public NewSunParametersStage withNewSunX509() {
       return new NewSunParametersStageImpl(getInstance().withAlgorithm("NewSunX509"));
     }
 
-    @NotNull
+
     @Override
-    public NewSunParametersStage withNewSunX509(@NotNull final String provider) {
+    public NewSunParametersStage withNewSunX509(final String provider) {
       return new NewSunParametersStageImpl(
           getInstance().withAlgorithmAndProvider("NewSunX509", provider));
     }
-  }
-
-  public interface SunPasswordStage {
-
-    @NotNull
-    BuilderFinal withPassword(PasswordProtection passwordProtection);
-
-    @NotNull
-    BuilderFinal withPassword(char[] password);
-
-    /** Uses the password defined in the system property `javax.net.ssl.keyStorePassword`. */
-    @NotNull
-    BuilderFinal withDefaultPassword();
   }
 
   static class SunPasswordStageImpl implements SunPasswordStage {
@@ -122,12 +134,12 @@ public class KeyManagerBuilder {
     }
 
     @Override
-    public @NotNull BuilderFinal withPassword(
-        @NotNull final PasswordProtection passwordProtection) {
+    public BuilderFinal withPassword(
+        final PasswordProtection passwordProtection) {
       return withPassword(passwordProtection.getPassword());
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withPassword(final char[] password) {
       return new BuilderFinalImpl(
@@ -139,7 +151,7 @@ public class KeyManagerBuilder {
           });
     }
 
-    @NotNull
+
     public BuilderFinal withDefaultPassword() {
       return new BuilderFinalImpl(
           () -> {
@@ -155,23 +167,25 @@ public class KeyManagerBuilder {
   static class SunParametersStageImpl
       extends InstanceGenerator<KeyManagerFactory, GeneralSecurityException>
       implements SunParametersStage {
+
     private static final String sunX509 = "SunX509";
-    @Nullable private String provider = null;
+    private String provider = null;
 
-    SunParametersStageImpl() {}
+    SunParametersStageImpl() {
+    }
 
-    SunParametersStageImpl(@Nullable final String provider) {
+    SunParametersStageImpl(final String provider) {
       this.provider = provider;
     }
 
     @Override
-    public @NotNull SunPasswordStage withKeyStore(@NotNull final KeyStore keyStore) {
+    public SunPasswordStage withKeyStore(final KeyStore keyStore) {
       return withKeyStore(() -> keyStore);
     }
 
     @Override
-    public @NotNull BuilderFinal withPrivateKeyStore(
-        @NotNull final PrivateKeyStore privateKeyStore) {
+    public BuilderFinal withPrivateKeyStore(
+        final PrivateKeyStore privateKeyStore) {
       try {
         PasswordProtection passwordProtection =
             (PasswordProtection) privateKeyStore.getBuilder().getProtectionParameter("default");
@@ -182,10 +196,10 @@ public class KeyManagerBuilder {
       }
     }
 
-    @NotNull
+
     @Override
     public SunPasswordStage withKeyStore(
-        @NotNull final SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier) {
+        final SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier) {
       return new SunPasswordStageImpl(
           (provider == null)
               ? getInstance().withAlgorithm(sunX509)
@@ -193,7 +207,7 @@ public class KeyManagerBuilder {
           keyStoreSupplier);
     }
 
-    @NotNull
+
     @Override
     public SunPasswordStage withDefaultKeyStore() {
       return withKeyStore(() -> null);
@@ -201,6 +215,7 @@ public class KeyManagerBuilder {
   }
 
   static class NewSunParametersStageImpl implements NewSunParametersStage {
+
     private final Supplier<KeyManagerFactory> supplier;
 
     NewSunParametersStageImpl(final Supplier<KeyManagerFactory> supplier) {
@@ -208,28 +223,28 @@ public class KeyManagerBuilder {
     }
 
     @Override
-    public @NotNull BuilderFinal withPrivateKeyStore(
-        @NotNull final PrivateKeyStore privateKeyStore) {
+    public BuilderFinal withPrivateKeyStore(
+        final PrivateKeyStore privateKeyStore) {
       return withBuilders(() -> singletonList(privateKeyStore.getBuilder()));
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withKeyStore(
-        @NotNull final KeyStore keyStore, @NotNull final char[] keyStorePassword) {
+        final KeyStore keyStore, final char[] keyStorePassword) {
       return withBuilders(
           () -> singletonList(KeyManagerKeyStoreBuilder.newInstance(keyStore, keyStorePassword)));
     }
 
-    @NotNull
+
     @Override
-    public BuilderFinal withBuilders(@NotNull final List<KeyStore.Builder> builders) {
+    public BuilderFinal withBuilders(final List<KeyStore.Builder> builders) {
       return withBuilders(() -> builders);
     }
 
-    @NotNull
+
     @Override
-    public BuilderFinal withBuilders(@NotNull final Supplier<List<KeyStore.Builder>> builders) {
+    public BuilderFinal withBuilders(final Supplier<List<KeyStore.Builder>> builders) {
       return new BuilderFinalImpl(
           () -> {
             final KeyManagerFactory kmf = supplier.get();
@@ -238,7 +253,7 @@ public class KeyManagerBuilder {
           });
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withDefaultKeyStoreAndPassword() {
       return new BuilderFinalImpl(
@@ -248,11 +263,6 @@ public class KeyManagerBuilder {
             return kmf;
           });
     }
-  }
-
-  public interface BuilderFinal {
-    @NotNull
-    X509ExtendedKeyManager build() throws GeneralSecurityException;
   }
 
   static class BuilderFinalImpl implements BuilderFinal {
@@ -266,14 +276,10 @@ public class KeyManagerBuilder {
       this.keyManagerFactory = keyManagerFactory;
     }
 
-    @NotNull
+
     @Override
     public X509ExtendedKeyManager build() throws GeneralSecurityException {
       return (X509ExtendedKeyManager) keyManagerFactory.getWithThrowable().getKeyManagers()[0];
     }
-  }
-
-  public static KeyManagerFactoryStage builder() {
-    return new KeyManagerFactoryStageImpl();
   }
 }

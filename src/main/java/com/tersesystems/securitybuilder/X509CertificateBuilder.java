@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
-import org.jetbrains.annotations.NotNull;
 import sun.security.jca.JCAUtil;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.BasicConstraintsExtension;
@@ -33,7 +32,9 @@ import sun.security.x509.X509CertInfo;
 
 public class X509CertificateBuilder {
 
-  private X509CertificateBuilder() {}
+  private X509CertificateBuilder() {
+  }
+
 
   public static InitialStage builder() {
     return new InitialStageImpl();
@@ -41,171 +42,176 @@ public class X509CertificateBuilder {
 
   public interface InitialStage {
 
-    @NotNull
-    <PK extends PrivateKey> NotBeforeStage<PK> withSignatureAlgorithm(@NotNull String algorithm);
+    <PK extends PrivateKey> NotBeforeStage<PK> withSignatureAlgorithm(
+        String algorithm);
 
-    @NotNull
+
     NotBeforeStage<RSAPrivateKey> withSHA256withRSA();
 
-    @NotNull
+
     NotBeforeStage<RSAPrivateKey> withSHA384withRSA();
 
-    @NotNull
+
     NotBeforeStage<RSAPrivateKey> withSHA512withRSA();
 
-    @NotNull
+
     NotBeforeStage<ECPrivateKey> withSHA224withECDSA();
 
-    @NotNull
+
     NotBeforeStage<ECPrivateKey> withSHA256withECDSA();
 
-    @NotNull
+
     NotBeforeStage<ECPrivateKey> withSHA384withECDSA();
 
-    @NotNull
+
     NotBeforeStage<ECPrivateKey> withSHA512withECDSA();
   }
 
   public interface NotBeforeStage<PK extends PrivateKey> {
 
-    @NotNull
-    NotAfterStage<PK> withNotBefore(@NotNull Instant notBefore);
 
-    @NotNull
+    NotAfterStage<PK> withNotBefore(Instant notBefore);
+
+
     NotAfterStage<PK> withNotBeforeNow();
 
-    @NotNull
-    IssuerStage<PK> withDuration(@NotNull Duration duration);
 
-    @NotNull
-    IssuerStage<PK> withDuration(@NotNull Instant notBefore, @NotNull Duration duration);
+    IssuerStage<PK> withDuration(Duration duration);
+
+
+    IssuerStage<PK> withDuration(Instant notBefore, Duration duration);
   }
 
   public interface NotAfterStage<PK extends PrivateKey> {
 
-    @NotNull
-    IssuerStage<PK> withNotAfter(@NotNull Instant notAfter);
 
-    @NotNull
-    IssuerStage<PK> withDuration(@NotNull Duration duration);
+    IssuerStage<PK> withNotAfter(Instant notAfter);
+
+
+    IssuerStage<PK> withDuration(Duration duration);
   }
 
   public interface IssuerStage<PK extends PrivateKey> {
 
-    @NotNull
-    PrivateKeyStage<PK> withIssuer(@NotNull String issuer);
 
-    @NotNull
-    PrivateKeyStage<PK> withIssuer(@NotNull X509Certificate issuerCert);
+    PrivateKeyStage<PK> withIssuer(String issuer);
 
-    @NotNull
+
+    PrivateKeyStage<PK> withIssuer(X509Certificate issuerCert);
+
+
     X509CertificateBuilder.BuildFinal withRootCA(
-        @NotNull String dn, @NotNull java.security.KeyPair keyPair, int pathLenConstraint);
+        String dn, java.security.KeyPair keyPair, int pathLenConstraint);
 
-    @NotNull
+
     X509CertificateBuilder.BuildFinal withRootCA(
-        @NotNull String dn,
-        @NotNull KeyPair<? extends PublicKey, PK> keyPair,
+        String dn,
+        KeyPair<? extends PublicKey, PK> keyPair,
         int pathLenConstraint);
   }
 
   public interface PrivateKeyStage<PK extends PrivateKey> {
 
-    @NotNull
-    PublicKeyStage withSigningKey(@NotNull PK privateKey);
+
+    PublicKeyStage withSigningKey(PK privateKey);
   }
 
   public interface PublicKeyStage {
 
-    @NotNull
-    SubjectStage withPublicKey(@NotNull PublicKey publicKey);
+
+    SubjectStage withPublicKey(PublicKey publicKey);
   }
 
   public interface SubjectStage {
 
-    @NotNull
-    ExtensionsStage withSubject(@NotNull String subject);
+
+    ExtensionsStage withSubject(String subject);
   }
 
   public interface ExtensionsStage {
 
-    @NotNull
-    X509CertificateBuilder.BuildFinal withExtensions(@NotNull CertificateExtensions extensions);
 
-    @NotNull
+    X509CertificateBuilder.BuildFinal withExtensions(CertificateExtensions extensions);
+
+
     X509CertificateBuilder.BuildFinal withEndEntityExtensions();
 
-    @NotNull
+
     X509CertificateBuilder.BuildFinal withCertificateAuthorityExtensions(int pathLenConstraint);
 
-    @NotNull
+
     X509CertificateBuilder.BuildFinal withClientCertificateExtensions();
   }
 
   public interface BuildFinal {
-    @NotNull
-    X509CertificateBuilder.BuildFinal withSecureRandom(@NotNull SecureRandom secureRandom);
 
-    @NotNull
+
+    X509CertificateBuilder.BuildFinal withSecureRandom(SecureRandom secureRandom);
+
+
     X509Certificate build() throws IOException, GeneralSecurityException;
+
 
     BuildChainFinal chain();
 
+
     BuildChainFinal chain(
-        PrivateKey privateKey, Function<PublicKeyStage, BuildChainFinal> childBuilderFunction);
+        PrivateKey privateKey,
+        Function<PublicKeyStage, BuildChainFinal> childBuilderFunction);
   }
 
   public interface BuildChainFinal {
-    @NotNull
+
+
     X509Certificate[] build() throws IOException, GeneralSecurityException;
   }
 
   static class InitialStageImpl implements InitialStage {
 
-    @NotNull
+
     @Override
     public <PK extends PrivateKey> NotBeforeStage<PK> withSignatureAlgorithm(
-        @NotNull final String algorithm) {
+        final String algorithm) {
       return new NotBeforeStageImpl<>(algorithm);
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<RSAPrivateKey> withSHA256withRSA() {
       return new NotBeforeStageImpl<>("SHA256withRSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<RSAPrivateKey> withSHA384withRSA() {
       return new NotBeforeStageImpl<>("SHA384withRSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<RSAPrivateKey> withSHA512withRSA() {
       return new NotBeforeStageImpl<>("SHA512withRSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<ECPrivateKey> withSHA224withECDSA() {
       return new NotBeforeStageImpl<>("SHA224withECDSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<ECPrivateKey> withSHA256withECDSA() {
       return new NotBeforeStageImpl<>("SHA256withECDSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<ECPrivateKey> withSHA384withECDSA() {
       return new NotBeforeStageImpl<>("SHA384withECDSA");
     }
 
-    @NotNull
+
     @Override
     public NotBeforeStage<ECPrivateKey> withSHA512withECDSA() {
       return new NotBeforeStageImpl<>("SHA512withECDSA");
@@ -220,28 +226,28 @@ public class X509CertificateBuilder {
       this.algorithm = algorithm;
     }
 
-    @NotNull
+
     @Override
-    public NotAfterStage<PK> withNotBefore(@NotNull final Instant notBefore) {
+    public NotAfterStage<PK> withNotBefore(final Instant notBefore) {
       return new NotAfterStageImpl<>(algorithm, notBefore);
     }
 
-    @NotNull
+
     @Override
     public NotAfterStage<PK> withNotBeforeNow() {
       return new NotAfterStageImpl<>(algorithm, Instant.now());
     }
 
-    @NotNull
+
     @Override
-    public IssuerStage<PK> withDuration(@NotNull final Duration duration) {
+    public IssuerStage<PK> withDuration(final Duration duration) {
       return withDuration(Instant.now(), duration);
     }
 
-    @NotNull
+
     @Override
     public IssuerStage<PK> withDuration(
-        @NotNull final Instant notBefore, @NotNull final Duration duration) {
+        final Instant notBefore, final Duration duration) {
       return new IssuerStageImpl<>(algorithm, notBefore, notBefore.plus(duration));
     }
   }
@@ -256,15 +262,15 @@ public class X509CertificateBuilder {
       this.notBefore = notBefore;
     }
 
-    @NotNull
+
     @Override
-    public IssuerStage<PK> withNotAfter(@NotNull final Instant notAfter) {
+    public IssuerStage<PK> withNotAfter(final Instant notAfter) {
       return new IssuerStageImpl<>(algorithm, notBefore, notAfter);
     }
 
-    @NotNull
+
     @Override
-    public IssuerStage<PK> withDuration(@NotNull final Duration duration) {
+    public IssuerStage<PK> withDuration(final Duration duration) {
       return new IssuerStageImpl<>(algorithm, notBefore, notBefore.plus(duration));
     }
   }
@@ -281,38 +287,38 @@ public class X509CertificateBuilder {
       this.notAfter = notAfter;
     }
 
-    @NotNull
+
     @Override
-    public PrivateKeyStage<PK> withIssuer(@NotNull final String issuer) {
+    public PrivateKeyStage<PK> withIssuer(final String issuer) {
       return new PrivateKeyStageImpl<>(algorithm, notBefore, notAfter, issuer);
     }
 
-    @NotNull
+
     @Override
-    public PrivateKeyStage<PK> withIssuer(@NotNull final X509Certificate issuerCert) {
+    public PrivateKeyStage<PK> withIssuer(final X509Certificate issuerCert) {
       return new PrivateKeyStageImpl<>(
           algorithm, notBefore, notAfter, issuerCert.getSubjectDN().getName());
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withRootCA(
-        @NotNull final String dn,
-        @NotNull final java.security.KeyPair keyPair,
+        final String dn,
+        final java.security.KeyPair keyPair,
         int pathLenConstraint) {
       return new ExtensionsStageImpl(
-              algorithm, notBefore, notAfter, dn, keyPair.getPrivate(), keyPair.getPublic(), dn)
+          algorithm, notBefore, notAfter, dn, keyPair.getPrivate(), keyPair.getPublic(), dn)
           .withCertificateAuthorityExtensions(pathLenConstraint);
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withRootCA(
-        @NotNull final String dn,
-        @NotNull final KeyPair<? extends PublicKey, PK> keyPair,
+        final String dn,
+        final KeyPair<? extends PublicKey, PK> keyPair,
         int pathLenConstraint) {
       return new ExtensionsStageImpl(
-              algorithm, notBefore, notAfter, dn, keyPair.getPrivate(), keyPair.getPublic(), dn)
+          algorithm, notBefore, notAfter, dn, keyPair.getPrivate(), keyPair.getPublic(), dn)
           .withCertificateAuthorityExtensions(pathLenConstraint);
     }
   }
@@ -335,9 +341,9 @@ public class X509CertificateBuilder {
       this.issuer = issuer;
     }
 
-    @NotNull
+
     @Override
-    public PublicKeyStage withSigningKey(@NotNull final PK privateKey) {
+    public PublicKeyStage withSigningKey(final PK privateKey) {
       return new PublicKeyStageImpl(algorithm, notBefore, notAfter, issuer, privateKey);
     }
   }
@@ -363,9 +369,9 @@ public class X509CertificateBuilder {
       this.privateKey = privateKey;
     }
 
-    @NotNull
+
     @Override
-    public SubjectStage withPublicKey(@NotNull final PublicKey publicKey) {
+    public SubjectStage withPublicKey(final PublicKey publicKey) {
       return new SubjectStageImpl(algorithm, notBefore, notAfter, issuer, privateKey, publicKey);
     }
   }
@@ -394,9 +400,9 @@ public class X509CertificateBuilder {
       this.publicKey = publicKey;
     }
 
-    @NotNull
+
     @Override
-    public ExtensionsStage withSubject(@NotNull final String subject) {
+    public ExtensionsStage withSubject(final String subject) {
       return new ExtensionsStageImpl(
           algorithm, notBefore, notAfter, issuer, privateKey, publicKey, subject);
     }
@@ -429,10 +435,10 @@ public class X509CertificateBuilder {
       this.privateKey = privateKey;
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withExtensions(
-        @NotNull final CertificateExtensions extensions) {
+        final CertificateExtensions extensions) {
       return new BuildFinalImpl(
           algorithm,
           subject,
@@ -445,7 +451,7 @@ public class X509CertificateBuilder {
           JCAUtil.getSecureRandom());
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withEndEntityExtensions() {
       try {
@@ -456,12 +462,12 @@ public class X509CertificateBuilder {
         extensions.set(KeyUsageExtension.NAME, keyUsageExtension);
         return new BuildFinalImpl(
             algorithm, subject, issuer, notBefore, notAfter, publicKey, privateKey, extensions);
-      } catch (@NotNull final IOException e) {
+      } catch (final IOException e) {
         throw new IllegalStateException(e);
       }
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withCertificateAuthorityExtensions(
         int pathLenConstraint) {
@@ -476,12 +482,12 @@ public class X509CertificateBuilder {
         extensions.set(KeyUsageExtension.NAME, keyUsageExtension);
         return new BuildFinalImpl(
             algorithm, subject, issuer, notBefore, notAfter, publicKey, privateKey, extensions);
-      } catch (@NotNull final IOException e) {
+      } catch (final IOException e) {
         throw new IllegalStateException(e);
       }
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withClientCertificateExtensions() {
       try {
@@ -491,7 +497,7 @@ public class X509CertificateBuilder {
         extensions.set(KeyUsageExtension.NAME, keyUsageExtension);
         return new BuildFinalImpl(
             algorithm, subject, issuer, notBefore, notAfter, publicKey, privateKey, extensions);
-      } catch (@NotNull final IOException e) {
+      } catch (final IOException e) {
         throw new IllegalStateException(e);
       }
     }
@@ -550,10 +556,10 @@ public class X509CertificateBuilder {
       this.secureRandom = JCAUtil.getSecureRandom();
     }
 
-    @NotNull
+
     @Override
     public X509CertificateBuilder.BuildFinal withSecureRandom(
-        @NotNull final SecureRandom secureRandom) {
+        final SecureRandom secureRandom) {
       return new BuildFinalImpl(
           algorithm,
           subject,
@@ -566,7 +572,7 @@ public class X509CertificateBuilder {
           secureRandom);
     }
 
-    @NotNull
+
     @Override
     public X509Certificate build() throws GeneralSecurityException {
       try {
@@ -587,8 +593,7 @@ public class X509CertificateBuilder {
         info.set(X509CertInfo.EXTENSIONS, extensions);
 
         // Sign the cert to identify the algorithm that's used.
-        @SuppressWarnings("sunapi")
-        final X509CertImpl cert = new X509CertImpl(info);
+        @SuppressWarnings("sunapi") final X509CertImpl cert = new X509CertImpl(info);
         cert.sign(privateKey, algorithm);
 
         final AlgorithmId algo = (AlgorithmId) cert.get(X509CertImpl.SIG_ALG);
@@ -596,15 +601,17 @@ public class X509CertificateBuilder {
         final X509CertImpl newCert = new X509CertImpl(info);
         newCert.sign(privateKey, algorithm);
         return newCert;
-      } catch (@NotNull final IOException e) {
+      } catch (final IOException e) {
         throw new GeneralSecurityException(e.getMessage(), e);
       }
     }
 
+
     @Override
     public BuildChainFinal chain() {
-      return () -> new X509Certificate[] {BuildFinalImpl.this.build()};
+      return () -> new X509Certificate[]{BuildFinalImpl.this.build()};
     }
+
 
     @Override
     public BuildChainFinal chain(

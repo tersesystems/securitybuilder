@@ -1,72 +1,78 @@
 package com.tersesystems.securitybuilder;
 
-import java.security.*;
+import java.security.GeneralSecurityException;
+import java.security.KeyStore;
 import java.security.cert.PKIXBuilderParameters;
 import javax.net.ssl.CertPathTrustManagerParameters;
 import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedTrustManager;
-import org.jetbrains.annotations.NotNull;
 import org.slieb.throwables.SupplierWithThrowable;
 
 public class TrustManagerBuilder {
 
-  private TrustManagerBuilder() {}
+  private TrustManagerBuilder() {
+  }
+
+  public static InstanceStage builder() {
+    return new InstanceStageImpl();
+  }
 
   public interface InstanceStage {
 
-    @NotNull
-    ParametersStage withAlgorithm(@NotNull String algorithm);
 
-    @NotNull
-    ParametersStage withAlgorithmAndProvider(@NotNull String algorithm, @NotNull String provider);
+    ParametersStage withAlgorithm(String algorithm);
 
-    @NotNull
+
+    ParametersStage withAlgorithmAndProvider(String algorithm, String provider);
+
+
     ParametersStage withDefaultAlgorithm();
   }
 
   public interface ParametersStage {
-    @NotNull
-    BuilderFinal withKeyStore(@NotNull KeyStore keyStore);
 
-    @NotNull
+    BuilderFinal withKeyStore(KeyStore keyStore);
+
+
     BuilderFinal withKeyStore(SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
 
-    @NotNull
+
     BuilderFinal withDefaultKeystore();
 
-    @NotNull
-    BuilderFinal withPKIXBuilderParameters(@NotNull PKIXBuilderParameters parameters);
 
-    @NotNull
+    BuilderFinal withPKIXBuilderParameters(PKIXBuilderParameters parameters);
+
+
     BuilderFinal withPKIXBuilderParameters(
         SupplierWithThrowable<PKIXBuilderParameters, Exception> params);
 
-    @NotNull
-    BuilderFinal withTrustStore(@NotNull TrustStore trustStore);
+
+    BuilderFinal withTrustStore(TrustStore trustStore);
   }
 
   public interface BuilderFinal {
-    @NotNull
+
+
     X509ExtendedTrustManager build() throws Exception;
   }
 
   static class InstanceStageImpl
       extends InstanceGenerator<TrustManagerFactory, GeneralSecurityException>
       implements InstanceStage {
-    @NotNull
+
     @Override
-    public ParametersStage withAlgorithm(@NotNull final String algorithm) {
+    public ParametersStage withAlgorithm(final String algorithm) {
       return new ParametersStageImpl(getInstance().withAlgorithm(algorithm));
     }
 
-    @NotNull
+
     @Override
     public ParametersStage withAlgorithmAndProvider(
-        @NotNull final String algorithm, @NotNull final String provider) {
+        final String algorithm, final String provider) {
       return new ParametersStageImpl(getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
 
-    @NotNull
+
     @Override
     public ParametersStage withDefaultAlgorithm() {
       return new ParametersStageImpl(getInstance().withDefaultAlgorithm());
@@ -84,20 +90,20 @@ public class TrustManagerBuilder {
       this.trustManagerFactory = trustManagerFactory;
     }
 
-    @NotNull
+
     @Override
-    public BuilderFinal withKeyStore(@NotNull final KeyStore keyStore) {
+    public BuilderFinal withKeyStore(final KeyStore keyStore) {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, () -> keyStore);
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withKeyStore(
         final SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier) {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, keyStoreSupplier);
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withDefaultKeystore() {
       return new BuilderFinalKeyStoreImpl(
@@ -105,17 +111,17 @@ public class TrustManagerBuilder {
     }
 
     @Override
-    public @NotNull BuilderFinal withTrustStore(@NotNull final TrustStore trustStore) {
+    public BuilderFinal withTrustStore(final TrustStore trustStore) {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, trustStore::getKeyStore);
     }
 
-    @NotNull
+
     @Override
-    public BuilderFinal withPKIXBuilderParameters(@NotNull final PKIXBuilderParameters params) {
+    public BuilderFinal withPKIXBuilderParameters(final PKIXBuilderParameters params) {
       return new BuilderFinalParametersImpl(trustManagerFactory, () -> params);
     }
 
-    @NotNull
+
     @Override
     public BuilderFinal withPKIXBuilderParameters(
         final SupplierWithThrowable<PKIXBuilderParameters, Exception> params) {
@@ -124,18 +130,21 @@ public class TrustManagerBuilder {
   }
 
   static class BuilderFinalKeyStoreImpl implements BuilderFinal {
+
     private final SupplierWithThrowable<KeyStore, Exception> keyStore;
+
     private final SupplierWithThrowable<TrustManagerFactory, GeneralSecurityException>
         trustManagerFactory;
 
     BuilderFinalKeyStoreImpl(
         final SupplierWithThrowable<TrustManagerFactory, GeneralSecurityException> tmf,
+
         final SupplierWithThrowable<KeyStore, Exception> keyStore) {
       this.trustManagerFactory = tmf;
       this.keyStore = keyStore;
     }
 
-    @NotNull
+
     public X509ExtendedTrustManager build() throws Exception {
       final TrustManagerFactory tmf = trustManagerFactory.getWithThrowable();
       tmf.init(keyStore.getWithThrowable());
@@ -144,7 +153,9 @@ public class TrustManagerBuilder {
   }
 
   static class BuilderFinalParametersImpl implements BuilderFinal {
+
     private final SupplierWithThrowable<PKIXBuilderParameters, Exception> parameters;
+
     private final SupplierWithThrowable<TrustManagerFactory, GeneralSecurityException>
         trustManagerFactory;
 
@@ -155,16 +166,12 @@ public class TrustManagerBuilder {
       this.parameters = parameters;
     }
 
-    @NotNull
+
     @Override
     public X509ExtendedTrustManager build() throws Exception {
       final TrustManagerFactory tmf = trustManagerFactory.getWithThrowable();
       tmf.init(new CertPathTrustManagerParameters(parameters.getWithThrowable()));
       return (X509ExtendedTrustManager) tmf.getTrustManagers()[0];
     }
-  }
-
-  public static InstanceStage builder() {
-    return new InstanceStageImpl();
   }
 }

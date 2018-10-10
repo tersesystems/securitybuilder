@@ -5,59 +5,64 @@ import java.security.spec.KeySpec;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.SecretKeySpec;
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
 import org.slieb.throwables.FunctionWithThrowable;
 import org.slieb.throwables.SupplierWithThrowable;
 
 public class SecretKeyBuilder {
 
+  public static InitialStage builder() {
+    return new InitialStageImpl();
+  }
+
   public interface InitialStage {
 
     /**
      * Uses a SecretKeyFactory algorithm, as specified in
-     * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory Algorithms</a>.
-     *
-     * @param algorithm
-     * @return
+     * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory
+     * Algorithms</a>.
      */
     KeyStage withAlgorithm(String algorithm);
 
     KeyStage withAlgorithmAndProvider(String algorithm, String provider);
 
     /**
-     * Uses an algorithm for SecretKeySpec.  These are based off the Cipher, and most of them are in <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#OracleUcrypto">The OracleUcrypto Provider</a>, i.e. "AES".
-     *
-     * @param algorithm
-     * @return
+     * Uses an algorithm for SecretKeySpec.  These are based off the Cipher, and most of them are in
+     * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#OracleUcrypto">The
+     * OracleUcrypto Provider</a>, i.e. "AES".
      */
     DataStage withSecretKeySpec(String algorithm);
   }
 
   public interface KeyStage {
+
     BuildFinal withKeySpec(KeySpec keySpec);
   }
 
   public interface DataStage {
+
     BuildFinal withData(byte[] bytes);
   }
 
   public interface BuildFinal {
+
     SecretKey build() throws GeneralSecurityException;
   }
 
   static class InitialStageImpl implements InitialStage {
+
 
     @Override
     public KeyStage withAlgorithm(final String algorithm) {
       return new KeyStageImpl(() -> SecretKeyFactory.getInstance(algorithm));
     }
 
+
     @Override
     public KeyStage withAlgorithmAndProvider(final String algorithm,
         final String provider) {
       return new KeyStageImpl(() -> SecretKeyFactory.getInstance(algorithm, provider));
     }
+
 
     @Override
     public DataStage withSecretKeySpec(final String algorithm) {
@@ -67,6 +72,7 @@ public class SecretKeyBuilder {
   }
 
   static class KeyStageImpl<T extends SecretKey> implements KeyStage {
+
     private final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> secretKeyFactorySupplier;
 
     KeyStageImpl(
@@ -74,20 +80,23 @@ public class SecretKeyBuilder {
       this.secretKeyFactorySupplier = secretKeyFactorySupplier;
     }
 
+
     @Override
     public BuildFinal withKeySpec(final KeySpec keySpec) {
-      return new SecretKeyFactoryBuildFinal(() -> secretKeyFactorySupplier.getWithThrowable().generateSecret(keySpec));
+      return new SecretKeyFactoryBuildFinal(
+          () -> secretKeyFactorySupplier.getWithThrowable().generateSecret(keySpec));
     }
-
   }
 
   static class SecretKeySpecDataStageImpl implements DataStage {
 
     private final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException> keySpecFunction;
 
-    public SecretKeySpecDataStageImpl(final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException> keySpecFunction) {
+    SecretKeySpecDataStageImpl(
+        final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException> keySpecFunction) {
       this.keySpecFunction = keySpecFunction;
     }
+
 
     @Override
     public BuildFinal withData(final byte[] bytes) {
@@ -96,13 +105,15 @@ public class SecretKeyBuilder {
   }
 
   static class SecretKeySpecBuildFinal<T extends SecretKey> implements BuildFinal {
+
     private final SupplierWithThrowable<SecretKey, GeneralSecurityException> keySpecSupplier;
 
-    SecretKeySpecBuildFinal(final SupplierWithThrowable<SecretKey, GeneralSecurityException> keySpecSupplier) {
+    SecretKeySpecBuildFinal(
+        final SupplierWithThrowable<SecretKey, GeneralSecurityException> keySpecSupplier) {
       this.keySpecSupplier = keySpecSupplier;
     }
 
-    @SuppressWarnings("unchecked")
+
     public SecretKey build() throws GeneralSecurityException {
       return keySpecSupplier.getWithThrowable();
     }
@@ -117,15 +128,10 @@ public class SecretKeyBuilder {
       this.secretKeySupplier = secretKeySupplier;
     }
 
+
     public SecretKey build() throws GeneralSecurityException {
       return secretKeySupplier.getWithThrowable();
     }
-  }
-
-  @NotNull
-  @Contract(" -> new")
-  public static InitialStage builder() {
-    return new InitialStageImpl();
   }
 
 }

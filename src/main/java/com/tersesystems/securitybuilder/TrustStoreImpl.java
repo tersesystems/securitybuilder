@@ -5,31 +5,31 @@ import java.security.KeyStore.Builder;
 import java.security.KeyStore.TrustedCertificateEntry;
 import java.security.KeyStoreException;
 import java.security.cert.Certificate;
-import java.security.cert.X509Certificate;
-import java.util.*;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
+import java.util.Objects;
+import java.util.Optional;
 
-/** A keystore containing trusted certificate entries. */
+/**
+ * A keystore containing trusted certificate entries.
+ */
 public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
     implements TrustStore {
 
-  protected TrustStoreImpl(@NotNull final Builder builder) {
+  protected TrustStoreImpl(final Builder builder) {
     super(builder);
   }
 
-  @NotNull
-  public TrustedCertificateEntry putCertificate(@NotNull String key, @NotNull Certificate certificate) {
+
+  public TrustedCertificateEntry putCertificate(String key, Certificate certificate) {
     return put(key, new KeyStore.TrustedCertificateEntry(certificate));
   }
 
-  @NotNull
+
   @Override
-  public Optional<String> getCertificateAlias(@NotNull final Certificate certificate)
+  public Optional<String> getCertificateAlias(final Certificate certificate)
       throws RuntimeKeyStoreException {
     try {
       return Optional.ofNullable(getKeyStore().getCertificateAlias(certificate));
-    } catch (@NotNull final KeyStoreException e) {
+    } catch (final KeyStoreException e) {
       throw new RuntimeKeyStoreException(e);
     }
   }
@@ -41,7 +41,7 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       // Override from the Abstract as the protection parameter is always nul here.
       getKeyStore().setEntry(alias, value, null);
       return value;
-    } catch (@NotNull final KeyStoreException e) {
+    } catch (final KeyStoreException e) {
       throw new RuntimeKeyStoreException(e);
     }
   }
@@ -59,30 +59,31 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       return alias;
     }
 
-    @NotNull
+
     @Override
     public KeyStore.TrustedCertificateEntry getValue() {
       try {
         return (KeyStore.TrustedCertificateEntry) getKeyStore().getEntry(alias, null);
-      } catch (@NotNull final Exception e) {
+      } catch (final Exception e) {
         throw new RuntimeKeyStoreException(e);
       }
     }
 
-    @NotNull
+
     @Override
     public KeyStore.TrustedCertificateEntry setValue(
-        @NotNull final KeyStore.TrustedCertificateEntry value) {
+        final KeyStore.TrustedCertificateEntry value) {
       try {
         getKeyStore().setEntry(alias, value, null);
         return value;
-      } catch (@NotNull final KeyStoreException e) {
+      } catch (final KeyStoreException e) {
         throw new RuntimeKeyStoreException(e);
       }
     }
 
+
     @Override
-    public boolean equals(@Nullable final Object o) {
+    public boolean equals(final Object o) {
       if (this == o) {
         return true;
       }
@@ -94,7 +95,7 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       final TrustedCertificateEntry thatCertEntry = that.getValue();
       return Objects.equals(alias, that.alias)
           && Objects.equals(
-              thisCertEntry.getTrustedCertificate(), thatCertEntry.getTrustedCertificate())
+          thisCertEntry.getTrustedCertificate(), thatCertEntry.getTrustedCertificate())
           && Objects.equals(thisCertEntry.getAttributes(), thatCertEntry.getAttributes());
     }
 
@@ -102,5 +103,7 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
     public int hashCode() {
       return Objects.hash(alias, getValue());
     }
-  };
+  }
+
+  ;
 }

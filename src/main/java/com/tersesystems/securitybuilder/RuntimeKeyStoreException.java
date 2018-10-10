@@ -1,7 +1,9 @@
 package com.tersesystems.securitybuilder;
 
 public class RuntimeKeyStoreException extends RuntimeException {
-  public RuntimeKeyStoreException() {}
+
+  public RuntimeKeyStoreException() {
+  }
 
   public RuntimeKeyStoreException(final String message) {
     super(message);

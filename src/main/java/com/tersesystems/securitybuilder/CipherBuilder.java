@@ -8,11 +8,15 @@ import org.slieb.throwables.SupplierWithThrowable;
 
 public class CipherBuilder {
 
+  public static InitialStage builder() {
+    return new InitialStageImpl();
+  }
+
   public interface InitialStage {
 
     ModeStage withTransformation(String transformation);
 
-    ModeStage withTransformationAndProvider(String algorithm, String provider);
+    ModeStage withTransformationAndProvider(String transformation, String provider);
   }
 
   public interface ModeStage {
@@ -33,10 +37,12 @@ public class CipherBuilder {
 
   static class InitialStageImpl implements InitialStage {
 
+
     @Override
     public ModeStage withTransformation(final String transformation) {
       return new ModeStageImpl(() -> Cipher.getInstance(transformation));
     }
+
 
     @Override
     public ModeStage withTransformationAndProvider(final String transformation,
@@ -53,6 +59,7 @@ public class CipherBuilder {
       this.supplier = supplier;
     }
 
+
     @Override
     public BuildFinal withEncrypt(final Key key) {
       return new BuildFinalImpl(() -> {
@@ -61,6 +68,7 @@ public class CipherBuilder {
         return cipher;
       });
     }
+
 
     @Override
     public BuildFinal withDecrypt(final Key key) {
@@ -71,6 +79,7 @@ public class CipherBuilder {
       });
     }
 
+
     @Override
     public BuildFinal withWrap(final Key key) {
       return new BuildFinalImpl(() -> {
@@ -79,6 +88,7 @@ public class CipherBuilder {
         return cipher;
       });
     }
+
 
     @Override
     public BuildFinal withUnwrap(final Key key) {
@@ -99,14 +109,11 @@ public class CipherBuilder {
       this.supplier = supplier;
     }
 
+
     @Override
     public Cipher build() throws GeneralSecurityException {
       return supplier.getWithThrowable();
     }
-  }
-
-  public static InitialStage builder() {
-    return new InitialStageImpl();
   }
 
 }

@@ -3,7 +3,9 @@ package com.tersesystems.securitybuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 
 import java.security.KeyStore;
-import java.security.cert.*;
+import java.security.cert.PKIXBuilderParameters;
+import java.security.cert.X509CertSelector;
+import java.security.cert.X509Certificate;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.junit.jupiter.api.Test;
 

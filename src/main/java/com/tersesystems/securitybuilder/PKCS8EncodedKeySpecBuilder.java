@@ -13,12 +13,9 @@ import javax.crypto.EncryptedPrivateKeyInfo;
 import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
-import org.jetbrains.annotations.NotNull;
 import org.slieb.throwables.SupplierWithThrowable;
 
 public class PKCS8EncodedKeySpecBuilder {
-
-  private PKCS8EncodedKeySpecBuilder() {}
 
   // optional keyPassword
   public static final Pattern KEY_PATTERN =
@@ -30,30 +27,38 @@ public class PKCS8EncodedKeySpecBuilder {
               "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+", // Footer
           CASE_INSENSITIVE);
 
-  public interface ContentStage {
-    @NotNull
-    PasswordStage withContent(@NotNull String content);
+  private PKCS8EncodedKeySpecBuilder() {
+  }
 
-    @NotNull
-    PasswordStage withReader(@NotNull Reader reader);
+  public static ContentStage builder() {
+    return new ContentStageImpl();
+  }
+
+  public interface ContentStage {
+
+    PasswordStage withContent(String content);
+
+
+    PasswordStage withReader(Reader reader);
   }
 
   public interface PasswordStage {
-    @NotNull
-    BuildFinal withPassword(@NotNull char[] password);
 
-    @NotNull
+    BuildFinal withPassword(char[] password);
+
+
     BuildFinal withNoPassword();
   }
 
   public interface BuildFinal {
+
     PKCS8EncodedKeySpec build() throws Exception;
   }
 
   static class ContentStageImpl implements ContentStage {
-    @NotNull
+
     @Override
-    public PasswordStage withContent(@NotNull final String content) {
+    public PasswordStage withContent(final String content) {
       return new PasswordStageImpl(
           () -> {
             final Matcher matcher = KEY_PATTERN.matcher(content);
@@ -64,9 +69,9 @@ public class PKCS8EncodedKeySpecBuilder {
           });
     }
 
-    @NotNull
+
     @Override
-    public PasswordStage withReader(@NotNull final Reader reader) {
+    public PasswordStage withReader(final Reader reader) {
       return new PasswordStageImpl(
           () -> {
             final char[] arr = new char[16 * 1024];
@@ -88,15 +93,16 @@ public class PKCS8EncodedKeySpecBuilder {
   }
 
   static class PasswordStageImpl implements PasswordStage {
+
     private final SupplierWithThrowable<byte[], Exception> supplier;
 
     PasswordStageImpl(final SupplierWithThrowable<byte[], Exception> supplier) {
       this.supplier = supplier;
     }
 
-    @NotNull
+
     @Override
-    public BuildFinal withPassword(@NotNull final char[] password) {
+    public BuildFinal withPassword(final char[] password) {
       return new BuildFinalImpl(
           () -> {
             final byte[] privateKeyBytes = supplier.getWithThrowable();
@@ -114,7 +120,7 @@ public class PKCS8EncodedKeySpecBuilder {
           });
     }
 
-    @NotNull
+
     @Override
     public BuildFinal withNoPassword() {
       return new BuildFinalImpl(() -> new PKCS8EncodedKeySpec(supplier.getWithThrowable()));
@@ -122,19 +128,17 @@ public class PKCS8EncodedKeySpecBuilder {
   }
 
   static class BuildFinalImpl implements BuildFinal {
-    @NotNull private final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier;
 
-    BuildFinalImpl(@NotNull final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier) {
+    private final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier;
+
+    BuildFinalImpl(final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier) {
       this.supplier = supplier;
     }
+
 
     @Override
     public PKCS8EncodedKeySpec build() throws Exception {
       return supplier.getWithThrowable();
     }
-  }
-
-  public static ContentStage builder() {
-    return new ContentStageImpl();
   }
 }
