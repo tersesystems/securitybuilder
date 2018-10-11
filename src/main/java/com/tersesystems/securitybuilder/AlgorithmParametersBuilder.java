@@ -7,7 +7,7 @@ import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
-public class AlgorithmParameterGeneratorBuilder {
+public class AlgorithmParametersBuilder {
 
   // https://docs.oracle.com/javase/8/docs/api/java/security/AlgorithmParameterGenerator.html
 

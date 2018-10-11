@@ -1,5 +1,6 @@
 package com.tersesystems.securitybuilder;
 
+import java.nio.charset.StandardCharsets;
 import java.security.GeneralSecurityException;
 import java.security.spec.AlgorithmParameterSpec;
 import javax.crypto.Mac;
@@ -40,6 +41,9 @@ public class MacBuilder {
   public interface SecretKeySpecStage {
     BuildFinal withBytes(byte[] privateBytes);
 
+    /**
+     * Convenience method, bytes are pulled from string using StandardCharsets.UTF_8.
+     */
     BuildFinal withString(String privateString);
   }
 
@@ -125,7 +129,7 @@ public class MacBuilder {
     public BuildFinal withString(final String privateString) {
       return new BuildFinalImpl(() -> {
         Mac mac = supplier.get();
-        mac.init(new SecretKeySpec(privateString.getBytes(), mac.getAlgorithm()));
+        mac.init(new SecretKeySpec(privateString.getBytes(StandardCharsets.UTF_8), mac.getAlgorithm()));
         return mac;
       });
     }
