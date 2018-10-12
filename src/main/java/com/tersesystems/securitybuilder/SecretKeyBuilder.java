@@ -8,14 +8,17 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slieb.throwables.FunctionWithThrowable;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Constitutes an secret key from inputs using SecretKeyFactory.  Generally used for AES.
+ *
+ * If you are generating a new secret key, use SecretKeyGenerator.
+ *
+ * If you are creating secret keys from passwords, use the PasswordBuilder.
+ */
 public class SecretKeyBuilder {
 
-  public static InitialStage builder() {
-    return new InitialStageImpl();
-  }
 
   public interface InitialStage {
-
     /**
      * Uses a SecretKeyFactory algorithm, as specified in
      * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#SecretKeyFactory">SecretKeyFactory
@@ -34,28 +37,23 @@ public class SecretKeyBuilder {
   }
 
   public interface KeyStage {
-
     BuildFinal withKeySpec(KeySpec keySpec);
   }
 
   public interface DataStage {
-
     BuildFinal withData(byte[] bytes);
   }
 
   public interface BuildFinal {
-
     SecretKey build() throws GeneralSecurityException;
   }
 
   static class InitialStageImpl implements InitialStage {
 
-
     @Override
     public KeyStage withAlgorithm(final String algorithm) {
       return new KeyStageImpl(() -> SecretKeyFactory.getInstance(algorithm));
     }
-
 
     @Override
     public KeyStage withAlgorithmAndProvider(final String algorithm,
@@ -134,4 +132,7 @@ public class SecretKeyBuilder {
     }
   }
 
+  public static InitialStage builder() {
+    return new InitialStageImpl();
+  }
 }

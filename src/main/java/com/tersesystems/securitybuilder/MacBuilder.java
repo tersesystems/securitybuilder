@@ -14,15 +14,15 @@ import org.slieb.throwables.SupplierWithThrowable;
  */
 public class MacBuilder {
 
-  public static InitialStage builder() {
-    return new InitialStageImpl();
-  }
-
   public interface InitialStage {
 
     SecretKeySpecStage withHmacSHA256();
-
+    SecretKeySpecStage withHmacSHA384();
     SecretKeySpecStage withHmacSHA512();
+
+    SecretKeySpecStage withPBEWithHmacSHA256();
+    SecretKeySpecStage withPBEWithHmacSHA384();
+    SecretKeySpecStage withPBEWithHmacSHA512();
 
     SecretKeySpecStage withSecretKeySpec(String algorithm);
 
@@ -59,8 +59,28 @@ public class MacBuilder {
     }
 
     @Override
+    public SecretKeySpecStage withHmacSHA384() {
+      return withSecretKeySpec("HmacSHA384");
+    }
+
+    @Override
     public SecretKeySpecStage withHmacSHA512() {
       return withSecretKeySpec("HmacSHA512");
+    }
+
+    @Override
+    public SecretKeySpecStage withPBEWithHmacSHA256() {
+      return withSecretKeySpec("PBEWithHmacSHA256");
+    }
+
+    @Override
+    public SecretKeySpecStage withPBEWithHmacSHA384() {
+      return withSecretKeySpec("PBEWithHmacSHA384");
+    }
+
+    @Override
+    public SecretKeySpecStage withPBEWithHmacSHA512() {
+      return withSecretKeySpec("PBEWithHmacSHA512");
     }
 
     @Override
@@ -149,4 +169,9 @@ public class MacBuilder {
       return supplier.getWithThrowable();
     }
   }
+
+  public static InitialStage builder() {
+    return new InitialStageImpl();
+  }
+
 }

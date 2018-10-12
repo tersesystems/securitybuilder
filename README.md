@@ -292,21 +292,8 @@ Uses an algorithm for SecretKeySpec.  These are based off the Cipher algorithm n
 ```java
 public class SecretKeyBuilderTest {
   @Test
-  public void testAlgorithm() throws Exception {
-    String password = "changeit";
-    String salt = "abc123";
-    KeySpec keySpec = new PBEKeySpec(password.toCharArray(), salt.getBytes(), 65536, 128);
-    SecretKey secretKey = SecretKeyBuilder.builder()
-        .withAlgorithm("PBKDF2WithHmacSHA1")
-        .withKeySpec(keySpec)
-        .build();
-
-    assertThat(secretKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA1");
-  }
-
-  @Test
   public void testSecretKeySpec() throws Exception {
-    byte[] aesKeyData = getKeyData();
+    byte[] aesKeyData = "abc123".getBytes();
 
     SecretKey secretKey = SecretKeyBuilder.builder()
         .withSecretKeySpec("AES")
@@ -314,6 +301,31 @@ public class SecretKeyBuilderTest {
         .build();
 
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
+  }
+}
+```
+
+### PasswordBuilder
+
+A specialized secret key builder for encrypting passwords using `PBEKeySpec`.
+
+```java
+public class PasswordBuilderTest {
+
+  @Test
+  public void testPasswordSpec() throws Exception {
+    byte[] salt = randomSalt();
+
+    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
+        .withPBKDF2WithHmacSHA512()
+        .withPassword("hello world".toCharArray())
+        .withIterations(1000)
+        .withSalt(salt)
+        .withKeyLength(64 * 8)
+        .build();
+
+    byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
+    assertThat(secretKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
   }
 }
 ```
