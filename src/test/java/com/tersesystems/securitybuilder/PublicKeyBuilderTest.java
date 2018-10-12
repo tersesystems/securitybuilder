@@ -1,6 +1,7 @@
 package com.tersesystems.securitybuilder;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.fail;
 
 import java.math.BigInteger;
 import java.security.AlgorithmParameters;
@@ -16,6 +17,8 @@ import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import java.security.spec.X509EncodedKeySpec;
+import java.util.Arrays;
 import org.junit.jupiter.api.Test;
 
 public class PublicKeyBuilderTest {
@@ -70,5 +73,23 @@ public class PublicKeyBuilderTest {
     DSAPublicKey publicKey =
         PublicKeyBuilder.builder().withDSA().withKeySpec(publicKeySpec).build();
     assertThat(publicKey).isNotNull();
+  }
+
+
+  @Test
+  public void testX509EncodedKeySpec() {
+    try {
+      final ECKeyPair keyPair =
+          KeyPairBuilder.builder().withEC().withKeySize(256).build();
+      final ECPublicKey publicKey = keyPair.getPublic();
+      X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKey.getEncoded());
+
+      final ECPublicKey otherPublicKey = PublicKeyBuilder.builder().withEC().withKeySpec(keySpec)
+          .build();
+
+      assertThat(Arrays.equals(publicKey.getEncoded(), otherPublicKey.getEncoded())).isTrue();
+    } catch (GeneralSecurityException e) {
+      fail(e.getMessage(), e);
+    }
   }
 }

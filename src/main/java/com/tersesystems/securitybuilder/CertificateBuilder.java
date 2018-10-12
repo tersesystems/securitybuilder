@@ -15,12 +15,13 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.X509Certificate;
+import java.security.spec.X509EncodedKeySpec;
 import java.util.Collection;
 import java.util.Objects;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * This class uses CertificateFactory to generate a certificate.
+ * This class reads in certificates from input.
  */
 public class CertificateBuilder {
 
@@ -35,9 +36,7 @@ public class CertificateBuilder {
 
     InputStage<X509Certificate> withX509();
 
-
     <T extends Certificate> InputStage<T> withAlgorithm(String algorithm);
-
 
     <T extends Certificate> InputStage<T> withAlgorithmAndProvider(
         String algorithm, String provider);
@@ -64,6 +63,8 @@ public class CertificateBuilder {
 
 
     BuildFinal<T> withBytes(byte[] bytes);
+
+    BuildFinal<T> withKeySpec(X509EncodedKeySpec keySpec);
   }
 
   // ---------------
@@ -133,6 +134,10 @@ public class CertificateBuilder {
       return withInputStream(new ByteArrayInputStream(bytes));
     }
 
+    @Override
+    public BuildFinal<T> withKeySpec(final X509EncodedKeySpec keySpec) {
+      return withBytes(keySpec.getEncoded());
+    }
 
     @Override
     public BuildFinal<T> withByteBuffer(final ByteBuffer byteBuffer) {

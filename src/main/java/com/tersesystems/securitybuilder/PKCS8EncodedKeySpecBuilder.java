@@ -5,6 +5,8 @@ import static javax.crypto.Cipher.DECRYPT_MODE;
 
 import java.io.Reader;
 import java.security.GeneralSecurityException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -15,6 +17,9 @@ import javax.crypto.SecretKeyFactory;
 import javax.crypto.spec.PBEKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Reads a PEM encoded private key into a PKCS8EncodedKeySpec.
+ */
 public class PKCS8EncodedKeySpecBuilder {
 
   // optional keyPassword
@@ -37,7 +42,6 @@ public class PKCS8EncodedKeySpecBuilder {
   public interface ContentStage {
 
     PasswordStage withContent(String content);
-
 
     PasswordStage withReader(Reader reader);
   }

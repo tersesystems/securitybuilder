@@ -67,7 +67,7 @@ In your pom.xml:
 ### sbt
 
 ```scala
-resolvers += Resolver.jcenterRepo 
+resolvers += Resolver.bintrayRepo("tersesystems", "maven") 
 libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.0"
 ```
 
@@ -212,9 +212,11 @@ public class KeyStoreBuilderTest {
 }
 ```
 
-### PKCS8EncodedKeySpecBuilder
+### EncodedKeySpecBuilder
 
-Builds a [`PKCS8EncodedKeySpec`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#PKCS8EncodedKeySpec), commonly used for PEM encoded private keys.
+Builds a [`EncodedKeySpec`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#PKCS8EncodedKeySpec).
+ 
+You can use either `PKCS8EncodedKeySpec`, commonly used for PEM encoded private keys, or `X509EncodedKeySpec`, used for PEM encoded public certificates.
 
 ```java
 class PKCS8EncodedKeySpecBuilderTest {
@@ -418,6 +420,58 @@ public class X509CertificateBuilderTest {
 
     SSLContext sslContext = ...
     assertThat(sslContext).isNotNull();
+  }
+}
+```
+
+### Message Digest
+
+#### MacBuilder
+
+Builds an HMAC.
+
+```java
+public class MacBuilderTest {
+  @Test
+  void testMacBuild() throws GeneralSecurityException {
+    SecretKey key = new SecretKeySpec("privatekey".getBytes(), "HmacSHA256");
+
+    Mac sha256Mac = MacBuilder.builder().withAlgorithm("HmacSHA256").withKey(key).build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+
+  @Test
+  void testSecretKeySpec() throws GeneralSecurityException {
+    Mac sha256Mac = MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+
+  @Test
+  void testHmac() throws GeneralSecurityException {
+    Mac sha256Mac = MacBuilder.builder().withHmacSHA256().withString("privatekey").build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+}
+```
+
+#### MessageDigestBuilder
+
+Builds a `MessageDigest`.
+
+```java
+public class MessageDigestBuilderTest {
+  @Test
+  public void testSha512() throws NoSuchAlgorithmException {
+    assertThat(MessageDigestBuilder.sha512().getAlgorithm()).isEqualTo("SHA-512");
   }
 }
 ```

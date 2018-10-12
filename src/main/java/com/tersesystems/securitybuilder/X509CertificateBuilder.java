@@ -30,11 +30,13 @@ import sun.security.x509.X500Name;
 import sun.security.x509.X509CertImpl;
 import sun.security.x509.X509CertInfo;
 
+/**
+ * Creates a new certificate.
+ */
 public class X509CertificateBuilder {
 
   private X509CertificateBuilder() {
   }
-
 
   public static InitialStage builder() {
     return new InitialStageImpl();
