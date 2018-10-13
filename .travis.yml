@@ -3,12 +3,6 @@ language: java
 jdk:
   - oraclejdk8
   - openjdk8
-  - oraclejdk9
-  - openjdk9
-  - oraclejdk10
-  - openjdk10
-  - oraclejdk11
-  - openjdk11
 cache:
   directories:
   - "$HOME/.m2"
