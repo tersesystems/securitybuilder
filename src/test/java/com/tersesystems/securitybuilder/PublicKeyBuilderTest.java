@@ -26,14 +26,13 @@ public class PublicKeyBuilderTest {
 
   @Test
   public void testRSAPublicKey() throws GeneralSecurityException {
-
-    AlgorithmParameterGenerator generator = AlgorithmParameterGenerator.getInstance("RSA");
-    generator.init(2048);
-    RSAKeyGenParameterSpec keyGenSpec = generator.generateParameters().getParameterSpec(
-        RSAKeyGenParameterSpec.class);
-
-    final BigInteger modulus = BigInteger.valueOf(keyGenSpec.getKeysize());
-    final BigInteger exp = keyGenSpec.getPublicExponent();
+    final BigInteger modulus =
+        new BigInteger(
+            "b4a7e46170574f16a97082b22be58b6a2a629798419"
+                + "be12872a4bdba626cfae9900f76abfb12139dce5de5"
+                + "6564fab2b6543165a040c606887420e33d91ed7ed7",
+            16);
+    final BigInteger exp = new BigInteger("11", 16);
     final RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(modulus, exp);
     RSAPublicKey rsaPublicKey =
         PublicKeyBuilder.builder().withRSA().withKeySpec(rsaPublicKeySpec).build();
