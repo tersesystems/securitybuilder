@@ -8,9 +8,11 @@ import java.security.cert.X509CertSelector;
 import java.security.cert.X509Certificate;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
 class TrustManagerBuilderTest {
 
+  @DisabledIfEnvironmentVariable(named = "TRAVIS", matches = "true")
   @Test
   void builderWithDefaults() throws Exception {
     final X509ExtendedTrustManager trustManager =
