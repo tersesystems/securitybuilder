@@ -14,6 +14,7 @@ import java.security.cert.Certificate;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPrivateKey;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Properties;
 import org.junit.jupiter.api.Test;
 
@@ -101,7 +102,7 @@ public class PrivateKeyStoreTest {
       privateKeyStore.put("alias1", entry);
 
       // PrivateKey doesn't override equals!
-      assertThat(privateKeyStore.get("alias1")).isEqualToComparingFieldByField(entry);
+      assertThat(Arrays.equals(privateKeyStore.get("alias1").getPrivateKey().getEncoded(), (entry.getPrivateKey().getEncoded()))).isTrue();
     } catch (final Exception e) {
       fail(e.getMessage());
     }

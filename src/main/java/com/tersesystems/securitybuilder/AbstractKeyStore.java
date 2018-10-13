@@ -100,7 +100,7 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
     return null;
   }
-  
+
   @Override
   public T put(final String alias, final T value) {
     try {
