@@ -53,10 +53,10 @@ public class DomainKeyStoreTest {
   }
 
   private KeyStore generateStore() throws GeneralSecurityException, IOException {
-    final RSAKeyPair keyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
+    final RSAKeyPair keyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
 
     final X509Certificate certificate =
-        X509CertificateBuilder.builder()
+        X509CertificateCreator.creator()
             .withSHA256withRSA()
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", keyPair, 2)

@@ -13,6 +13,9 @@ import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Generates some keystores from configuration, and provides empty keystores.
+ */
 public class KeyStoreDefaults {
 
   private KeyStoreDefaults() {

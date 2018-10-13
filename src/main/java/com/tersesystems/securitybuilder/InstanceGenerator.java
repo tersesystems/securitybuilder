@@ -8,12 +8,11 @@ import org.slieb.throwables.SupplierWithThrowable;
 
 public abstract class InstanceGenerator<I, E extends Exception> {
 
-
   FactoryInstance getInstance() {
     return new FactoryInstance();
   }
 
-  public class FactoryInstance {
+  class FactoryInstance {
 
     private final Class<I> clazz;
 

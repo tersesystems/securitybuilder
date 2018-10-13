@@ -98,7 +98,7 @@ public class KeyStoreBuilder {
     KeyStore build() throws Exception;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<KeyStore, GeneralSecurityException>
+  private static class InstanceStageImpl extends InstanceGenerator<KeyStore, GeneralSecurityException>
       implements InstanceStage {
 
 
@@ -126,7 +126,7 @@ public class KeyStoreBuilder {
     }
   }
 
-  static class ParametersStageImpl implements ParametersStage {
+  private static class ParametersStageImpl implements ParametersStage {
 
     private final SupplierWithThrowable<KeyStore, GeneralSecurityException> supplier;
 
@@ -153,7 +153,7 @@ public class KeyStoreBuilder {
     }
   }
 
-  static class DomainParametersStageImpl implements DomainParametersStage {
+  private static class DomainParametersStageImpl implements DomainParametersStage {
 
     private final SupplierWithThrowable<KeyStore, GeneralSecurityException> supplier;
 
@@ -176,7 +176,7 @@ public class KeyStoreBuilder {
     }
   }
 
-  static class PasswordStageImpl implements PasswordStage {
+  private static class PasswordStageImpl implements PasswordStage {
 
     private final SupplierWithThrowable<KeyStore, GeneralSecurityException> keyStore;
     private final SupplierWithThrowable<InputStream, Exception> inputStream;
@@ -206,7 +206,7 @@ public class KeyStoreBuilder {
     }
   }
 
-  static class BuilderFinalImpl implements BuilderFinal {
+  private static class BuilderFinalImpl implements BuilderFinal {
 
     private final SupplierWithThrowable<KeyStore, Exception> supplier;
 

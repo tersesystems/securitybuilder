@@ -4,8 +4,8 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import com.tersesystems.securitybuilder.KeyPairBuilder.BuildFinal;
-import com.tersesystems.securitybuilder.X509CertificateBuilder.IssuerStage;
+import com.tersesystems.securitybuilder.KeyPairCreator.BuildFinal;
+import com.tersesystems.securitybuilder.X509CertificateCreator.IssuerStage;
 import java.io.IOException;
 import java.security.AlgorithmConstraints;
 import java.security.AlgorithmParameters;
@@ -37,18 +37,18 @@ import java.util.Set;
 import javax.net.ssl.SSLContext;
 import org.junit.jupiter.api.Test;
 
-public class X509CertificateBuilderTest {
+public class X509CertificateCreatorTest {
 
   @Test
   public void testFunctionalStyle() throws Exception {
 
-    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairBuilder.builder().withRSA().withKeySize(2048);
+    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairCreator.creator().withRSA().withKeySize(2048);
     final RSAKeyPair rootKeyPair = keyPairBuilder.build();
     final RSAKeyPair intermediateKeyPair = keyPairBuilder.build();
     final RSAKeyPair eePair = keyPairBuilder.build();
 
     IssuerStage<RSAPrivateKey> builder =
-        X509CertificateBuilder.builder().withSHA256withRSA().withDuration(Duration.ofDays(365));
+        X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
     X509Certificate[] chain =
@@ -69,7 +69,7 @@ public class X509CertificateBuilderTest {
                                     .withSubject("CN=tersesystems.com")
                                     .withEndEntityExtensions()
                                     .chain()))
-            .build();
+            .create();
     //    try {
     //      final TrustAnchor anchor =
     //          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
@@ -104,11 +104,11 @@ public class X509CertificateBuilderTest {
   @Test
   public void testCertificate() throws IOException, GeneralSecurityException {
 
-    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairBuilder.builder().withRSA().withKeySize(2048);
+    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairCreator.creator().withRSA().withKeySize(2048);
     final RSAKeyPair rootKeyPair = keyPairBuilder.build();
 
     IssuerStage<RSAPrivateKey> builder =
-        X509CertificateBuilder.builder().withSHA256withRSA().withDuration(Duration.ofDays(365));
+        X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
 
@@ -169,7 +169,7 @@ public class X509CertificateBuilderTest {
     return result;
   }
 
-  static class SimpleChecker extends PKIXCertPathChecker {
+  private static class SimpleChecker extends PKIXCertPathChecker {
 
     private static final Set<CryptoPrimitive> SIGNATURE_PRIMITIVE_SET =
         EnumSet.of(CryptoPrimitive.SIGNATURE);
@@ -202,7 +202,7 @@ public class X509CertificateBuilderTest {
     }
   }
 
-  static class SimpleConstraints implements AlgorithmConstraints {
+  private static class SimpleConstraints implements AlgorithmConstraints {
 
     public boolean permits(
         final Set<CryptoPrimitive> primitives,

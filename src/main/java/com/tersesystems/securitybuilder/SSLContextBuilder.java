@@ -8,6 +8,11 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Creates an <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#SSLContext">SSLContext</a>.
+ *
+ * This API takes suppliers so you can do fun things with KeyManagerBuilder and TrustManagerBuilder inline.
+ */
 public class SSLContextBuilder {
 
   private SSLContextBuilder() {
@@ -32,26 +37,20 @@ public class SSLContextBuilder {
 
     BuildFinal withTrustManager(TrustManager trustManager);
 
-
     BuildFinal withTrustManager(Supplier<TrustManager> trustManagerSupplier);
-
 
     BuildFinal withKeyManager(KeyManager keyManager);
 
-
     BuildFinal withKeyManager(Supplier<KeyManager> keyManagerSupplier);
-
 
     BuildFinal withSecureRandom(SecureRandom secureRandom);
 
-
     BuildFinal withSecureRandom(Supplier<SecureRandom> secureRandomSupplier);
-
 
     SSLContext build() throws GeneralSecurityException;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<SSLContext, GeneralSecurityException>
+  private static class InstanceStageImpl extends InstanceGenerator<SSLContext, GeneralSecurityException>
       implements InstanceStage {
 
 
@@ -79,7 +78,7 @@ public class SSLContextBuilder {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
 
     private final SupplierWithThrowable<SSLContext, GeneralSecurityException> supplier;
     private Supplier<TrustManager> trustManagerSupplier = () -> null;

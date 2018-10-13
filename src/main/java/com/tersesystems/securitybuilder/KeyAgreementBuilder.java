@@ -26,7 +26,7 @@ public class KeyAgreementBuilder {
     KeyAgreement build() throws GeneralSecurityException;
   }
 
-  static class InitialStageImpl implements InitialStage {
+  private static class InitialStageImpl implements InitialStage {
 
     @Override
     public InitStage withAlgorithm(final String algorithm) {
@@ -39,7 +39,7 @@ public class KeyAgreementBuilder {
     }
   }
 
-  static class InitStageImpl implements InitStage {
+  private static class InitStageImpl implements InitStage {
     private final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier;
 
     InitStageImpl(final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier) {
@@ -65,7 +65,7 @@ public class KeyAgreementBuilder {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
     private final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier;
 
     BuildFinalImpl(

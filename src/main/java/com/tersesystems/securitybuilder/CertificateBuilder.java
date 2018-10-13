@@ -21,7 +21,7 @@ import java.util.Objects;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * This class reads in certificates from input.
+ * This class reads in certificates from input bytes, and will return <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#CertificateFactory">X509Certificate</a>
  */
 public class CertificateBuilder {
 
@@ -88,21 +88,18 @@ public class CertificateBuilder {
     Collection<? extends CRL> crls() throws CertificateException, CRLException;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<CertificateFactory, CertificateException>
+  private static class InstanceStageImpl extends InstanceGenerator<CertificateFactory, CertificateException>
       implements InstanceStage {
-
 
     @Override
     public InputStage<X509Certificate> withX509() {
       return new InputStageImpl<>(getInstance().withAlgorithm("X.509"));
     }
 
-
     @Override
     public <T extends Certificate> InputStage<T> withAlgorithm(final String algorithm) {
       return new InputStageImpl<T>(getInstance().withAlgorithm(algorithm));
     }
-
 
     @Override
     public <T extends Certificate> InputStage<T> withAlgorithmAndProvider(
@@ -111,7 +108,7 @@ public class CertificateBuilder {
     }
   }
 
-  static class InputStageImpl<T extends Certificate> implements InputStage<T> {
+  private static class InputStageImpl<T extends Certificate> implements InputStage<T> {
 
     private final SupplierWithThrowable<CertificateFactory, CertificateException> supplier;
 
@@ -119,18 +116,15 @@ public class CertificateBuilder {
       this.supplier = supplier;
     }
 
-
     @Override
     public BuildFinal<T> withString(final String content) {
       Objects.requireNonNull(content);
       return withBytes(content.getBytes(StandardCharsets.US_ASCII));
     }
 
-
     @Override
     public BuildFinal<T> withBytes(final byte[] bytes) {
       Objects.requireNonNull(bytes);
-
       return withInputStream(new ByteArrayInputStream(bytes));
     }
 
@@ -142,7 +136,6 @@ public class CertificateBuilder {
     @Override
     public BuildFinal<T> withByteBuffer(final ByteBuffer byteBuffer) {
       Objects.requireNonNull(byteBuffer);
-
       return withBytes(byteBuffer.array());
     }
 
@@ -194,7 +187,7 @@ public class CertificateBuilder {
     }
   }
 
-  static class BuildFinalImpl<T extends Certificate> implements BuildFinal<T> {
+  private static class BuildFinalImpl<T extends Certificate> implements BuildFinal<T> {
 
     private final SupplierWithThrowable<CertificateFactory, CertificateException> supplier;
     private final SupplierWithThrowable<InputStream, IOException> inputStreamSupplier;

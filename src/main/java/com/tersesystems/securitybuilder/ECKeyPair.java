@@ -3,6 +3,9 @@ package com.tersesystems.securitybuilder;
 import java.security.interfaces.ECPrivateKey;
 import java.security.interfaces.ECPublicKey;
 
+/**
+ * A type safe keypair for ECPublicKey and ECPrivateKey.
+ */
 public interface ECKeyPair extends KeyPair<ECPublicKey, ECPrivateKey> {
 
 

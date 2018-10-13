@@ -51,7 +51,7 @@
     <connection>scm:git:git@github.com:tersesystems/securitybuilder.git</connection>
     <developerConnection>scm:git:git@github.com:tersesystems/securitybuilder.git</developerConnection>
     <url>git@github.com:tersesystems/securitybuilder.git</url>
-    <tag>${version}</tag>
+    <tag>${project.version}</tag>
   </scm>
 
   <dependencies>

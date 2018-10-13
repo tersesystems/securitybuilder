@@ -12,7 +12,7 @@ public class PasswordBuilderTest {
 
   @Test
   public void testPasswordSpec() throws Exception {
-    byte[] salt = randomSalt();
+    byte[] salt = EntropySource.salt();
 
     PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
         .withPBKDF2WithHmacSHA512()
@@ -24,12 +24,5 @@ public class PasswordBuilderTest {
 
     byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
     assertThat(passwordBasedEncryptionKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
-  }
-
-  private byte[] randomSalt() {
-    Random random = new SecureRandom();
-    final byte[] bytes = new byte[256];
-    random.nextBytes(bytes);
-    return bytes;
   }
 }

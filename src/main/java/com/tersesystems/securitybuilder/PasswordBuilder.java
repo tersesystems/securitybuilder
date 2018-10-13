@@ -1,14 +1,21 @@
 package com.tersesystems.securitybuilder;
 
 import java.security.GeneralSecurityException;
-import java.security.spec.KeySpec;
-import javax.crypto.SecretKey;
 import javax.crypto.SecretKeyFactory;
 import javax.crypto.interfaces.PBEKey;
 import javax.crypto.spec.PBEKeySpec;
-import org.slieb.throwables.FunctionWithThrowable;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Creates an encrypted password.  This is a wrapper around SecretKeyFactory.
+ *
+ * Please see the
+ * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">SunJCE Provider</a>
+ * for the options.
+ *
+ * In practice, PBKDF2 with a SHA-2 hash is as weak as you could allow, and given the choice you would
+ * be much better picking Argon2 / scrypt / bcrypt over PBKDF2.
+ */
 public class PasswordBuilder {
 
   public static InitialStage builder() {
@@ -26,7 +33,6 @@ public class PasswordBuilder {
     PasswordStage withPBKDF2WithHmacSHA384();
 
     PasswordStage withPBKDF2WithHmacSHA512();
-
   }
 
   public interface PasswordStage {
@@ -50,7 +56,7 @@ public class PasswordBuilder {
     PBEKey build() throws GeneralSecurityException;
   }
 
-  static class InitialStageImpl implements InitialStage {
+  private static class InitialStageImpl implements InitialStage {
 
     @Override
     public PasswordStage withAlgorithm(final String algorithm) {
@@ -79,7 +85,7 @@ public class PasswordBuilder {
 
   }
 
-  static class PasswordStageImpl implements PasswordStage {
+  private static class PasswordStageImpl implements PasswordStage {
 
     private final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier;
 
@@ -94,7 +100,7 @@ public class PasswordBuilder {
     }
   }
 
-  static class IterationStageImpl implements IterationStage {
+  private static class IterationStageImpl implements IterationStage {
 
     private final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier;
     private final char[] password;
@@ -113,7 +119,7 @@ public class PasswordBuilder {
     }
   }
 
-  static class SaltStageImpl implements SaltStage {
+  private static class SaltStageImpl implements SaltStage {
 
     private final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier;
     private final char[] password;
@@ -134,7 +140,7 @@ public class PasswordBuilder {
     }
   }
 
-  static class KeyLengthStageImpl implements KeyLengthStage {
+  private static class KeyLengthStageImpl implements KeyLengthStage {
 
     private final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier;
     private final char[] password;
@@ -158,7 +164,7 @@ public class PasswordBuilder {
     }
   }
 
-  static class SecretKeySpecBuildFinal implements BuildFinal {
+  private static class SecretKeySpecBuildFinal implements BuildFinal {
 
     private final SupplierWithThrowable<PBEKey, GeneralSecurityException> keySpecSupplier;
 
@@ -172,7 +178,7 @@ public class PasswordBuilder {
     }
   }
 
-  static class SecretKeyFactoryBuildFinal implements BuildFinal {
+  private static class SecretKeyFactoryBuildFinal implements BuildFinal {
 
     private final SupplierWithThrowable<PBEKey, GeneralSecurityException> secretKeySupplier;
 

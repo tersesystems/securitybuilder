@@ -13,6 +13,9 @@ import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Builds a private key from input bytes.
+ */
 public class PrivateKeyBuilder {
 
   public static InstanceStage builder() {
@@ -69,7 +72,7 @@ public class PrivateKeyBuilder {
     T build() throws GeneralSecurityException;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
+  private static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
       implements InstanceStage {
 
     @Override
@@ -104,7 +107,7 @@ public class PrivateKeyBuilder {
     }
   }
 
-  static class PrivateKeySpecStageImpl<T extends PrivateKey> implements PrivateKeySpecStage<T> {
+  private static class PrivateKeySpecStageImpl<T extends PrivateKey> implements PrivateKeySpecStage<T> {
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
@@ -121,7 +124,7 @@ public class PrivateKeyBuilder {
     }
   }
 
-  static class DSAPrivateKeySpecStageImpl implements DSAPrivateKeySpecStage {
+  private static class DSAPrivateKeySpecStageImpl implements DSAPrivateKeySpecStage {
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
@@ -146,7 +149,7 @@ public class PrivateKeyBuilder {
     }
   }
 
-  static class RSAPrivateKeySpecStageImpl implements RSAPrivateKeySpecStage {
+  private static class RSAPrivateKeySpecStageImpl implements RSAPrivateKeySpecStage {
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
@@ -171,7 +174,7 @@ public class PrivateKeyBuilder {
     }
   }
 
-  static class ECPrivateKeySpecStageImpl implements ECPrivateKeySpecStage {
+  private static class ECPrivateKeySpecStageImpl implements ECPrivateKeySpecStage {
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
@@ -195,7 +198,7 @@ public class PrivateKeyBuilder {
     }
   }
 
-  static class BuildFinalImpl<T extends PrivateKey> implements BuildFinal<T> {
+  private static class BuildFinalImpl<T extends PrivateKey> implements BuildFinal<T> {
 
     private final SupplierWithThrowable<T, GeneralSecurityException> supplier;
 

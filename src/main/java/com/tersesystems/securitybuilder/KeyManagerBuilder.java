@@ -13,6 +13,9 @@ import javax.net.ssl.KeyStoreBuilderParameters;
 import javax.net.ssl.X509ExtendedKeyManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#KeyManager">KeyManager</a>.
+ */
 public class KeyManagerBuilder {
 
   private KeyManagerBuilder() {
@@ -26,12 +29,9 @@ public class KeyManagerBuilder {
 
     SunParametersStage withSunX509();
 
-
     SunParametersStage withSunX509(String provider);
 
-
     NewSunParametersStage withNewSunX509();
-
 
     NewSunParametersStage withNewSunX509(String provider);
   }
@@ -40,9 +40,7 @@ public class KeyManagerBuilder {
 
     SunPasswordStage withKeyStore(KeyStore keyStore);
 
-
     BuilderFinal withPrivateKeyStore(PrivateKeyStore privateKeyStore);
-
 
     SunPasswordStage withKeyStore(
         SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
@@ -91,7 +89,7 @@ public class KeyManagerBuilder {
     X509ExtendedKeyManager build() throws GeneralSecurityException;
   }
 
-  static class KeyManagerFactoryStageImpl
+  private static class KeyManagerFactoryStageImpl
       extends InstanceGenerator<KeyManagerFactory, GeneralSecurityException>
       implements KeyManagerFactoryStage {
 
@@ -120,7 +118,7 @@ public class KeyManagerBuilder {
     }
   }
 
-  static class SunPasswordStageImpl implements SunPasswordStage {
+  private static class SunPasswordStageImpl implements SunPasswordStage {
 
     private final SupplierWithThrowable<KeyManagerFactory, GeneralSecurityException>
         keyManagerFactory;
@@ -164,7 +162,7 @@ public class KeyManagerBuilder {
     }
   }
 
-  static class SunParametersStageImpl
+  private static class SunParametersStageImpl
       extends InstanceGenerator<KeyManagerFactory, GeneralSecurityException>
       implements SunParametersStage {
 
@@ -214,7 +212,7 @@ public class KeyManagerBuilder {
     }
   }
 
-  static class NewSunParametersStageImpl implements NewSunParametersStage {
+  private static class NewSunParametersStageImpl implements NewSunParametersStage {
 
     private final Supplier<KeyManagerFactory> supplier;
 
@@ -265,7 +263,7 @@ public class KeyManagerBuilder {
     }
   }
 
-  static class BuilderFinalImpl implements BuilderFinal {
+  private static class BuilderFinalImpl implements BuilderFinal {
 
     private final SupplierWithThrowable<KeyManagerFactory, GeneralSecurityException>
         keyManagerFactory;

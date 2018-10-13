@@ -3,6 +3,9 @@ package com.tersesystems.securitybuilder;
 import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 
+/**
+ * A type safe keypair for RSAPublicKey and RSAPrivateKey.
+ */
 public interface RSAKeyPair extends KeyPair<RSAPublicKey, RSAPrivateKey> {
 
 

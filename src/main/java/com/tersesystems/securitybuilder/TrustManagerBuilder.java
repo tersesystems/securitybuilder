@@ -8,6 +8,9 @@ import javax.net.ssl.TrustManagerFactory;
 import javax.net.ssl.X509ExtendedTrustManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
+/**
+ * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#TrustManager">TrustManager</a>.
+ */
 public class TrustManagerBuilder {
 
   private TrustManagerBuilder() {
@@ -56,7 +59,7 @@ public class TrustManagerBuilder {
     X509ExtendedTrustManager build() throws Exception;
   }
 
-  static class InstanceStageImpl
+  private static class InstanceStageImpl
       extends InstanceGenerator<TrustManagerFactory, GeneralSecurityException>
       implements InstanceStage {
 
@@ -79,7 +82,7 @@ public class TrustManagerBuilder {
     }
   }
 
-  static class ParametersStageImpl implements ParametersStage {
+  private static class ParametersStageImpl implements ParametersStage {
 
     private final SupplierWithThrowable<TrustManagerFactory, GeneralSecurityException>
         trustManagerFactory;
@@ -129,7 +132,7 @@ public class TrustManagerBuilder {
     }
   }
 
-  static class BuilderFinalKeyStoreImpl implements BuilderFinal {
+  private static class BuilderFinalKeyStoreImpl implements BuilderFinal {
 
     private final SupplierWithThrowable<KeyStore, Exception> keyStore;
 
@@ -152,7 +155,7 @@ public class TrustManagerBuilder {
     }
   }
 
-  static class BuilderFinalParametersImpl implements BuilderFinal {
+  private static class BuilderFinalParametersImpl implements BuilderFinal {
 
     private final SupplierWithThrowable<PKIXBuilderParameters, Exception> parameters;
 

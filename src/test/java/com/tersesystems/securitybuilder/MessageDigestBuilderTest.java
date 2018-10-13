@@ -7,16 +7,6 @@ import org.junit.jupiter.api.Test;
 public class MessageDigestBuilderTest {
 
   @Test
-  public void testMD2() throws NoSuchAlgorithmException {
-    assertThat(MessageDigestBuilder.md2().getAlgorithm()).isEqualTo("MD2");
-  }
-
-  @Test
-  public void testMD5() throws NoSuchAlgorithmException {
-    assertThat(MessageDigestBuilder.md5().getAlgorithm()).isEqualTo("MD5");
-  }
-
-  @Test
   public void testSha1() throws NoSuchAlgorithmException {
     assertThat(MessageDigestBuilder.sha1().getAlgorithm()).isEqualTo("SHA-1");
   }

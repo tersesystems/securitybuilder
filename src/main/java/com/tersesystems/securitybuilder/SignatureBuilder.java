@@ -16,7 +16,10 @@ import java.security.spec.AlgorithmParameterSpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates a Signature.
+ * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature">Signature</a>.
+ *
+ * See <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature">Standard Names</a> for signature
+ * options.
  */
 public class SignatureBuilder {
 
@@ -59,10 +62,8 @@ public class SignatureBuilder {
     Signature build() throws GeneralSecurityException;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<Signature, GeneralSecurityException>
+  private static class InstanceStageImpl extends InstanceGenerator<Signature, GeneralSecurityException>
       implements InstanceStage {
-    // See https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature
-    // for signatures.
 
     @Override
     public <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithm(final String algorithm) {
@@ -115,7 +116,7 @@ public class SignatureBuilder {
     }
   }
 
-  static class InitializeStageImpl<PR extends PrivateKey, PU extends PublicKey> implements InitializeStage<PR, PU> {
+  private static class InitializeStageImpl<PR extends PrivateKey, PU extends PublicKey> implements InitializeStage<PR, PU> {
 
     private final SupplierWithThrowable<Signature, GeneralSecurityException> supplier;
 
@@ -168,7 +169,7 @@ public class SignatureBuilder {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
 
     private final SupplierWithThrowable<Signature, GeneralSecurityException> supplier;
 

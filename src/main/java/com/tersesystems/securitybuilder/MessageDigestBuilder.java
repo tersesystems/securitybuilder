@@ -5,16 +5,18 @@ import static java.security.MessageDigest.getInstance;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
+/**
+ * Generates some handy message digests.
+ */
 public class MessageDigestBuilder {
 
-  public static MessageDigest md2() throws NoSuchAlgorithmException {
-    return getInstance("MD2");
-  }
-
-  public static MessageDigest md5() throws NoSuchAlgorithmException {
-    return getInstance("MD5");
-  }
-
+  /**
+   * You should not be using SHA1.
+   *
+   * @deprecated https://blog.qualys.com/ssllabs/2014/09/09/sha1-deprecation-what-you-need-to-know
+   * @return a MessageDigest configured for SHA-1.
+   */
+  @Deprecated
   public static MessageDigest sha1() throws NoSuchAlgorithmException {
     return getInstance("SHA-1");
   }

@@ -4,10 +4,10 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.math.BigInteger;
+import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
-import java.security.KeyPairGenerator;
 import java.security.interfaces.DSAPublicKey;
 import java.security.interfaces.ECPublicKey;
 import java.security.interfaces.RSAPublicKey;
@@ -16,6 +16,7 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -25,13 +26,14 @@ public class PublicKeyBuilderTest {
 
   @Test
   public void testRSAPublicKey() throws GeneralSecurityException {
-    final BigInteger modulus =
-        new BigInteger(
-            "b4a7e46170574f16a97082b22be58b6a2a629798419"
-                + "be12872a4bdba626cfae9900f76abfb12139dce5de5"
-                + "6564fab2b6543165a040c606887420e33d91ed7ed7",
-            16);
-    final BigInteger exp = new BigInteger("11", 16);
+
+    AlgorithmParameterGenerator generator = AlgorithmParameterGenerator.getInstance("RSA");
+    generator.init(2048);
+    RSAKeyGenParameterSpec keyGenSpec = generator.generateParameters().getParameterSpec(
+        RSAKeyGenParameterSpec.class);
+
+    final BigInteger modulus = BigInteger.valueOf(keyGenSpec.getKeysize());
+    final BigInteger exp = keyGenSpec.getPublicExponent();
     final RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(modulus, exp);
     RSAPublicKey rsaPublicKey =
         PublicKeyBuilder.builder().withRSA().withKeySpec(rsaPublicKeySpec).build();
@@ -61,7 +63,7 @@ public class PublicKeyBuilderTest {
 
   @Test
   public void testDSAPublicKey() throws GeneralSecurityException {
-    KeyPairGenerator dsa = KeyPairGenerator.getInstance("DSA");
+    java.security.KeyPairGenerator dsa = java.security.KeyPairGenerator.getInstance("DSA");
     dsa.initialize(1024);
     KeyPair keyPair = dsa.generateKeyPair();
     DSAPublicKey pk = (DSAPublicKey) keyPair.getPublic();
@@ -80,7 +82,7 @@ public class PublicKeyBuilderTest {
   public void testX509EncodedKeySpec() {
     try {
       final ECKeyPair keyPair =
-          KeyPairBuilder.builder().withEC().withKeySize(256).build();
+          KeyPairCreator.creator().withEC().withKeySize(256).build();
       final ECPublicKey publicKey = keyPair.getPublic();
       X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKey.getEncoded());
 

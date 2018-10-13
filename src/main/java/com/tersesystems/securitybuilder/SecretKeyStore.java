@@ -7,6 +7,9 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
+/**
+ * Provides a Map interface over SecretKeyEntry, using a backing KeyStore.
+ */
 public interface SecretKeyStore extends Map<String, SecretKeyEntry> {
 
 

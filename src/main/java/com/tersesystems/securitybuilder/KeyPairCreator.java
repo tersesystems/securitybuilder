@@ -1,15 +1,17 @@
 package com.tersesystems.securitybuilder;
 
 import java.security.GeneralSecurityException;
-import java.security.KeyPairGenerator;
 import java.security.SecureRandom;
 import java.security.spec.AlgorithmParameterSpec;
 import java.util.function.Function;
 import org.slieb.throwables.SupplierWithThrowable;
 
-public class KeyPairBuilder {
+/**
+ * Generates new KeyPair.
+ */
+public class KeyPairCreator {
 
-  public static InstanceStage builder() {
+  public static InstanceStage creator() {
     return new InstanceStageImpl();
   }
 
@@ -17,15 +19,11 @@ public class KeyPairBuilder {
 
     <KP extends KeyPair<?, ?>> InitializeStage<KP> withAlgorithm(String algorithm);
 
-
     <KP extends KeyPair<?, ?>> InitializeStage<KP> withAlgorithm(String algorithm, String provider);
-
 
     InitializeStage<RSAKeyPair> withRSA();
 
-
     InitializeStage<ECKeyPair> withEC();
-
 
     InitializeStage<DSAKeyPair> withDSA();
   }
@@ -47,14 +45,12 @@ public class KeyPairBuilder {
 
   public interface BuildFinal<SKP extends KeyPair<?, ?>> {
 
-
     SKP build() throws GeneralSecurityException;
   }
 
-  static class InstanceStageImpl
-      extends InstanceGenerator<KeyPairGenerator, GeneralSecurityException>
+  private static class InstanceStageImpl
+      extends InstanceGenerator<java.security.KeyPairGenerator, GeneralSecurityException>
       implements InstanceStage {
-
 
     @Override
     public <KP extends KeyPair<?, ?>> InitializeStage<KP> withAlgorithm(final String algorithm) {
@@ -90,13 +86,13 @@ public class KeyPairBuilder {
     }
   }
 
-  static class InitializeStageImpl<KP extends KeyPair<?, ?>> implements InitializeStage<KP> {
+  private static class InitializeStageImpl<KP extends KeyPair<?, ?>> implements InitializeStage<KP> {
 
-    private final SupplierWithThrowable<KeyPairGenerator, GeneralSecurityException> supplier;
+    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier;
     private final Function<java.security.KeyPair, KP> transform;
 
     InitializeStageImpl(
-        final SupplierWithThrowable<KeyPairGenerator, GeneralSecurityException> supplier,
+        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier,
         final Function<java.security.KeyPair, KP> transform) {
       this.supplier = supplier;
       this.transform = transform;
@@ -107,7 +103,7 @@ public class KeyPairBuilder {
     public BuildFinal<KP> withKeySize(final int keySize) {
       return new BuildFinalImpl<>(
           () -> {
-            final KeyPairGenerator kpg = supplier.getWithThrowable();
+            final java.security.KeyPairGenerator kpg = supplier.getWithThrowable();
             kpg.initialize(keySize);
             return kpg;
           },
@@ -119,7 +115,7 @@ public class KeyPairBuilder {
     public BuildFinal<KP> withKeySizeAndSecureRandom(final int keySize, final SecureRandom sr) {
       return new BuildFinalImpl<>(
           () -> {
-            final KeyPairGenerator kpg = supplier.getWithThrowable();
+            final java.security.KeyPairGenerator kpg = supplier.getWithThrowable();
             kpg.initialize(keySize, sr);
             return kpg;
           },
@@ -131,7 +127,7 @@ public class KeyPairBuilder {
     public BuildFinal<KP> withKeySpec(final AlgorithmParameterSpec spec) {
       return new BuildFinalImpl<>(
           () -> {
-            final KeyPairGenerator kpg = supplier.getWithThrowable();
+            final java.security.KeyPairGenerator kpg = supplier.getWithThrowable();
             kpg.initialize(spec);
             return kpg;
           },
@@ -144,7 +140,7 @@ public class KeyPairBuilder {
         final AlgorithmParameterSpec spec, final SecureRandom sr) {
       return new BuildFinalImpl<>(
           () -> {
-            final KeyPairGenerator kpg = supplier.getWithThrowable();
+            final java.security.KeyPairGenerator kpg = supplier.getWithThrowable();
             kpg.initialize(spec, sr);
             return kpg;
           },
@@ -152,13 +148,13 @@ public class KeyPairBuilder {
     }
   }
 
-  static class BuildFinalImpl<KP extends KeyPair<?, ?>> implements BuildFinal<KP> {
+  private static class BuildFinalImpl<KP extends KeyPair<?, ?>> implements BuildFinal<KP> {
 
-    private final SupplierWithThrowable<KeyPairGenerator, GeneralSecurityException> supplier;
+    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier;
     private final Function<java.security.KeyPair, KP> transform;
 
     BuildFinalImpl(
-        final SupplierWithThrowable<KeyPairGenerator, GeneralSecurityException> supplier,
+        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier,
         Function<java.security.KeyPair, KP> transform) {
       this.supplier = supplier;
       this.transform = transform;
@@ -167,7 +163,7 @@ public class KeyPairBuilder {
 
     @Override
     public KP build() throws GeneralSecurityException {
-      final KeyPairGenerator keyPairGenerator = supplier.get();
+      final java.security.KeyPairGenerator keyPairGenerator = supplier.get();
       return transform.apply(keyPairGenerator.generateKeyPair());
     }
   }

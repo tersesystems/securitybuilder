@@ -3,6 +3,9 @@ package com.tersesystems.securitybuilder;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
+/**
+ * A generic type safe keypair.
+ */
 public interface KeyPair<PBK extends PublicKey, PVK extends PrivateKey> {
 
   static <PBK extends PublicKey, PVK extends PrivateKey> KeyPair<PBK, PVK> create(

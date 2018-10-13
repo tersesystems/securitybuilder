@@ -25,7 +25,7 @@ class PKCS8EncodedKeySpecBuilderTest {
 
   @Test
   public void testPublicKey() throws Exception {
-    RSAKeyPair keyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
+    RSAKeyPair keyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
     Signature signingSig = SignatureBuilder.builder().withSHA256withRSA().signing(keyPair.getPrivate()).build();
 
     byte[] someData = "hello world!".getBytes(StandardCharsets.UTF_8);

@@ -72,7 +72,7 @@ public class PublicKeyBuilder {
     PK build() throws GeneralSecurityException;
   }
 
-  static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
+  private static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
       implements InstanceStage {
 
 
@@ -107,7 +107,7 @@ public class PublicKeyBuilder {
     }
   }
 
-  static class RSAParametersStageImpl implements RSAParametersStage {
+  private static class RSAParametersStageImpl implements RSAParametersStage {
 
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
@@ -133,7 +133,7 @@ public class PublicKeyBuilder {
     }
   }
 
-  static class ECParametersStageImpl implements ECParametersStage {
+  private static class ECParametersStageImpl implements ECParametersStage {
 
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
@@ -159,7 +159,7 @@ public class PublicKeyBuilder {
     }
   }
 
-  static class DSAParametersStageImpl implements DSAParametersStage {
+  private static class DSAParametersStageImpl implements DSAParametersStage {
 
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
@@ -185,7 +185,7 @@ public class PublicKeyBuilder {
     }
   }
 
-  static class ParametersStageImpl<PK extends PublicKey> implements ParametersStage<PK> {
+  private static class ParametersStageImpl<PK extends PublicKey> implements ParametersStage<PK> {
 
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
@@ -204,7 +204,7 @@ public class PublicKeyBuilder {
     }
   }
 
-  static class BuildFinalImpl<PK extends PublicKey> implements BuildFinal<PK> {
+  private static class BuildFinalImpl<PK extends PublicKey> implements BuildFinal<PK> {
 
     private final SupplierWithThrowable<PK, GeneralSecurityException> supplier;
 

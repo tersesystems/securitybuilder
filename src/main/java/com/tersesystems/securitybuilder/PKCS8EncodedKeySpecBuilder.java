@@ -19,6 +19,11 @@ import org.slieb.throwables.SupplierWithThrowable;
 
 /**
  * Reads a PEM encoded private key into a PKCS8EncodedKeySpec.
+ *
+ * Note that if you try PKCS8EncodedKeySpec directly, you'll get an exception because it can't deal
+ * with the header.  This fixes that.
+ *
+ * See <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#EncodedKeySpec">encoded key spec</a>.
  */
 public class PKCS8EncodedKeySpecBuilder {
 
@@ -50,7 +55,6 @@ public class PKCS8EncodedKeySpecBuilder {
 
     BuildFinal withPassword(char[] password);
 
-
     BuildFinal withNoPassword();
   }
 
@@ -59,7 +63,7 @@ public class PKCS8EncodedKeySpecBuilder {
     PKCS8EncodedKeySpec build() throws Exception;
   }
 
-  static class ContentStageImpl implements ContentStage {
+  private static class ContentStageImpl implements ContentStage {
 
     @Override
     public PasswordStage withContent(final String content) {
@@ -96,7 +100,7 @@ public class PKCS8EncodedKeySpecBuilder {
     }
   }
 
-  static class PasswordStageImpl implements PasswordStage {
+  private static class PasswordStageImpl implements PasswordStage {
 
     private final SupplierWithThrowable<byte[], Exception> supplier;
 
@@ -131,7 +135,7 @@ public class PKCS8EncodedKeySpecBuilder {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
 
     private final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier;
 

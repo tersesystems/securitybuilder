@@ -87,10 +87,10 @@ public class PrivateKeyStoreTest {
       final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       keyStore.load(null);
       final PrivateKeyStore privateKeyStore = PrivateKeyStore.create(keyStore, password);
-      final RSAKeyPair rsaKeyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
+      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
 
       final X509Certificate rsaCertificate =
-          X509CertificateBuilder.builder()
+          X509CertificateCreator.creator()
               .withSHA256withRSA()
               .withNotBeforeNow()
               .withDuration(Duration.ofDays(365))
@@ -109,18 +109,18 @@ public class PrivateKeyStoreTest {
 
   private KeyStore generateStore(final char[] password)
       throws GeneralSecurityException, IOException {
-    final RSAKeyPair rsaKeyPair = (KeyPairBuilder.builder().withRSA().withKeySize(2048).build());
-    final DSAKeyPair dsaKeyPair = (KeyPairBuilder.builder().withDSA().withKeySize(1024).build());
+    final RSAKeyPair rsaKeyPair = (KeyPairCreator.creator().withRSA().withKeySize(2048).build());
+    final DSAKeyPair dsaKeyPair = (KeyPairCreator.creator().withDSA().withKeySize(1024).build());
 
     final X509Certificate rsaCertificate =
-        X509CertificateBuilder.builder()
+        X509CertificateCreator.creator()
             .withSHA256withRSA()
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", rsaKeyPair, 2)
             .build();
 
     final X509Certificate dsaCertificate =
-        X509CertificateBuilder.builder()
+        X509CertificateCreator.creator()
             .<DSAPrivateKey>withSignatureAlgorithm("SHA256withDSA")
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", dsaKeyPair, 2)

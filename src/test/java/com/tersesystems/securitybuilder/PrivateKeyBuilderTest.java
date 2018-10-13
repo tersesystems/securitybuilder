@@ -18,7 +18,7 @@ class PrivateKeyBuilderTest {
   void builderWithRSA() throws GeneralSecurityException {
     final RSAPrivateKey exampleKey =
         (RSAPrivateKey)
-            KeyPairBuilder.builder().withAlgorithm("RSA").withKeySize(2048).build().getPrivate();
+            KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).build().getPrivate();
     final RSAPrivateKeySpec rsaPrivateKeySpec =
         new RSAPrivateKeySpec(exampleKey.getModulus(), exampleKey.getPrivateExponent());
     final RSAPrivateKey privateKey =
@@ -31,7 +31,7 @@ class PrivateKeyBuilderTest {
   void builderWithEC() throws GeneralSecurityException {
     final ECPrivateKey exampleKey =
         (ECPrivateKey)
-            KeyPairBuilder.builder().withAlgorithm("EC").withKeySize(128).build().getPrivate();
+            KeyPairCreator.creator().withAlgorithm("EC").withKeySize(128).build().getPrivate();
     final ECPrivateKeySpec privateKeySpec =
         new ECPrivateKeySpec(exampleKey.getS(), exampleKey.getParams());
     final ECPrivateKey privateKey =
@@ -44,7 +44,7 @@ class PrivateKeyBuilderTest {
   void builderWithDSA() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
         (DSAPrivateKey)
-            KeyPairBuilder.builder().withAlgorithm("DSA").withKeySize(1024).build().getPrivate();
+            KeyPairCreator.creator().withAlgorithm("DSA").withKeySize(1024).build().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(
             exampleKey.getX(),
@@ -61,7 +61,7 @@ class PrivateKeyBuilderTest {
   void builderWithAlgorithm() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
         (DSAPrivateKey)
-            KeyPairBuilder.builder().withAlgorithm("DSA").withKeySize(1024).build().getPrivate();
+            KeyPairCreator.creator().withAlgorithm("DSA").withKeySize(1024).build().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(
             exampleKey.getX(),

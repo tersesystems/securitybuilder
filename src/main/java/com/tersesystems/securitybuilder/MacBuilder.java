@@ -51,7 +51,7 @@ public class MacBuilder {
     Mac build() throws GeneralSecurityException;
   }
 
-  static class InitialStageImpl implements InitialStage {
+  private static class InitialStageImpl implements InitialStage {
 
     @Override
     public SecretKeySpecStage withHmacSHA256() {
@@ -100,7 +100,7 @@ public class MacBuilder {
     }
   }
 
-  static class InitializeStageImpl implements InitializeStage {
+  private static class InitializeStageImpl implements InitializeStage {
 
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 
@@ -128,7 +128,7 @@ public class MacBuilder {
     }
   }
 
-  static class SecretKeySpecStageImpl implements SecretKeySpecStage {
+  private static class SecretKeySpecStageImpl implements SecretKeySpecStage {
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 
     SecretKeySpecStageImpl(
@@ -155,7 +155,7 @@ public class MacBuilder {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
 
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 

@@ -39,7 +39,7 @@ public class SecretKeyGenerator {
     SecretKey build() throws GeneralSecurityException;
   }
 
-  static class InitialStageImpl implements InitialStage {
+  private static class InitialStageImpl implements InitialStage {
 
     @Override
     public InitializeStage withAES() {
@@ -82,7 +82,7 @@ public class SecretKeyGenerator {
     }
   }
 
-  static class InitializeStageImpl implements InitializeStage {
+  private static class InitializeStageImpl implements InitializeStage {
 
     private final SupplierWithThrowable<KeyGenerator, GeneralSecurityException> supplier;
 
@@ -119,7 +119,7 @@ public class SecretKeyGenerator {
     }
   }
 
-  static class BuildFinalImpl implements BuildFinal {
+  private static class BuildFinalImpl implements BuildFinal {
 
     private final SupplierWithThrowable<SecretKey, GeneralSecurityException> supplier;
 

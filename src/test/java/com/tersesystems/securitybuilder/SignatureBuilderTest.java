@@ -17,7 +17,7 @@ public class SignatureBuilderTest {
   public void testSignature() {
     try {
       final KeyPair<?, ?> keyPair =
-          KeyPairBuilder.builder().withAlgorithm("RSA").withKeySize(2048).build();
+          KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).build();
       final PrivateKey privateKey = keyPair.getPrivate();
       final PublicKey publicKey = keyPair.getPublic();
 
@@ -37,7 +37,7 @@ public class SignatureBuilderTest {
   public void testRSignature() {
     try {
       final ECKeyPair keyPair =
-          KeyPairBuilder.builder().withEC().withKeySize(256).build();
+          KeyPairCreator.creator().withEC().withKeySize(256).build();
       final ECPrivateKey privateKey = keyPair.getPrivate();
       final ECPublicKey publicKey = keyPair.getPublic();
 

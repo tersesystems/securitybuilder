@@ -3,6 +3,9 @@ package com.tersesystems.securitybuilder;
 import java.security.interfaces.DSAPrivateKey;
 import java.security.interfaces.DSAPublicKey;
 
+/**
+ * A type safe keypair for DSAPublicKey and DSAPrivateKey.
+ */
 public interface DSAKeyPair extends KeyPair<DSAPublicKey, DSAPrivateKey> {
 
 

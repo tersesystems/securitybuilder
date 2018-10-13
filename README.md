@@ -305,31 +305,6 @@ public class SecretKeyBuilderTest {
 }
 ```
 
-### PasswordBuilder
-
-A specialized secret key builder for encrypting passwords using `PBEKeySpec`.
-
-```java
-public class PasswordBuilderTest {
-
-  @Test
-  public void testPasswordSpec() throws Exception {
-    byte[] salt = randomSalt();
-
-    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
-        .withPBKDF2WithHmacSHA512()
-        .withPassword("hello world".toCharArray())
-        .withIterations(1000)
-        .withSalt(salt)
-        .withKeyLength(64 * 8)
-        .build();
-
-    byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
-    assertThat(secretKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
-  }
-}
-```
-
 ### SignatureBuilder
 
 Builds a [`Signature`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature). for either signing or verifying. 
@@ -359,6 +334,76 @@ public class SignatureBuilderTest {
 }
 ```
 
+### EntropySource
+
+Pulls from SecureRandom `/dev/urandom`, using the recommended number of random bits.
+
+```java
+public class EntropySource {
+  /**
+   * Provides an initialization vector for GCM.
+   */
+  public static byte[] gcmIV() {
+    return nextBytes(DEFAULT_GCM_IV_LENGTH);
+  }
+
+  /**
+   * Provides a salt, which must be unique but is not private.
+   */
+  public static byte[] salt() {
+    return nextBytes(DEFAULT_SALT_LENGTH);
+  }
+}
+```
+
+### PasswordBuilder
+
+A specialized secret key builder for encrypting passwords.
+
+```java
+public class PasswordBuilderTest {
+
+  @Test
+  public void testPasswordSpec() throws Exception {
+    byte[] salt = EntropySource.salt();
+
+    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
+        .withPBKDF2WithHmacSHA512()
+        .withPassword("hello world".toCharArray())
+        .withIterations(1000)
+        .withSalt(salt)
+        .withKeyLength(64 * 8)
+        .build();
+
+    byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
+    assertThat(passwordBasedEncryptionKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
+  }
+}
+```
+
+### AuthenticatedEncryptionBuilder
+
+Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use AES-GCM.
+
+```java
+public class AuthenticatedEncryptionBuilderTest {
+  @Test
+  public void testCipher() throws GeneralSecurityException {
+    final SecretKey aesSecretKey = SecretKeyGenerator.generate().withAES().withKeySize(128).build();
+    final SecretKeySpec secretKeySpec = new SecretKeySpec(aesSecretKey.getEncoded(), aesSecretKey.getAlgorithm());
+    final IvStage builder = AuthenticatedEncryptionBuilder.builder().withSecretKey(secretKeySpec);
+
+    byte[] gcmIV = EntropySource.gcmIV();
+    byte[] inputData = "input text".getBytes(UTF_8);
+
+    byte[] encryptedData = builder.withIv(gcmIV).encrypt().doFinal(inputData);
+    byte[] decryptedData = builder.withIv(gcmIV).decrypt().doFinal(encryptedData);
+
+    String decryptString = new String(decryptedData, UTF_8);
+    assertThat(decryptString).isEqualTo("input text");
+  }
+}
+```
 
 ### CertificateBuilder
 
@@ -385,14 +430,14 @@ public class CertificateBuilderTest {
 }
 ```
 
-### X509CertificateBuilder
+### X509CertificateCreator
 
 Creates an X509Certificate or a chain of X509Certificate.  
 
 Very useful for building up certificates if you use `chain()`.
 
 ```java
-public class X509CertificateBuilderTest {
+public class X509CertificateCreatorTest {
 
   @Test
   public void testFunctionalStyle() throws Exception {
@@ -402,12 +447,12 @@ public class X509CertificateBuilderTest {
     final RSAKeyPair intermediateKeyPair = keyPairBuilder.build();
     final RSAKeyPair eePair = keyPairBuilder.build();
 
-    IssuerStage<RSAPrivateKey> builder =
-        X509CertificateBuilder.builder().withSHA256withRSA().withDuration(Duration.ofDays(365));
+    IssuerStage<RSAPrivateKey> generator =
+        X509CertificateCreator.generator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
     X509Certificate[] chain =
-        builder
+        generator
             .withRootCA(issuer, rootKeyPair, 2)
             .chain(
                 rootKeyPair.getPrivate(),
@@ -424,7 +469,7 @@ public class X509CertificateBuilderTest {
                                     .withSubject("CN=tersesystems.com")
                                     .withEndEntityExtensions()
                                     .chain()))
-            .build();
+            .create();
 
     PrivateKeyStore privateKeyStore =
         PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
@@ -436,7 +481,7 @@ public class X509CertificateBuilderTest {
 }
 ```
 
-### Message Digest
+### Message Digest and MACs
 
 #### MacBuilder
 
@@ -509,7 +554,7 @@ public class PrivateKeyStoreTest {
       final RSAKeyPair rsaKeyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
 
       final X509Certificate rsaCertificate =
-          X509CertificateBuilder.builder()
+          X509CertificateCreator.builder()
               .withSHA256withRSA()
               .withNotBeforeNow()
               .withDuration(Duration.ofDays(365))
@@ -544,14 +589,14 @@ public class TrustStoreTest {
       final DSAKeyPair dsaKeyPair = KeyPairBuilder.builder().withDSA().withKeySize(1024).build();
 
       final X509Certificate rsaCertificate =
-          X509CertificateBuilder.builder()
+          X509CertificateCreator.builder()
               .withSHA256withRSA()
               .withDuration(Duration.ofDays(365))
               .withRootCA("CN=example.com", rsaKeyPair, 2)
               .build();
 
       final X509Certificate dsaCertificate =
-          X509CertificateBuilder.builder()
+          X509CertificateCreator.builder()
               .withSignatureAlgorithm("SHA256withDSA")
               .withDuration(Duration.ofDays(365))
               .withRootCA("CN=example.com", dsaKeyPair.getKeyPair(), 2)
