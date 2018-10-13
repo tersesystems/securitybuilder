@@ -27,10 +27,12 @@ import javax.net.ssl.KeyManagerFactory;
 import javax.net.ssl.X509ExtendedKeyManager;
 import javax.security.auth.callback.PasswordCallback;
 import javax.security.auth.x500.X500Principal;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
 
 public class DomainKeyStoreTest {
 
+  @Disabled
   @Test
   public void testMe() throws GeneralSecurityException, IOException {
     final KeyManagerFactory kmf = KeyManagerFactory.getInstance("NewSunX509");
