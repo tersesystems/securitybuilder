@@ -27,7 +27,7 @@ In your pom.xml:
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
-    <version>0.1.4</version><!-- see badge for latest version -->
+    <version>0.1.5</version><!-- see badge for latest version -->
 </dependency>
 ```
 
@@ -35,7 +35,7 @@ In your pom.xml:
 
 ```scala
 resolvers += Resolver.bintrayRepo("tersesystems", "maven") 
-libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.4"
+libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.5"
 ```
 
 ## Usage
