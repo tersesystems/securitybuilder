@@ -4,7 +4,7 @@ import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import com.tersesystems.securitybuilder.KeyPairCreator.BuildFinal;
+import com.tersesystems.securitybuilder.KeyPairCreator.FinalStage;
 import com.tersesystems.securitybuilder.X509CertificateCreator.IssuerStage;
 import java.io.IOException;
 import java.security.AlgorithmConstraints;
@@ -42,10 +42,10 @@ public class X509CertificateCreatorTest {
   @Test
   public void testFunctionalStyle() throws Exception {
 
-    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairCreator.creator().withRSA().withKeySize(2048);
-    final RSAKeyPair rootKeyPair = keyPairBuilder.build();
-    final RSAKeyPair intermediateKeyPair = keyPairBuilder.build();
-    final RSAKeyPair eePair = keyPairBuilder.build();
+    FinalStage<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
+    final RSAKeyPair rootKeyPair = keyPairCreator.create();
+    final RSAKeyPair intermediateKeyPair = keyPairCreator.create();
+    final RSAKeyPair eePair = keyPairCreator.create();
 
     IssuerStage<RSAPrivateKey> builder =
         X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
@@ -104,19 +104,19 @@ public class X509CertificateCreatorTest {
   @Test
   public void testCertificate() throws IOException, GeneralSecurityException {
 
-    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairCreator.creator().withRSA().withKeySize(2048);
-    final RSAKeyPair rootKeyPair = keyPairBuilder.build();
+    FinalStage<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
+    final RSAKeyPair rootKeyPair = keyPairCreator.create();
 
-    IssuerStage<RSAPrivateKey> builder =
+    IssuerStage<RSAPrivateKey> creator =
         X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
 
-    X509Certificate caCertificate = builder.withRootCA(issuer, rootKeyPair, 2).build();
+    X509Certificate caCertificate = creator.withRootCA(issuer, rootKeyPair, 2).build();
 
-    final RSAKeyPair intermediateKeyPair = keyPairBuilder.build();
+    final RSAKeyPair intermediateKeyPair = keyPairCreator.create();
     X509Certificate intermediateCaCert =
-        builder
+        creator
             .withIssuer(caCertificate)
             .withSigningKey(rootKeyPair.getPrivate())
             .withPublicKey(intermediateKeyPair.getPublic())
@@ -124,9 +124,9 @@ public class X509CertificateCreatorTest {
             .withCertificateAuthorityExtensions(0)
             .build();
 
-    final RSAKeyPair eePair = keyPairBuilder.build();
+    final RSAKeyPair eePair = keyPairCreator.create();
     X509Certificate leafCertificate =
-        builder
+        creator
             .withIssuer(intermediateCaCert)
             .withSigningKey(intermediateKeyPair.getPrivate())
             .withPublicKey(eePair.getPublic())

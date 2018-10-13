@@ -6,61 +6,28 @@ The [Java Cryptography Architecture](https://docs.oracle.com/javase/8/docs/techn
 
 This library implements a set of "fluent" API builders for the `java.security` classes, and provides more typesafe, intuitive API to access trust stores, key stores and keys.  The primary purpose of this library is to make small tasks easy, and provide better integration with the JSSE stack.
 
-## WARNING
-
-If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  
-
-Use [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) instead, which has support for [storing keysets](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#storing-keysets), [symmetric key encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption), [digital signatures](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#digitial-signatures), [envelope encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#envelope-encryption) and [key rotation](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#key-rotation). 
-
 ## Installation
 
 ### Maven
 
-From Bintray:
-
-```xml
-<?xml version="1.0" encoding="UTF-8" ?>
-<settings xsi:schemaLocation='http://maven.apache.org/SETTINGS/1.0.0 http://maven.apache.org/xsd/settings-1.0.0.xsd'
-          xmlns='http://maven.apache.org/SETTINGS/1.0.0' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>
-    
-    <profiles>
-        <profile>
-            <repositories>
-                <repository>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <id>bintray-tersesystems-maven</id>
-                    <name>bintray</name>
-                    <url>https://dl.bintray.com/tersesystems/maven</url>
-                </repository>
-            </repositories>
-            <pluginRepositories>
-                <pluginRepository>
-                    <snapshots>
-                        <enabled>false</enabled>
-                    </snapshots>
-                    <id>bintray-tersesystems-maven</id>
-                    <name>bintray-plugins</name>
-                    <url>https://dl.bintray.com/tersesystems/maven</url>
-                </pluginRepository>
-            </pluginRepositories>
-            <id>bintray</id>
-        </profile>
-    </profiles>
-    <activeProfiles>
-        <activeProfile>bintray</activeProfile>
-    </activeProfiles>
-</settings>
-```
-
 In your pom.xml:
 
 ```xml
+<repositories>
+    <repository>
+        <snapshots>
+            <enabled>false</enabled>
+        </snapshots>
+        <id>bintray-tersesystems-maven</id>
+        <name>bintray</name>
+        <url>https://dl.bintray.com/tersesystems/maven</url>
+    </repository>
+</repositories>
+
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
-    <version>0.1.0</version><!-- see badge for latest version -->
+    <version>0.1.4</version><!-- see badge for latest version -->
 </dependency>
 ```
 
@@ -68,10 +35,113 @@ In your pom.xml:
 
 ```scala
 resolvers += Resolver.bintrayRepo("tersesystems", "maven") 
-libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.0"
+libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.4"
 ```
 
 ## Usage
+
+The primary use of this package is to set up test X.509 certificates, private keys and trust stores.  The assumption is that you'll be working with Java 1.8 but with decent algorithms, so there are a number of preset defaults.  Please be aware that some of the algorithms in the JCA are way, way out of date.
+
+All the classes are in `com.tersesystems.securitybuilder` package.
+
+```java
+import com.tersesystems.securitybuilder.*;
+```
+
+In general, if you're just using the JCA, there are some [right answers](https://gist.github.com/tqbf/be58d2d39690c3b366ad):
+
+* Use RSA with 2048 bit key length and SHA-2 for public and private keys.
+* Use AES-GCM for encryption but **SEE WARNING BELOW**, and never reuse the IV.  There is no provable difference between AES-128 and AES-256, so [don't worry about it](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html) and use AES-256.  
+* If you're going over the network, you generally want full on TLS, so use JSSE.  Be aware that SSLEngine does not know that you're using HTTPS, so you need to [define hostname verification](https://tersesystems.com/blog/2014/03/23/fixing-hostname-verification/) yourself by setting `sslParameters.setEndpointIdentificationAlgorithm("HTTPS")`. 
+* Use an HMAC with at least SHA256, and a secret key that has at least 96 bits of entropy -- `EntropySource.salt()` uses 256 bits.
+* Use a MessageDigest with at least SHA256.
+* Use PBKDF2 with a SHA-2 HMAC [if you have to](https://pthree.org/2016/06/28/lets-talk-password-hashing/), but if you can use [jBCrypt](http://www.mindrot.org/projects/jBCrypt/) 
+or [scrypt](https://github.com/wg/scrypt) go with that.
+* There's no real need to use your own SecureRandom, and you don't need to use `useInstanceStrong`, the entropy pool is the same and [you may get blocking](https://tersesystems.com/blog/2015/12/17/the-right-way-to-use-securerandom/).  Use `EntropySource`.
+
+### WARNING
+
+If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  
+
+Use [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) instead, which has support for [storing keysets](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#storing-keysets), [symmetric key encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption), [digital signatures](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#digitial-signatures), [envelope encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#envelope-encryption) and [key rotation](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#key-rotation). 
+
+## JSSE (Java TLS Classes)
+
+### CertificateBuilder
+
+Builds a `java.security.Certificate` from a source.  
+
+If you use `withX509()`, it will give you an `X509Certificate`.
+
+```java
+public class CertificateBuilderTest {
+  @Test
+  public void testX509Certificate() {
+    final InputStream inputStream = getClass().getResourceAsStream("/playframework.pem");
+    try {
+      final X509Certificate x509Certificate =
+          CertificateBuilder.builder()
+            .withX509()
+            .withInputStream(inputStream)
+            .build();
+      assertThat(x509Certificate.getSigAlgName()).isEqualTo("SHA256withECDSA");
+    } catch (final CertificateException e) {
+      fail(e.getMessage(), e);
+    }
+  }
+}
+```
+
+### X509CertificateCreator
+
+Creates an X509Certificate or a chain of X509Certificate.  
+
+Very useful for building up certificates if you use `chain()`.
+
+```java
+public class X509CertificateCreatorTest {
+
+  @Test
+  public void testFunctionalStyle() throws Exception {
+
+    BuildFinal<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
+    final RSAKeyPair rootKeyPair = keyPairCreator.build();
+    final RSAKeyPair intermediateKeyPair = keyPairCreator.build();
+    final RSAKeyPair eePair = keyPairCreator.create();
+
+    IssuerStage<RSAPrivateKey> generator =
+        X509CertificateCreator.generator().withSHA256withRSA().withDuration(Duration.ofDays(365));
+
+    String issuer = "CN=letsencrypt.derp,O=Root CA";
+    X509Certificate[] chain =
+        generator
+            .withRootCA(issuer, rootKeyPair, 2)
+            .chain(
+                rootKeyPair.getPrivate(),
+                rootBuilder ->
+                    rootBuilder
+                        .withPublicKey(intermediateKeyPair.getPublic())
+                        .withSubject("OU=intermediate CA")
+                        .withCertificateAuthorityExtensions(0)
+                        .chain(
+                            intermediateKeyPair.getPrivate(),
+                            intBuilder ->
+                                intBuilder
+                                    .withPublicKey(eePair.getPublic())
+                                    .withSubject("CN=tersesystems.com")
+                                    .withEndEntityExtensions()
+                                    .chain()))
+            .create();
+
+    PrivateKeyStore privateKeyStore =
+        PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
+    TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
+
+    SSLContext sslContext = ...
+    assertThat(sslContext).isNotNull();
+  }
+}
+```
 
 ### KeyManagerBuilder
 
@@ -152,36 +222,121 @@ public class SSLContextBuilderTest {
 }
 ```
 
-### KeyPairBuilder
+## KeyStores
 
-Builds a [`KeyPair`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyPair) using a [`KeyPairGenerator`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyPairGenerator). 
- 
-If you use `withRSA`, `withDSA` or `withEC` then you get back `RSAKeyPair` etc.
+Key stores are used for [key management](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyManagement).  The `java.security.KeyStore` has three wrappers, depending on purpose: `PrivateKeyStore`, `TrustStore`, and `SecretKeyStore`.  They all extend `AbstractKeyStore`, and are written to be a drop in for `java.util.Map`.  See [blog post](https://tersesystems.com/blog/2018/07/28/building-java-keystores/) for gory details.
+
+### PrivateKeyStore
+
+Sets up a private keystore that is set up the way that the default SunX509 keymanager expects -- that is, all the private keys have the same password.  You work with `PrivateKeyEntry` and never have to provide the password as a parameter.
 
 ```java
-class KeyPairBuilderTest {
+public class PrivateKeyStoreTest {
+  
   @Test
-  void testWithAlgorithm() throws GeneralSecurityException {
-    final KeyPair keyPair = KeyPairBuilder.builder().withAlgorithm("RSA").withKeySize(2048).build();
-    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("RSA");
-  }
+  public void testAdd() {
+    try {
+      final char[] password = "".toCharArray();
+      final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      keyStore.load(null);
+      final PrivateKeyStore privateKeyStore = PrivateKeyStore.create(keyStore, password);
+      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
 
-  @Test
-  void testWithRSA() throws GeneralSecurityException {
-    final RSAKeyPair keyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
-    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("RSA");
-  }
+      final X509Certificate rsaCertificate =
+          X509CertificateCreator.builder()
+              .withSHA256withRSA()
+              .withNotBeforeNow()
+              .withDuration(Duration.ofDays(365))
+              .withRootCA("CN=example.com", rsaKeyPair, 2)
+              .build();
+      final PrivateKeyEntry entry =
+          new PrivateKeyEntry(rsaKeyPair.getPrivate(), new Certificate[] {rsaCertificate});
+      privateKeyStore.put("alias1", entry);
 
-  @Test
-  void testWithDSA() throws GeneralSecurityException {
-    final DSAKeyPair keyPair = KeyPairBuilder.builder().withDSA().withKeySize(1024).build();
-    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("DSA");
+      // PrivateKey doesn't override equals!
+      assertThat(Arrays.equals(privateKeyStore.get("alias1").getPrivateKey().getEncoded(), (entry.getPrivateKey().getEncoded()))).isTrue();
+    } catch (final Exception e) {
+      fail(e.getMessage());
+    }
   }
+}
+```
 
+### TrustStore
+
+`TrustStore` is a wrapper around [`KeyStore`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyStore) for `TrustedCertificateEntry`.
+
+```java
+public class TrustStoreTest {
   @Test
-  void testWithEC() throws GeneralSecurityException {
-    final ECKeyPair keyPair = KeyPairBuilder.builder().withEC().withKeySize(224).build();
-    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("EC");
+  void testSize() {
+    try {
+      final KeyStore keyStore = generateStore();
+      final TrustStore trustStore = TrustStore.create(keyStore);
+
+      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
+      final DSAKeyPair dsaKeyPair = KeyPairCreator.creator().withDSA().withKeySize(1024).build();
+
+      final X509Certificate rsaCertificate =
+          X509CertificateCreator.builder()
+              .withSHA256withRSA()
+              .withDuration(Duration.ofDays(365))
+              .withRootCA("CN=example.com", rsaKeyPair, 2)
+              .create();
+
+      final X509Certificate dsaCertificate =
+          X509CertificateCreator.builder()
+              .withSignatureAlgorithm("SHA256withDSA")
+              .withDuration(Duration.ofDays(365))
+              .withRootCA("CN=example.com", dsaKeyPair.getKeyPair(), 2)
+              .create();
+
+      trustStore.put("rsaentry", new TrustedCertificateEntry(rsaCertificate));
+      trustStore.put("dsaentry", new TrustedCertificateEntry(dsaCertificate));
+
+      assertThat(trustStore.size()).isEqualTo(2);
+    } catch (final Exception e) {
+      fail(e.getMessage());
+    }
+  }
+}
+```
+
+### SecretKeyStore
+
+A [`KeyStore`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyStore) that contains only `SecretKeyEntry`.  
+
+Use this with a KeyStore format of type PKCS12.
+
+```java
+public class SecretKeyStoreTest {
+  @Test
+  void testSize() {
+    try {
+      String password = "hello world".toCharArray();
+      byte[] salt = EntropySource.salt();
+
+      final Map<String, ProtectionParameter> passwordMap =
+          Collections.singletonMap("username", new PasswordProtection(password));
+      final SecretKeyStore secretKeyStore = generateSecretKeyStore(passwordMap);
+  
+      PBEKey secretKey = PasswordBuilder.builder()
+        .withPBKDF2WithHmacSHA512()
+        .withPassword(password)
+        .withIterations(10000)
+        .withSalt(salt)
+        .withKeyLength(64 * 8)
+        .build();
+    
+      secretKeyStore.put("username", new SecretKeyEntry(secretKey));
+      assertThat(secretKeyStore.size()).isEqualTo(1);
+    } catch (final KeyStoreException
+        | IOException
+        | NoSuchAlgorithmException
+        | CertificateException
+        | InvalidKeySpecException e) {
+      fail(e);
+    }
   }
 }
 ```
@@ -207,444 +362,6 @@ public class KeyStoreBuilderTest {
       assertThat(keyStoreFromPath.getType()).isEqualTo(KeyStore.getDefaultType());
     } catch (final Exception e) {
       fail(e.getMessage(), e);
-    }
-  }
-}
-```
-
-### EncodedKeySpecBuilder
-
-Builds a [`EncodedKeySpec`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#PKCS8EncodedKeySpec).
- 
-You can use either `PKCS8EncodedKeySpec`, commonly used for PEM encoded private keys, or `X509EncodedKeySpec`, used for PEM encoded public certificates.
-
-```java
-class PKCS8EncodedKeySpecBuilderTest {
-  @Test
-  public void testGeneration() throws Exception {
-    // Read a private key
-    final Reader reader = new InputStreamReader(getClass().getResourceAsStream("/private-key.pem"));
-    final PKCS8EncodedKeySpec keySpec =
-        PKCS8EncodedKeySpecBuilder.builder().withReader(reader).withNoPassword().build();
-    assertThat(keySpec.getFormat()).isEqualTo("PKCS#8");
-  }
-}
-```
-
-### PrivateKeyBuilder
-
-Builds a [`PrivateKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyFactory).  
-
-Will provide private key of the appropriate type using `withRSA`, `withDSA`, or `withEC` methods.
-
-```java
-class PrivateKeyBuilderTest {
-
-  @Test
-  void builderWithRSA() throws GeneralSecurityException {
-    final RSAPrivateKey exampleKey =
-        (RSAPrivateKey)
-            KeyPairBuilder.builder().withAlgorithm("RSA").withKeySize(2048).build().getPrivate();
-    final RSAPrivateKeySpec rsaPrivateKeySpec =
-        new RSAPrivateKeySpec(exampleKey.getModulus(), exampleKey.getPrivateExponent());
-    final RSAPrivateKey privateKey =
-        PrivateKeyBuilder.builder().withRSA().withKeySpec(rsaPrivateKeySpec).build();
-
-    assertThat(privateKey).isNotNull();
-  }
-}
-```
-
-### PublicKeyBuilder
-
-Builds a [`PublicKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyFactory). 
- 
-Will provide public key of the appropriate type using `withRSA`, `withDSA`, or `withEC` methods.
-
-```java
-public class PublicKeyBuilderTest {
-
-  @Test
-  public void testRSAPublicKey() throws GeneralSecurityException {
-    final BigInteger modulus =
-        new BigInteger(
-            "b4a7e46170574f16a97082b22be58b6a2a629798419"
-                + "be12872a4bdba626cfae9900f76abfb12139dce5de5"
-                + "6564fab2b6543165a040c606887420e33d91ed7ed7",
-            16);
-    final BigInteger exp = new BigInteger("11", 16);
-    final RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(modulus, exp);
-    RSAPublicKey rsaPublicKey =
-        PublicKeyBuilder.builder().withRSA().withKeySpec(rsaPublicKeySpec).build();
-    assertThat(rsaPublicKey).isNotNull();
-  }
-}
-```
-
-### SecretKeyBuilder
-
-Builds a [`SecretKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#SecretKeyFactory)
-
-The SecretKeyFactory algorithms are in <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">The SunJCE Provider</a>
-
-Uses an algorithm for SecretKeySpec.  These are based off the Cipher algorithm name, and most of them are in <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#OracleUcrypto">The OracleUcrypto Provider</a>, i.e. "AES".
-
-```java
-public class SecretKeyBuilderTest {
-  @Test
-  public void testSecretKeySpec() throws Exception {
-    byte[] aesKeyData = "abc123".getBytes();
-
-    SecretKey secretKey = SecretKeyBuilder.builder()
-        .withSecretKeySpec("AES")
-        .withData(aesKeyData)
-        .build();
-
-    assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
-  }
-}
-```
-
-### SignatureBuilder
-
-Builds a [`Signature`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature). for either signing or verifying. 
-
-```java
-public class SignatureBuilderTest {
-
-  @Test
-  public void testSignature() {
-    try {
-      final KeyPair<?, ?> keyPair =
-          KeyPairBuilder.builder().withAlgorithm("RSA").withKeySize(2048).build();
-      final PrivateKey privateKey = keyPair.getPrivate();
-      final PublicKey publicKey = keyPair.getPublic();
-
-      final Signature signingSignature =
-          SignatureBuilder.builder().withAlgorithm("SHA256withRSA").signing(privateKey).build();
-      final byte[] digest = signingSignature.sign();
-
-      final Signature verifySignature =
-          SignatureBuilder.builder().withAlgorithm("SHA256withRSA").verifying(publicKey).build();
-      assertThat(verifySignature.verify(digest)).isEqualTo(true);
-    } catch (final Exception e) {
-      Fail.fail(e.getMessage(), e);
-    }
-  }
-}
-```
-
-### EntropySource
-
-Pulls from SecureRandom `/dev/urandom`, using the recommended number of random bits.
-
-```java
-public class EntropySource {
-  /**
-   * Provides an initialization vector for GCM.
-   */
-  public static byte[] gcmIV() {
-    return nextBytes(DEFAULT_GCM_IV_LENGTH);
-  }
-
-  /**
-   * Provides a salt, which must be unique but is not private.
-   */
-  public static byte[] salt() {
-    return nextBytes(DEFAULT_SALT_LENGTH);
-  }
-}
-```
-
-### PasswordBuilder
-
-A specialized secret key builder for encrypting passwords.
-
-```java
-public class PasswordBuilderTest {
-
-  @Test
-  public void testPasswordSpec() throws Exception {
-    byte[] salt = EntropySource.salt();
-
-    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
-        .withPBKDF2WithHmacSHA512()
-        .withPassword("hello world".toCharArray())
-        .withIterations(1000)
-        .withSalt(salt)
-        .withKeyLength(64 * 8)
-        .build();
-
-    byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
-    assertThat(passwordBasedEncryptionKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
-  }
-}
-```
-
-### AuthenticatedEncryptionBuilder
-
-Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use AES-GCM.
-
-```java
-public class AuthenticatedEncryptionBuilderTest {
-  @Test
-  public void testCipher() throws GeneralSecurityException {
-    final SecretKey aesSecretKey = SecretKeyGenerator.generate().withAES().withKeySize(128).build();
-    final SecretKeySpec secretKeySpec = new SecretKeySpec(aesSecretKey.getEncoded(), aesSecretKey.getAlgorithm());
-    final IvStage builder = AuthenticatedEncryptionBuilder.builder().withSecretKey(secretKeySpec);
-
-    byte[] gcmIV = EntropySource.gcmIV();
-    byte[] inputData = "input text".getBytes(UTF_8);
-
-    byte[] encryptedData = builder.withIv(gcmIV).encrypt().doFinal(inputData);
-    byte[] decryptedData = builder.withIv(gcmIV).decrypt().doFinal(encryptedData);
-
-    String decryptString = new String(decryptedData, UTF_8);
-    assertThat(decryptString).isEqualTo("input text");
-  }
-}
-```
-
-### CertificateBuilder
-
-Builds a `java.security.Certificate` from a source.  
-
-If you use `withX509()`, it will give you an `X509Certificate`.
-
-```java
-public class CertificateBuilderTest {
-  @Test
-  public void testX509Certificate() {
-    final InputStream inputStream = getClass().getResourceAsStream("/playframework.pem");
-    try {
-      final X509Certificate x509Certificate =
-          CertificateBuilder.builder()
-            .withX509()
-            .withInputStream(inputStream)
-            .build();
-      assertThat(x509Certificate.getSigAlgName()).isEqualTo("SHA256withECDSA");
-    } catch (final CertificateException e) {
-      fail(e.getMessage(), e);
-    }
-  }
-}
-```
-
-### X509CertificateCreator
-
-Creates an X509Certificate or a chain of X509Certificate.  
-
-Very useful for building up certificates if you use `chain()`.
-
-```java
-public class X509CertificateCreatorTest {
-
-  @Test
-  public void testFunctionalStyle() throws Exception {
-
-    BuildFinal<RSAKeyPair> keyPairBuilder = KeyPairBuilder.builder().withRSA().withKeySize(2048);
-    final RSAKeyPair rootKeyPair = keyPairBuilder.build();
-    final RSAKeyPair intermediateKeyPair = keyPairBuilder.build();
-    final RSAKeyPair eePair = keyPairBuilder.build();
-
-    IssuerStage<RSAPrivateKey> generator =
-        X509CertificateCreator.generator().withSHA256withRSA().withDuration(Duration.ofDays(365));
-
-    String issuer = "CN=letsencrypt.derp,O=Root CA";
-    X509Certificate[] chain =
-        generator
-            .withRootCA(issuer, rootKeyPair, 2)
-            .chain(
-                rootKeyPair.getPrivate(),
-                rootBuilder ->
-                    rootBuilder
-                        .withPublicKey(intermediateKeyPair.getPublic())
-                        .withSubject("OU=intermediate CA")
-                        .withCertificateAuthorityExtensions(0)
-                        .chain(
-                            intermediateKeyPair.getPrivate(),
-                            intBuilder ->
-                                intBuilder
-                                    .withPublicKey(eePair.getPublic())
-                                    .withSubject("CN=tersesystems.com")
-                                    .withEndEntityExtensions()
-                                    .chain()))
-            .create();
-
-    PrivateKeyStore privateKeyStore =
-        PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
-    TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
-
-    SSLContext sslContext = ...
-    assertThat(sslContext).isNotNull();
-  }
-}
-```
-
-### Message Digest and MACs
-
-#### MacBuilder
-
-Builds an HMAC.
-
-```java
-public class MacBuilderTest {
-  @Test
-  void testMacBuild() throws GeneralSecurityException {
-    SecretKey key = new SecretKeySpec("privatekey".getBytes(), "HmacSHA256");
-
-    Mac sha256Mac = MacBuilder.builder().withAlgorithm("HmacSHA256").withKey(key).build();
-    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
-
-    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
-  }
-
-  @Test
-  void testSecretKeySpec() throws GeneralSecurityException {
-    Mac sha256Mac = MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
-    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
-
-    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
-  }
-
-  @Test
-  void testHmac() throws GeneralSecurityException {
-    Mac sha256Mac = MacBuilder.builder().withHmacSHA256().withString("privatekey").build();
-    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
-
-    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
-  }
-}
-```
-
-#### MessageDigestBuilder
-
-Builds a `MessageDigest`.
-
-```java
-public class MessageDigestBuilderTest {
-  @Test
-  public void testSha512() throws NoSuchAlgorithmException {
-    assertThat(MessageDigestBuilder.sha512().getAlgorithm()).isEqualTo("SHA-512");
-  }
-}
-```
-
-### KeyStores
-
-The `java.security.KeyStore` has three wrappers, depending on purpose: `PrivateKeyStore`, `TrustStore`, and `SecretKeyStore`.  They all extend `AbstractKeyStore`, and are written to be a drop in for `java.util.Map`.  See [blog post](https://tersesystems.com/blog/2018/07/28/building-java-keystores/) for gory details.
-
-#### PrivateKeyStore
-
-Sets up a private keystore that is set up the way that the default SunX509 keymanager expects -- that is, all the private keys have the same password.  You work with `PrivateKeyEntry` and never have to provide the password as a parameter.
-
-```java
-public class PrivateKeyStoreTest {
-  
-  @Test
-  public void testAdd() {
-    try {
-      final char[] password = "".toCharArray();
-      final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-      keyStore.load(null);
-      final PrivateKeyStore privateKeyStore = PrivateKeyStore.create(keyStore, password);
-      final RSAKeyPair rsaKeyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
-
-      final X509Certificate rsaCertificate =
-          X509CertificateCreator.builder()
-              .withSHA256withRSA()
-              .withNotBeforeNow()
-              .withDuration(Duration.ofDays(365))
-              .withRootCA("CN=example.com", rsaKeyPair, 2)
-              .build();
-      final PrivateKeyEntry entry =
-          new PrivateKeyEntry(rsaKeyPair.getPrivate(), new Certificate[] {rsaCertificate});
-      privateKeyStore.put("alias1", entry);
-
-      // PrivateKey doesn't override equals!
-      assertThat(privateKeyStore.get("alias1")).isEqualToComparingFieldByField(entry);
-    } catch (final Exception e) {
-      fail(e.getMessage());
-    }
-  }
-}
-```
-
-#### TrustStore
-
-`TrustStore` is a wrapper around `KeyStore` for `TrustedCertificateEntry`.
-
-```java
-public class TrustStoreTest {
-  @Test
-  void testSize() {
-    try {
-      final KeyStore keyStore = generateStore();
-      final TrustStore trustStore = TrustStore.create(keyStore);
-
-      final RSAKeyPair rsaKeyPair = KeyPairBuilder.builder().withRSA().withKeySize(2048).build();
-      final DSAKeyPair dsaKeyPair = KeyPairBuilder.builder().withDSA().withKeySize(1024).build();
-
-      final X509Certificate rsaCertificate =
-          X509CertificateCreator.builder()
-              .withSHA256withRSA()
-              .withDuration(Duration.ofDays(365))
-              .withRootCA("CN=example.com", rsaKeyPair, 2)
-              .build();
-
-      final X509Certificate dsaCertificate =
-          X509CertificateCreator.builder()
-              .withSignatureAlgorithm("SHA256withDSA")
-              .withDuration(Duration.ofDays(365))
-              .withRootCA("CN=example.com", dsaKeyPair.getKeyPair(), 2)
-              .build();
-
-      trustStore.put("rsaentry", new TrustedCertificateEntry(rsaCertificate));
-      trustStore.put("dsaentry", new TrustedCertificateEntry(dsaCertificate));
-
-      assertThat(trustStore.size()).isEqualTo(2);
-    } catch (final Exception e) {
-      fail(e.getMessage());
-    }
-  }
-}
-```
-
-#### SecretKeyStore
-
-A `KeyStore` that contains only `SecretKeyEntry`.  
-
-Use this with a KeyStore format of type PKCS12 or JCEKS.
-
-```java
-public class SecretKeyStoreTest {
-  @Test
-  void testSize() {
-    try {
-      final String password = "test";
-      final Map<String, ProtectionParameter> passwordMap =
-          Collections.singletonMap("alias", new PasswordProtection(password.toCharArray()));
-      final SecretKeyStore secretKeyStore = generateSecretKeyStore(passwordMap);
-  
-      final int pswdIterations = 65536;
-      final int keySize = 256;
-      final byte[] saltBytes = {0, 1, 2, 3, 4, 5, 6};
-  
-      final PBEKeySpec spec =
-          new PBEKeySpec(password.toCharArray(), saltBytes, pswdIterations, keySize);
-      final SecretKey secretKey = SecretKeyBuilder.withAlgorithm("PBKDF2WithHmacSHA1").withKeySpec(spec).build();
-      secretKeyStore.put("alias", new SecretKeyEntry(secretKey));
-  
-      assertThat(secretKeyStore.size()).isEqualTo(1);
-    } catch (final KeyStoreException
-        | IOException
-        | NoSuchAlgorithmException
-        | CertificateException
-        | InvalidKeySpecException e) {
-      fail(e);
     }
   }
 }
@@ -692,17 +409,382 @@ public class DifferentPasswordsTest {
 }
 ```
 
-## Building
+## Key Builders and Creators
 
-```bash
-mvn clean compile test package
+### KeyPairCreator
+
+Creates a new [`KeyPair`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyPair) containing `PublicKey` and `PrivateKey` using a [`KeyPairGenerator`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyPairGenerator). 
+ 
+If you use `withRSA`, `withDSA` or `withEC` then you get back `RSAKeyPair` etc.
+
+```java
+class KeyPairCreatorTest {
+  @Test
+  void testWithAlgorithm() throws GeneralSecurityException {
+    final KeyPair keyPair = KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).create();
+    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("RSA");
+  }
+
+  @Test
+  void testWithRSA() throws GeneralSecurityException {
+    final RSAKeyPair keyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).create();
+    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("RSA");
+  }
+
+  @Test
+  void testWithDSA() throws GeneralSecurityException {
+    final DSAKeyPair keyPair = KeyPairCreator.creator().withDSA().withKeySize(1024).create();
+    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("DSA");
+  }
+
+  @Test
+  void testWithDH() throws GeneralSecurityException {
+    final DHKeyPair keyPair = KeyPairCreator.creator().withDH().withKeySize(1024).create();
+    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("DH");
+  }
+
+  @Test
+  void testWithEC() throws GeneralSecurityException {
+    final ECKeyPair keyPair = KeyPairCreator.creator().withEC().withKeySize(224).create();
+    Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("EC");
+  }
+}
 ```
 
-## Releasing
+### EncodedKeySpecBuilder
 
-Uses [Maven Release Plugin](http://maven.apache.org/maven-release/maven-release-plugin/plugin-info.html):
+Builds a [`EncodedKeySpec`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#PKCS8EncodedKeySpec) from existing source material.
+ 
+You can use either `PKCS8EncodedKeySpec`, commonly used for PEM encoded private keys, or `X509EncodedKeySpec`, used for PEM encoded X.509 certificates.
 
+```java
+class PKCS8EncodedKeySpecBuilderTest {
+  @Test
+  public void testGeneration() throws Exception {
+    // Read a private key
+    final Reader reader = new InputStreamReader(getClass().getResourceAsStream("/private-key.pem"));
+    final PKCS8EncodedKeySpec keySpec =
+        PKCS8EncodedKeySpecBuilder.builder().withReader(reader).withNoPassword().build();
+    assertThat(keySpec.getFormat()).isEqualTo("PKCS#8");
+  }
+}
 ```
-mvn release:prepare
-mvn release:perform
+
+### PublicKeyBuilder
+
+Builds a [`PublicKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Key). 
+ 
+Will provide public key of the appropriate type using `withRSA`, `withDSA`, or `withEC` methods.
+
+```java
+public class PublicKeyBuilderTest {
+
+  @Test
+  public void testRSAPublicKey() throws GeneralSecurityException {
+    final BigInteger modulus =
+        new BigInteger(
+            "b4a7e46170574f16a97082b22be58b6a2a629798419"
+                + "be12872a4bdba626cfae9900f76abfb12139dce5de5"
+                + "6564fab2b6543165a040c606887420e33d91ed7ed7",
+            16);
+    final BigInteger exp = new BigInteger("11", 16);
+    final RSAPublicKeySpec rsaPublicKeySpec = new RSAPublicKeySpec(modulus, exp);
+    RSAPublicKey rsaPublicKey =
+        PublicKeyBuilder.builder().withRSA().withKeySpec(rsaPublicKeySpec).build();
+    assertThat(rsaPublicKey).isNotNull();
+  }
+}
+```
+
+### PrivateKeyBuilder
+
+Builds a [`PrivateKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Key).  
+
+Will provide private key of the appropriate type using `withRSA`, `withDSA`, or `withEC` methods.
+
+```java
+class PrivateKeyBuilderTest {
+
+  @Test
+  void builderWithRSA() throws GeneralSecurityException {
+    final RSAPrivateKey exampleKey =
+        (RSAPrivateKey)
+            KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).build().getPrivate();
+    final RSAPrivateKeySpec rsaPrivateKeySpec =
+        new RSAPrivateKeySpec(exampleKey.getModulus(), exampleKey.getPrivateExponent());
+    final RSAPrivateKey privateKey =
+        PrivateKeyBuilder.builder().withRSA().withKeySpec(rsaPrivateKeySpec).build();
+
+    assertThat(privateKey).isNotNull();
+  }
+}
+```
+
+### SecretKeyBuilder
+
+Builds a [`SecretKey`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#SecretKey).
+
+The algorithms are in <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">The SunJCE Provider</a>.
+
+```java
+public class SecretKeyBuilderTest {
+  @Test
+  public void testSecretKeySpec() throws Exception {
+    byte[] aesKeyData = "abc123".getBytes();
+
+    SecretKey secretKey = SecretKeyBuilder.builder()
+        .withSecretKeySpec("AES")
+        .withData(aesKeyData)
+        .build();
+
+    assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
+  }
+}
+```
+
+## MACs, Signatures, Passwords
+
+### MacBuilder
+
+Builds an Message Authentication Code based on cryptographic hashing, aka [`Mac`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Mac).
+
+```java
+public class MacBuilderTest {
+  @Test
+  void testMacBuild() throws GeneralSecurityException {
+    SecretKey key = new SecretKeySpec("privatekey".getBytes(), "HmacSHA256");
+
+    Mac sha256Mac = MacBuilder.builder().withAlgorithm("HmacSHA256").withKey(key).build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+
+  @Test
+  void testSecretKeySpec() throws GeneralSecurityException {
+    Mac sha256Mac = MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+
+  @Test
+  void testHmac() throws GeneralSecurityException {
+    Mac sha256Mac = MacBuilder.builder().withHmacSHA256().withString("privatekey").build();
+    String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
+
+    assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
+    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+  }
+}
+```
+
+### MessageDigestBuilder
+
+Builds a [`MessageDigest`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#MessageDigest).
+
+These are intentionally curtailed so you don't pick out weak MessageDigest algorithms.
+
+```java
+public class MessageDigestBuilderTest {
+  @Test
+  public void testSha512() throws NoSuchAlgorithmException {
+    assertThat(MessageDigestBuilder.sha512().getAlgorithm()).isEqualTo("SHA-512");
+  }
+}
+```
+
+### SignatureBuilder
+
+Builds a [`Signature`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature). for either signing or verifying. 
+
+```java
+public class SignatureBuilderTest {
+
+  @Test
+  public void testSignature() {
+    try {
+      final KeyPair<?, ?> keyPair =
+          KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).build();
+      final PrivateKey privateKey = keyPair.getPrivate();
+      final PublicKey publicKey = keyPair.getPublic();
+
+      final Signature signingSignature =
+          SignatureBuilder.builder().withAlgorithm("SHA256withRSA").signing(privateKey).build();
+      final byte[] digest = signingSignature.sign();
+
+      final Signature verifySignature =
+          SignatureBuilder.builder().withAlgorithm("SHA256withRSA").verifying(publicKey).build();
+      assertThat(verifySignature.verify(digest)).isEqualTo(true);
+    } catch (final Exception e) {
+      Fail.fail(e.getMessage(), e);
+    }
+  }
+}
+```
+
+### EntropySource
+
+Pulls from SecureRandom `/dev/urandom`, using the recommended number of random bits.
+
+```java
+public class EntropySource {
+  /**
+   * Provides an initialization vector for GCM.
+   */
+  public static byte[] gcmIV() {
+    return nextBytes(DEFAULT_GCM_IV_LENGTH);
+  }
+
+  /**
+   * Provides a salt, which must be unique but is not private.
+   */
+  public static byte[] salt() {
+    return nextBytes(DEFAULT_SALT_LENGTH);
+  }
+}
+```
+
+## Odds and Ends
+
+Finally, there's some code which is useful in a pinch but which doesn't really go anywhere else.  
+
+### AuthenticatedEncryptionBuilder
+
+Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use AES-GCM.
+
+Again, you're better off using [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) if you're doing encryption -- and if you're going over the network, you generally want full on TLS.  Also, always use the latest version of the JDK to avoid AES-GCM bugs.
+
+```java
+public class AuthenticatedEncryptionBuilderTest {
+  @Test
+  public void testCipher() throws GeneralSecurityException {
+    final SecretKey aesSecretKey = SecretKeyGenerator.generate().withAES().withKeySize(128).build();
+    final SecretKeySpec secretKeySpec = new SecretKeySpec(aesSecretKey.getEncoded(), aesSecretKey.getAlgorithm());
+    final IvStage builder = AuthenticatedEncryptionBuilder.builder().withSecretKey(secretKeySpec);
+
+    byte[] gcmIV = EntropySource.gcmIV();
+    byte[] inputData = "input text".getBytes(UTF_8);
+
+    byte[] encryptedData = builder.withIv(gcmIV).encrypt().doFinal(inputData);
+    byte[] decryptedData = builder.withIv(gcmIV).decrypt().doFinal(encryptedData);
+
+    String decryptString = new String(decryptedData, UTF_8);
+    assertThat(decryptString).isEqualTo("input text");
+  }
+}
+```
+
+### PasswordBuilder
+
+A specialized secret key builder for encrypting passwords.  
+
+Use PBKDF2 with a SHA-2 HMAC [if you have to](https://pthree.org/2016/06/28/lets-talk-password-hashing/), but if you can use [jBCrypt](http://www.mindrot.org/projects/jBCrypt/) or [scrypt](https://github.com/wg/scrypt), go with that.
+
+```java
+public class PasswordBuilderTest {
+
+  @Test
+  public void testPasswordSpec() throws Exception {
+    byte[] salt = EntropySource.salt();
+
+    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
+        .withPBKDF2WithHmacSHA512()
+        .withPassword("hello world".toCharArray())
+        .withIterations(1000)
+        .withSalt(salt)
+        .withKeyLength(64 * 8)
+        .build();
+
+    byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
+    assertThat(passwordBasedEncryptionKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");
+  }
+}
+```
+
+### KeyAgreementBuilder
+
+Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyAgreement">KeyAgreement</a> instance.
+
+This is typically used with Diffie-Hellman, most commonly found in SSH.  Use [jsch](http://www.jcraft.com/jsch/) or a high level library if you can help it.
+
+```java
+public class KeyAgreementBuilderTest {
+  @Test
+  public void testKeyAgreementParams() throws GeneralSecurityException, IOException {
+    // https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#DH2Ex
+
+    // Alice creates her own DH key pair with 2048-bit key size
+    DHKeyPair aliceKpair = KeyPairCreator.creator().withDH().withKeySize(2048).create();
+
+    // Alice creates and initializes her DH KeyAgreement object
+    KeyAgreement aliceKeyAgree = KeyAgreementBuilder.builder()
+        .withDH()
+        .withKey(aliceKpair.getPrivate())
+        .build();
+
+    // Alice encodes her public key, and sends it over to Bob.
+    byte[] alicePubKeyEnc = aliceKpair.getPublic().getEncoded();
+
+    //* Let's turn over to Bob. Bob has received Alice's public key
+    //* in encoded format.
+    //* He instantiates a DH public key from the encoded key material.
+    DHPublicKey alicePubKey = PublicKeyBuilder.builder().withDH()
+        .withKeySpec(new X509EncodedKeySpec(alicePubKeyEnc)).build();
+
+    //* Bob gets the DH parameters associated with Alice's public key.
+    //* He must use the same parameters when he generates his own key
+    //* pair.
+    DHParameterSpec dhParamFromAlicePubKey = alicePubKey.getParams();
+
+    // Bob creates his own DH key pair
+    DHKeyPair bobKpair = KeyPairCreator.creator().withDH().withKeySpec(dhParamFromAlicePubKey)
+        .create();
+
+    // Bob creates and initializes his DH KeyAgreement object
+    KeyAgreement bobKeyAgree = KeyAgreementBuilder.builder().withDH().withKey(bobKpair.getPrivate())
+        .build();
+
+    // Bob encodes his public key, and sends it over to Alice.
+    byte[] bobPubKeyEnc = bobKpair.getPublic().getEncoded();
+
+    //* Alice uses Bob's public key for the first (and only) phase
+    //* of her version of the DH protocol.
+    //* Before she can do so, she has to instantiate a DH public key
+    //* from Bob's encoded key material.
+    DHPublicKey bobPubKey = PublicKeyBuilder.builder().withDH()
+        .withKeySpec(new X509EncodedKeySpec(bobPubKeyEnc)).build();
+    aliceKeyAgree.doPhase(bobPubKey, true);
+
+    //* Bob uses Alice's public key for the first (and only) phase
+    //* of his version of the DH protocol.
+    bobKeyAgree.doPhase(alicePubKey, true);
+
+    // At this stage, both Alice and Bob have completed the DH key
+    // agreement protocol. Both generate the (same) shared secret.
+    byte[] aliceSharedSecret = aliceKeyAgree.generateSecret();
+    byte[] bobSharedSecret = new byte[aliceSharedSecret.length];
+    bobKeyAgree.generateSecret(bobSharedSecret, 0);
+    assertThat(Arrays.equals(aliceSharedSecret, bobSharedSecret)).isTrue();
+
+    // Now let's create a SecretKey object using the shared secret
+    // and use it for encryption.
+    SecretKeySpec bobAesKey = new SecretKeySpec(bobSharedSecret, 0, 16, "AES");
+    SecretKeySpec aliceAesKey = new SecretKeySpec(aliceSharedSecret, 0, 16, "AES");
+
+    // Bob encrypts, using AES in GCM mode
+    final byte[] iv = EntropySource.gcmIV();
+    Cipher bobCipher = AuthenticatedEncryptionBuilder.builder().withSecretKey(bobAesKey).withIv(iv)
+        .encrypt();
+    byte[] cleartext = "This is just an example".getBytes();
+    byte[] ciphertext = bobCipher.doFinal(cleartext);
+
+    // Alice decrypts, using AES in GCM mode
+    Cipher aliceCipher = AuthenticatedEncryptionBuilder.builder().withSecretKey(aliceAesKey).withIv(iv).decrypt();
+    byte[] recovered = aliceCipher.doFinal(ciphertext);
+    assertThat(Arrays.equals(cleartext, recovered)).isTrue();
+  }
+}
 ```

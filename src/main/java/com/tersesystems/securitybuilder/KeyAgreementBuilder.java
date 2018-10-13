@@ -14,6 +14,10 @@ public class KeyAgreementBuilder {
   public interface InitialStage {
     InitStage withAlgorithm(String algorithm);
     InitStage withAlgorithmAndProvider(String algorithm, String provider);
+
+    InitStage withECDH();
+
+    InitStage withDH();
   }
 
   public interface InitStage {
@@ -36,6 +40,16 @@ public class KeyAgreementBuilder {
     @Override
     public InitStage withAlgorithmAndProvider(final String algorithm, final String provider) {
       return new InitStageImpl(() -> KeyAgreement.getInstance(algorithm, provider));
+    }
+
+    @Override
+    public InitStage withECDH() {
+      return withAlgorithm("ECDH");
+    }
+
+    @Override
+    public InitStage withDH() {
+      return withAlgorithm("DH");
     }
   }
 

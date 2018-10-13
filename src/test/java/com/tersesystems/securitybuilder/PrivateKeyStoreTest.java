@@ -88,7 +88,7 @@ public class PrivateKeyStoreTest {
       final KeyStore keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
       keyStore.load(null);
       final PrivateKeyStore privateKeyStore = PrivateKeyStore.create(keyStore, password);
-      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
+      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).create();
 
       final X509Certificate rsaCertificate =
           X509CertificateCreator.creator()
@@ -110,8 +110,8 @@ public class PrivateKeyStoreTest {
 
   private KeyStore generateStore(final char[] password)
       throws GeneralSecurityException, IOException {
-    final RSAKeyPair rsaKeyPair = (KeyPairCreator.creator().withRSA().withKeySize(2048).build());
-    final DSAKeyPair dsaKeyPair = (KeyPairCreator.creator().withDSA().withKeySize(1024).build());
+    final RSAKeyPair rsaKeyPair = (KeyPairCreator.creator().withRSA().withKeySize(2048).create());
+    final DSAKeyPair dsaKeyPair = (KeyPairCreator.creator().withDSA().withKeySize(1024).create());
 
     final X509Certificate rsaCertificate =
         X509CertificateCreator.creator()

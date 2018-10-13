@@ -7,7 +7,7 @@
   <packaging>jar</packaging>
   <name>Security Builder</name>
   <description>Fluent builders for the JCA</description>
-  <url>https://tersesystems.com/</url>
+  <url>https://github.com/tersesystems/securitybuilder</url>
 
   <properties>
     <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>

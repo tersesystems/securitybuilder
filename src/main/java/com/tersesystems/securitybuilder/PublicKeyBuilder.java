@@ -11,7 +11,11 @@ import java.security.spec.ECPublicKeySpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
+import javax.crypto.interfaces.DHPublicKey;
+import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.DHPublicKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
+import sun.awt.ExtendedKeyCodes;
 
 public class PublicKeyBuilder {
 
@@ -31,44 +35,38 @@ public class PublicKeyBuilder {
 
     RSAParametersStage withRSA();
 
-
     ECParametersStage withEC();
 
-
     DSAParametersStage withDSA();
+
+    DHParameterStage withDH();
   }
 
   public interface ParametersStage<PK extends PublicKey> {
-
-
     BuildFinal<PK> withKeySpec(KeySpec keySpec);
   }
 
   public interface EncodedParametersStage<PK extends PublicKey> {
-
     BuildFinal<PK> withKeySpec(EncodedKeySpec keySpec);
   }
 
   public interface RSAParametersStage extends EncodedParametersStage<RSAPublicKey> {
-
-
     BuildFinal<RSAPublicKey> withKeySpec(RSAPublicKeySpec keySpec);
   }
 
   public interface DSAParametersStage extends EncodedParametersStage<DSAPublicKey> {
-
-
     BuildFinal<DSAPublicKey> withKeySpec(DSAPublicKeySpec keySpec);
   }
 
   public interface ECParametersStage extends EncodedParametersStage<ECPublicKey> {
-
-
     BuildFinal<ECPublicKey> withKeySpec(ECPublicKeySpec keySpec);
   }
 
-  public interface BuildFinal<PK extends PublicKey> {
+  public interface DHParameterStage extends EncodedParametersStage<DHPublicKey> {
+    BuildFinal<DHPublicKey> withKeySpec(DHPublicKeySpec keySpec);
+  }
 
+  public interface BuildFinal<PK extends PublicKey> {
     PK build() throws GeneralSecurityException;
   }
 
@@ -105,26 +103,26 @@ public class PublicKeyBuilder {
     public DSAParametersStage withDSA() {
       return new DSAParametersStageImpl(getInstance().withAlgorithm("DSA"));
     }
+
+    @Override
+    public DHParameterStage withDH() {
+      return new DHParametersStageImpl(getInstance().withAlgorithm("DH"));
+    }
   }
 
   private static class RSAParametersStageImpl implements RSAParametersStage {
-
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     RSAParametersStageImpl(
-
         final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public BuildFinal<RSAPublicKey> withKeySpec(final RSAPublicKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (RSAPublicKey) supplier.getWithThrowable().generatePublic(keySpec));
     }
-
 
     @Override
     public BuildFinal<RSAPublicKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -134,23 +132,18 @@ public class PublicKeyBuilder {
   }
 
   private static class ECParametersStageImpl implements ECParametersStage {
-
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     ECParametersStageImpl(
-
         final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public BuildFinal<ECPublicKey> withKeySpec(final ECPublicKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (ECPublicKey) supplier.getWithThrowable().generatePublic(keySpec));
     }
-
 
     @Override
     public BuildFinal<ECPublicKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -160,23 +153,18 @@ public class PublicKeyBuilder {
   }
 
   private static class DSAParametersStageImpl implements DSAParametersStage {
-
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     DSAParametersStageImpl(
-
         final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public BuildFinal<DSAPublicKey> withKeySpec(final DSAPublicKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (DSAPublicKey) supplier.getWithThrowable().generatePublic(keySpec));
     }
-
 
     @Override
     public BuildFinal<DSAPublicKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -186,21 +174,38 @@ public class PublicKeyBuilder {
   }
 
   private static class ParametersStageImpl<PK extends PublicKey> implements ParametersStage<PK> {
-
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     ParametersStageImpl(
-
         final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     @SuppressWarnings("unchecked")
     public BuildFinal<PK> withKeySpec(final KeySpec keySpec) {
       return new BuildFinalImpl<>(() -> (PK) supplier.getWithThrowable().generatePublic(keySpec));
+    }
+  }
+
+  private static class DHParametersStageImpl<PK extends PublicKey> implements DHParameterStage {
+    private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
+
+    DHParametersStageImpl(
+        final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
+      this.supplier = supplier;
+    }
+
+    @Override
+    public BuildFinal<DHPublicKey> withKeySpec(final EncodedKeySpec keySpec) {
+      return new BuildFinalImpl<>(
+          () -> (DHPublicKey) supplier.getWithThrowable().generatePublic(keySpec));
+    }
+
+    @Override
+    public BuildFinal<DHPublicKey> withKeySpec(final DHPublicKeySpec keySpec) {
+      return new BuildFinalImpl<>(
+          () -> (DHPublicKey) supplier.getWithThrowable().generatePublic(keySpec));
     }
   }
 

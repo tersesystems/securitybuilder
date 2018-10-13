@@ -21,8 +21,8 @@ class TrustStoreTest {
       final KeyStore keyStore = generateStore();
       final TrustStore trustStore = TrustStore.create(keyStore);
 
-      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).build();
-      final DSAKeyPair dsaKeyPair = KeyPairCreator.creator().withDSA().withKeySize(1024).build();
+      final RSAKeyPair rsaKeyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).create();
+      final DSAKeyPair dsaKeyPair = KeyPairCreator.creator().withDSA().withKeySize(1024).create();
 
       final X509Certificate rsaCertificate =
           X509CertificateCreator.creator()

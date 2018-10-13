@@ -4,7 +4,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
 import java.math.BigInteger;
-import java.security.AlgorithmParameterGenerator;
 import java.security.AlgorithmParameters;
 import java.security.GeneralSecurityException;
 import java.security.KeyPair;
@@ -16,7 +15,6 @@ import java.security.spec.ECGenParameterSpec;
 import java.security.spec.ECParameterSpec;
 import java.security.spec.ECPoint;
 import java.security.spec.ECPublicKeySpec;
-import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.spec.RSAPublicKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.Arrays;
@@ -81,7 +79,7 @@ public class PublicKeyBuilderTest {
   public void testX509EncodedKeySpec() {
     try {
       final ECKeyPair keyPair =
-          KeyPairCreator.creator().withEC().withKeySize(256).build();
+          KeyPairCreator.creator().withEC().withKeySize(256).create();
       final ECPublicKey publicKey = keyPair.getPublic();
       X509EncodedKeySpec keySpec = new X509EncodedKeySpec(publicKey.getEncoded());
 

@@ -8,20 +8,16 @@ import java.security.PublicKey;
  */
 public interface KeyPair<PBK extends PublicKey, PVK extends PrivateKey> {
 
-  static <PBK extends PublicKey, PVK extends PrivateKey> KeyPair<PBK, PVK> create(
+  static <KP extends KeyPair, PBK extends PublicKey, PVK extends PrivateKey> KeyPair<PBK, PVK> create(
       java.security.KeyPair keyPair) {
     return new KeyPair<PBK, PVK>() {
-
-
       @Override
       @SuppressWarnings("unchecked")
       public PBK getPublic() {
         return (PBK) keyPair.getPublic();
       }
 
-
       @Override
-
       @SuppressWarnings("unchecked")
       public PVK getPrivate() {
         return (PVK) keyPair.getPrivate();

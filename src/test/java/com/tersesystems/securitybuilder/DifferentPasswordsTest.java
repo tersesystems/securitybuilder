@@ -79,9 +79,9 @@ public class DifferentPasswordsTest {
 
   private KeyStore generateStore() throws GeneralSecurityException, IOException {
     final KeyPair<RSAPublicKey, RSAPrivateKey> rsaKeyPair =
-        KeyPairCreator.creator().withRSA().withKeySize(2048).build();
+        KeyPairCreator.creator().withRSA().withKeySize(2048).create();
     final KeyPair<DSAPublicKey, DSAPrivateKey> dsaKeyPair =
-        KeyPairCreator.creator().withDSA().withKeySize(1024).build();
+        KeyPairCreator.creator().withDSA().withKeySize(1024).create();
 
     final X509Certificate rsaCertificate =
         X509CertificateCreator.creator()
