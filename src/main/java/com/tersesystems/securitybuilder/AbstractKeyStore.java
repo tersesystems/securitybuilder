@@ -88,6 +88,7 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
   public T get(final Object key) {
     if (key instanceof String) {
       final String alias = (String) key;
+      Objects.requireNonNull(alias, "Null alias!");
       try {
         return (T) getKeyStore().getEntry(alias, protectionParameter(alias));
       } catch (
@@ -99,11 +100,12 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
     return null;
   }
-
-
+  
   @Override
   public T put(final String alias, final T value) {
     try {
+      Objects.requireNonNull(alias, "Null alias!");
+
       ProtectionParameter protectionParameter = protectionParameter(alias);
       if (protectionParameter == null) {
         throw new IllegalStateException(
