@@ -11,6 +11,8 @@ import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.EncodedKeySpec;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPrivateKeySpec;
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.spec.DHPrivateKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
@@ -23,52 +25,47 @@ public class PrivateKeyBuilder {
   }
 
   public interface InstanceStage {
-
-
     <T extends PrivateKey> PrivateKeySpecStage<T> withAlgorithm(String algorithm);
-
 
     <T extends PrivateKey> PrivateKeySpecStage<T> withAlgorithmAndProvider(
         String algorithm, String provider);
 
-
     RSAPrivateKeySpecStage withRSA();
-
 
     DSAPrivateKeySpecStage withDSA();
 
-
     ECPrivateKeySpecStage withEC();
+
+    DHPrivateKeySpecStage withDH();
   }
 
   public interface PrivateKeySpecStage<T extends PrivateKey> {
-
     BuildFinal<T> withKeySpec(KeySpec keySpec);
   }
 
   public interface RSAPrivateKeySpecStage extends EncodedPrivateKeySpecStage<RSAPrivateKey> {
-
     BuildFinal<RSAPrivateKey> withKeySpec(RSAPrivateKeySpec keySpec);
   }
 
   public interface DSAPrivateKeySpecStage extends EncodedPrivateKeySpecStage<DSAPrivateKey> {
-
     BuildFinal<DSAPrivateKey> withKeySpec(DSAPrivateKeySpec keySpec);
   }
 
   public interface ECPrivateKeySpecStage extends EncodedPrivateKeySpecStage<ECPrivateKey> {
-
     BuildFinal<ECPrivateKey> withKeySpec(ECPrivateKeySpec keySpec);
   }
 
-  public interface EncodedPrivateKeySpecStage<T extends PrivateKey> {
+  public interface DHPrivateKeySpecStage extends EncodedPrivateKeySpecStage<DHPrivateKey> {
+    BuildFinal<DHPrivateKey> withKeySpec(DHPrivateKeySpec keySpec);
+  }
 
+  public interface EncodedPrivateKeySpecStage<T extends PrivateKey> {
     BuildFinal<T> withKeySpec(EncodedKeySpec keySpec);
   }
 
+
+
   public interface BuildFinal<T extends PrivateKey> {
-
-
     T build() throws GeneralSecurityException;
   }
 
@@ -88,7 +85,6 @@ public class PrivateKeyBuilder {
           getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
 
-
     @Override
     public RSAPrivateKeySpecStage withRSA() {
       return new RSAPrivateKeySpecStageImpl(getInstance().withAlgorithm("RSA"));
@@ -100,6 +96,10 @@ public class PrivateKeyBuilder {
       return new ECPrivateKeySpecStageImpl(getInstance().withAlgorithm("EC"));
     }
 
+    @Override
+    public DHPrivateKeySpecStage withDH() {
+      return new DHPrivateKeySpecStageImpl(getInstance().withAlgorithm("DH"));
+    }
 
     @Override
     public DSAPrivateKeySpecStage withDSA() {
@@ -125,7 +125,6 @@ public class PrivateKeyBuilder {
   }
 
   private static class DSAPrivateKeySpecStageImpl implements DSAPrivateKeySpecStage {
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     DSAPrivateKeySpecStageImpl(
@@ -133,14 +132,12 @@ public class PrivateKeyBuilder {
       this.supplier = supplier;
     }
 
-
     @SuppressWarnings("unchecked")
     @Override
     public BuildFinal<DSAPrivateKey> withKeySpec(final DSAPrivateKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (DSAPrivateKey) supplier.getWithThrowable().generatePrivate(keySpec));
     }
-
 
     @Override
     public BuildFinal<DSAPrivateKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -150,7 +147,6 @@ public class PrivateKeyBuilder {
   }
 
   private static class RSAPrivateKeySpecStageImpl implements RSAPrivateKeySpecStage {
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     RSAPrivateKeySpecStageImpl(
@@ -158,14 +154,12 @@ public class PrivateKeyBuilder {
       this.supplier = supplier;
     }
 
-
     @SuppressWarnings("unchecked")
     @Override
     public BuildFinal<RSAPrivateKey> withKeySpec(final RSAPrivateKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (RSAPrivateKey) supplier.getWithThrowable().generatePrivate(keySpec));
     }
-
 
     @Override
     public BuildFinal<RSAPrivateKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -175,7 +169,6 @@ public class PrivateKeyBuilder {
   }
 
   private static class ECPrivateKeySpecStageImpl implements ECPrivateKeySpecStage {
-
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
     ECPrivateKeySpecStageImpl(
@@ -183,13 +176,11 @@ public class PrivateKeyBuilder {
       this.supplier = supplier;
     }
 
-
     @Override
     public BuildFinal<ECPrivateKey> withKeySpec(final ECPrivateKeySpec keySpec) {
       return new BuildFinalImpl<>(
           () -> (ECPrivateKey) supplier.getWithThrowable().generatePrivate(keySpec));
     }
-
 
     @Override
     public BuildFinal<ECPrivateKey> withKeySpec(final EncodedKeySpec keySpec) {
@@ -198,8 +189,28 @@ public class PrivateKeyBuilder {
     }
   }
 
-  private static class BuildFinalImpl<T extends PrivateKey> implements BuildFinal<T> {
+  private static class DHPrivateKeySpecStageImpl implements DHPrivateKeySpecStage {
+    private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
+    DHPrivateKeySpecStageImpl(
+        final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
+      this.supplier = supplier;
+    }
+
+    @Override
+    public BuildFinal<DHPrivateKey> withKeySpec(final DHPrivateKeySpec keySpec) {
+      return new BuildFinalImpl<>(
+          () -> (DHPrivateKey) supplier.getWithThrowable().generatePrivate(keySpec));
+    }
+
+    @Override
+    public BuildFinal<DHPrivateKey> withKeySpec(final EncodedKeySpec keySpec) {
+      return new BuildFinalImpl<>(
+          () -> (DHPrivateKey) supplier.getWithThrowable().generatePrivate(keySpec));
+    }
+  }
+
+  private static class BuildFinalImpl<T extends PrivateKey> implements BuildFinal<T> {
     private final SupplierWithThrowable<T, GeneralSecurityException> supplier;
 
     BuildFinalImpl(final SupplierWithThrowable<T, GeneralSecurityException> supplier) {

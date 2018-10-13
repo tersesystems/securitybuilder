@@ -10,6 +10,9 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.spec.DSAPrivateKeySpec;
 import java.security.spec.ECPrivateKeySpec;
 import java.security.spec.RSAPrivateKeySpec;
+import javax.crypto.interfaces.DHPrivateKey;
+import javax.crypto.spec.DHParameterSpec;
+import javax.crypto.spec.DHPrivateKeySpec;
 import org.junit.jupiter.api.Test;
 
 class PrivateKeyBuilderTest {
@@ -17,7 +20,6 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithRSA() throws GeneralSecurityException {
     final RSAPrivateKey exampleKey =
-        (RSAPrivateKey)
             KeyPairCreator.creator().withRSA().withKeySize(2048).create().getPrivate();
     final RSAPrivateKeySpec rsaPrivateKeySpec =
         new RSAPrivateKeySpec(exampleKey.getModulus(), exampleKey.getPrivateExponent());
@@ -30,7 +32,6 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithEC() throws GeneralSecurityException {
     final ECPrivateKey exampleKey =
-        (ECPrivateKey)
             KeyPairCreator.creator().withEC().withKeySize(128).create().getPrivate();
     final ECPrivateKeySpec privateKeySpec =
         new ECPrivateKeySpec(exampleKey.getS(), exampleKey.getParams());
@@ -41,9 +42,22 @@ class PrivateKeyBuilderTest {
   }
 
   @Test
+  void builderWithDH() throws GeneralSecurityException {
+    final DHPrivateKey exampleKey =
+            KeyPairCreator.creator().withDH().withKeySize(2048).create().getPrivate();
+    DHParameterSpec params = exampleKey.getParams();
+    final DHPrivateKeySpec privateKeySpec =
+        new DHPrivateKeySpec(exampleKey.getX(), params.getP(), params.getG());
+    final DHPrivateKey privateKey =
+        PrivateKeyBuilder.builder().withDH().withKeySpec(privateKeySpec).build();
+
+    assertThat(privateKey).isNotNull();
+  }
+
+
+  @Test
   void builderWithDSA() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
-        (DSAPrivateKey)
             KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(
@@ -60,7 +74,6 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithAlgorithm() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
-        (DSAPrivateKey)
             KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(

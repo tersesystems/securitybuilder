@@ -41,11 +41,10 @@ public class X509CertificateCreatorTest {
 
   @Test
   public void testFunctionalStyle() throws Exception {
-
     FinalStage<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
-    final RSAKeyPair rootKeyPair = keyPairCreator.create();
-    final RSAKeyPair intermediateKeyPair = keyPairCreator.create();
-    final RSAKeyPair eePair = keyPairCreator.create();
+    RSAKeyPair rootKeyPair = keyPairCreator.create();
+    RSAKeyPair intermediateKeyPair = keyPairCreator.create();
+    RSAKeyPair eePair = keyPairCreator.create();
 
     IssuerStage<RSAPrivateKey> builder =
         X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
@@ -70,19 +69,21 @@ public class X509CertificateCreatorTest {
                                     .withEndEntityExtensions()
                                     .chain()))
             .create();
-    //    try {
-    //      final TrustAnchor anchor =
-    //          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
-    //      final PKIXCertPathValidatorResult result = validateChain(privateKeyStore, anchor);
-    //      final PublicKey subjectPublicKey = result.getPublicKey();
-    //      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
-    //    } catch (final CertPathValidatorException cpve) {
-    //      fail("Cannot test exception", cpve);
-    //    }
 
     PrivateKeyStore privateKeyStore =
         PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
     TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
+
+    try {
+      final TrustAnchor anchor =
+          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
+      final PKIXCertPathValidatorResult result = validateChain("tersesystems.com", privateKeyStore,
+          anchor);
+      final PublicKey subjectPublicKey = result.getPublicKey();
+      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
+    } catch (final CertPathValidatorException cpve) {
+      fail("Cannot test exception", cpve);
+    }
 
     SSLContext sslContext =
         SSLContextBuilder.builder()
@@ -141,7 +142,7 @@ public class X509CertificateCreatorTest {
     // Check that this passes a certpath validation.
     try {
       final TrustAnchor anchor = new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
-      final PKIXCertPathValidatorResult result = validateChain(privateKeyStore, anchor);
+      final PKIXCertPathValidatorResult result = validateChain("alias", privateKeyStore, anchor);
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
@@ -149,11 +150,12 @@ public class X509CertificateCreatorTest {
     }
   }
 
-  PKIXCertPathValidatorResult validateChain(PrivateKeyStore privateKeyStore, TrustAnchor anchor)
+  PKIXCertPathValidatorResult validateChain(String alias, PrivateKeyStore privateKeyStore,
+      TrustAnchor anchor)
       throws CertificateException, NoSuchAlgorithmException, CertPathValidatorException,
-          InvalidAlgorithmParameterException {
+      InvalidAlgorithmParameterException {
     final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-    final Certificate[] chain = privateKeyStore.get("alias").getCertificateChain();
+    final Certificate[] chain = privateKeyStore.get(alias).getCertificateChain();
     final CertPath certPath =
         certificateFactory.generateCertPath(Arrays.asList(chain[0], chain[1]));
 
@@ -174,7 +176,8 @@ public class X509CertificateCreatorTest {
     private static final Set<CryptoPrimitive> SIGNATURE_PRIMITIVE_SET =
         EnumSet.of(CryptoPrimitive.SIGNATURE);
 
-    public void init(final boolean forward) throws CertPathValidatorException {}
+    public void init(final boolean forward) throws CertPathValidatorException {
+    }
 
     public boolean isForwardCheckingSupported() {
       return true;

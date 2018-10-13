@@ -61,36 +61,11 @@ or [scrypt](https://github.com/wg/scrypt) go with that.
 
 ### WARNING
 
-If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  
+If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  In particular, low level libraries don't do key management and key rotation very well.
 
 Use [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) instead, which has support for [storing keysets](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#storing-keysets), [symmetric key encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption), [digital signatures](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#digitial-signatures), [envelope encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#envelope-encryption) and [key rotation](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#key-rotation). 
 
 ## JSSE (Java TLS Classes)
-
-### CertificateBuilder
-
-Builds a `java.security.Certificate` from a source.  
-
-If you use `withX509()`, it will give you an `X509Certificate`.
-
-```java
-public class CertificateBuilderTest {
-  @Test
-  public void testX509Certificate() {
-    final InputStream inputStream = getClass().getResourceAsStream("/playframework.pem");
-    try {
-      final X509Certificate x509Certificate =
-          CertificateBuilder.builder()
-            .withX509()
-            .withInputStream(inputStream)
-            .build();
-      assertThat(x509Certificate.getSigAlgName()).isEqualTo("SHA256withECDSA");
-    } catch (final CertificateException e) {
-      fail(e.getMessage(), e);
-    }
-  }
-}
-```
 
 ### X509CertificateCreator
 
@@ -100,21 +75,19 @@ Very useful for building up certificates if you use `chain()`.
 
 ```java
 public class X509CertificateCreatorTest {
-
   @Test
   public void testFunctionalStyle() throws Exception {
+    FinalStage<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
+    RSAKeyPair rootKeyPair = keyPairCreator.create();
+    RSAKeyPair intermediateKeyPair = keyPairCreator.create();
+    RSAKeyPair eePair = keyPairCreator.create();
 
-    BuildFinal<RSAKeyPair> keyPairCreator = KeyPairCreator.creator().withRSA().withKeySize(2048);
-    final RSAKeyPair rootKeyPair = keyPairCreator.build();
-    final RSAKeyPair intermediateKeyPair = keyPairCreator.build();
-    final RSAKeyPair eePair = keyPairCreator.create();
-
-    IssuerStage<RSAPrivateKey> generator =
-        X509CertificateCreator.generator().withSHA256withRSA().withDuration(Duration.ofDays(365));
+    IssuerStage<RSAPrivateKey> builder =
+        X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
     X509Certificate[] chain =
-        generator
+        builder
             .withRootCA(issuer, rootKeyPair, 2)
             .chain(
                 rootKeyPair.getPrivate(),
@@ -137,8 +110,59 @@ public class X509CertificateCreatorTest {
         PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
     TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
 
-    SSLContext sslContext = ...
+    try {
+      final TrustAnchor anchor =
+          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
+      final PKIXCertPathValidatorResult result = validateChain("tersesystems.com", privateKeyStore,
+          anchor);
+      final PublicKey subjectPublicKey = result.getPublicKey();
+      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
+    } catch (final CertPathValidatorException cpve) {
+      fail("Cannot test exception", cpve);
+    }
+
+    SSLContext sslContext =
+        SSLContextBuilder.builder()
+            .withTLS()
+            .withKeyManager(
+                KeyManagerBuilder.builder()
+                    .withSunX509()
+                    .withPrivateKeyStore(privateKeyStore)
+                    .build())
+            .withTrustManager(
+                TrustManagerBuilder.builder()
+                    .withDefaultAlgorithm()
+                    .withTrustStore(trustStore)
+                    .build())
+            .build();
     assertThat(sslContext).isNotNull();
+  }
+}
+```
+
+Admittedly this doesn't look very simple, but you should see the code it replaces.
+
+### CertificateBuilder
+
+Builds a `java.security.Certificate` from a source.  
+
+If you use `withX509()`, it will give you an `X509Certificate`.
+
+```java
+public class CertificateBuilderTest {
+  @Test
+  public void testX509Certificate() {
+    final InputStream inputStream = getClass().getResourceAsStream("/playframework.pem");
+    try {
+      final X509Certificate x509Certificate =
+          CertificateBuilder.builder()
+            .withX509()
+            .withInputStream(inputStream)
+            .build();
+      assertThat(x509Certificate.getSigAlgName()).isEqualTo("SHA256withECDSA");
+    } catch (final CertificateException e) {
+      fail(e.getMessage(), e);
+    }
   }
 }
 ```
@@ -653,9 +677,9 @@ Finally, there's some code which is useful in a pinch but which doesn't really g
 
 ### AuthenticatedEncryptionBuilder
 
-Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use AES-GCM.
+Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use an authenticated encryption mode.
 
-Again, you're better off using [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) if you're doing encryption -- and if you're going over the network, you generally want full on TLS.  Also, always use the latest version of the JDK to avoid AES-GCM bugs.
+Again, you're better off using Google Tink's [symmetric encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption) if you're doing encryption -- and if you're going over the network, you generally want full on TLS.
 
 ```java
 public class AuthenticatedEncryptionBuilderTest {
@@ -710,12 +734,12 @@ Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/securi
 
 This is typically used with Diffie-Hellman, most commonly found in SSH.  Use [jsch](http://www.jcraft.com/jsch/) or a high level library if you can help it.
 
+The [canonical DH key exchange](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#DH2Ex):
+
 ```java
 public class KeyAgreementBuilderTest {
   @Test
   public void testKeyAgreementParams() throws GeneralSecurityException, IOException {
-    // https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#DH2Ex
-
     // Alice creates her own DH key pair with 2048-bit key size
     DHKeyPair aliceKpair = KeyPairCreator.creator().withDH().withKeySize(2048).create();
 
