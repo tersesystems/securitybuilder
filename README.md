@@ -1,6 +1,4 @@
-[ ![Download](https://api.bintray.com/packages/tersesystems/maven/securitybuilder/images/download.svg) ](https://bintray.com/tersesystems/maven/securitybuilder/_latestVersion)
-
-[![Build Status](https://travis-ci.org/tersesystems/securitybuilder.svg?branch=master)](https://travis-ci.org/tersesystems/securitybuilder)
+[ ![Download](https://api.bintray.com/packages/tersesystems/maven/securitybuilder/images/download.svg) ](https://bintray.com/tersesystems/maven/securitybuilder/_latestVersion) [![Build Status](https://travis-ci.org/tersesystems/securitybuilder.svg?branch=master)](https://travis-ci.org/tersesystems/securitybuilder)
 
 # Security Builders
 
