@@ -29,14 +29,14 @@ class TrustStoreTest {
               .withSHA256withRSA()
               .withDuration(Duration.ofDays(365))
               .withRootCA("CN=example.com", rsaKeyPair, 2)
-              .build();
+              .create();
 
       final X509Certificate dsaCertificate =
           X509CertificateCreator.creator()
               .withSignatureAlgorithm("SHA256withDSA")
               .withDuration(Duration.ofDays(365))
               .withRootCA("CN=example.com", dsaKeyPair.getKeyPair(), 2)
-              .build();
+              .create();
 
       trustStore.put("rsaentry", new TrustedCertificateEntry(rsaCertificate));
       trustStore.put("dsaentry", new TrustedCertificateEntry(dsaCertificate));

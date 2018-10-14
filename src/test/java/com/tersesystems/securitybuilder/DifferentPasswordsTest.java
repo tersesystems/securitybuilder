@@ -88,14 +88,14 @@ public class DifferentPasswordsTest {
             .withSHA256withRSA()
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", rsaKeyPair, 2)
-            .build();
+            .create();
 
     final X509Certificate dsaCertificate =
         X509CertificateCreator.creator()
             .withSignatureAlgorithm("SHA256withDSA")
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", dsaKeyPair.getKeyPair(), 2)
-            .build();
+            .create();
 
     final Path privateKeyStorePath = Files.createTempFile(null, ".p12");
     final KeyStore pkcs12 = KeyStore.getInstance("PKCS12");

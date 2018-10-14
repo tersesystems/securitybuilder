@@ -70,16 +70,11 @@ public class X509CertificateCreator {
   }
 
   public interface NotBeforeStage<PK extends PrivateKey> {
-
-
     NotAfterStage<PK> withNotBefore(Instant notBefore);
-
 
     NotAfterStage<PK> withNotBeforeNow();
 
-
     IssuerStage<PK> withDuration(Duration duration);
-
 
     IssuerStage<PK> withDuration(Instant notBefore, Duration duration);
   }
@@ -102,11 +97,11 @@ public class X509CertificateCreator {
     PrivateKeyStage<PK> withIssuer(X509Certificate issuerCert);
 
 
-    X509CertificateCreator.BuildFinal withRootCA(
+    BuildFinal withRootCA(
         String dn, java.security.KeyPair keyPair, int pathLenConstraint);
 
 
-    X509CertificateCreator.BuildFinal withRootCA(
+    BuildFinal withRootCA(
         String dn,
         KeyPair<? extends PublicKey, PK> keyPair,
         int pathLenConstraint);
@@ -133,33 +128,28 @@ public class X509CertificateCreator {
   public interface ExtensionsStage {
 
 
-    X509CertificateCreator.BuildFinal withExtensions(CertificateExtensions extensions);
+    BuildFinal withExtensions(CertificateExtensions extensions);
 
 
-    X509CertificateCreator.BuildFinal withEndEntityExtensions();
+    BuildFinal withEndEntityExtensions();
 
 
-    X509CertificateCreator.BuildFinal withCertificateAuthorityExtensions(int pathLenConstraint);
+    BuildFinal withCertificateAuthorityExtensions(int pathLenConstraint);
 
 
-    X509CertificateCreator.BuildFinal withClientCertificateExtensions();
+    BuildFinal withClientCertificateExtensions();
   }
 
   public interface BuildFinal {
-
-
-    X509CertificateCreator.BuildFinal withSecureRandom(SecureRandom secureRandom);
-
-
-    X509Certificate build() throws IOException, GeneralSecurityException;
-
+    BuildFinal withSecureRandom(SecureRandom secureRandom);
 
     BuildChainFinal chain();
-
 
     BuildChainFinal chain(
         PrivateKey privateKey,
         Function<PublicKeyStage, BuildChainFinal> childBuilderFunction);
+
+    X509Certificate create() throws IOException, GeneralSecurityException;
   }
 
   public interface BuildChainFinal {
@@ -298,7 +288,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withRootCA(
+    public BuildFinal withRootCA(
         final String dn,
         final java.security.KeyPair keyPair,
         int pathLenConstraint) {
@@ -309,7 +299,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withRootCA(
+    public BuildFinal withRootCA(
         final String dn,
         final KeyPair<? extends PublicKey, PK> keyPair,
         int pathLenConstraint) {
@@ -433,7 +423,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withExtensions(
+    public BuildFinal withExtensions(
         final CertificateExtensions extensions) {
       return new BuildFinalImpl(
           algorithm,
@@ -449,7 +439,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withEndEntityExtensions() {
+    public BuildFinal withEndEntityExtensions() {
       try {
         final CertificateExtensions extensions = new CertificateExtensions();
         final KeyUsageExtension keyUsageExtension = new KeyUsageExtension();
@@ -465,7 +455,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withCertificateAuthorityExtensions(
+    public BuildFinal withCertificateAuthorityExtensions(
         int pathLenConstraint) {
       try {
         final CertificateExtensions extensions = new CertificateExtensions();
@@ -485,7 +475,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withClientCertificateExtensions() {
+    public BuildFinal withClientCertificateExtensions() {
       try {
         final CertificateExtensions extensions = new CertificateExtensions();
         final KeyUsageExtension keyUsageExtension = new KeyUsageExtension();
@@ -554,7 +544,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509CertificateCreator.BuildFinal withSecureRandom(
+    public BuildFinal withSecureRandom(
         final SecureRandom secureRandom) {
       return new BuildFinalImpl(
           algorithm,
@@ -570,7 +560,7 @@ public class X509CertificateCreator {
 
 
     @Override
-    public X509Certificate build() throws GeneralSecurityException {
+    public X509Certificate create() throws GeneralSecurityException {
       try {
         final X509CertInfo info = new X509CertInfo();
         final CertificateValidity interval =
@@ -605,7 +595,7 @@ public class X509CertificateCreator {
 
     @Override
     public BuildChainFinal chain() {
-      return () -> new X509Certificate[]{BuildFinalImpl.this.build()};
+      return () -> new X509Certificate[]{BuildFinalImpl.this.create()};
     }
 
 
@@ -614,7 +604,7 @@ public class X509CertificateCreator {
         PrivateKey issuerPrivateKey,
         final Function<PublicKeyStage, BuildChainFinal> childBuilderFunction) {
       return () -> {
-        X509Certificate issuerCertificate = BuildFinalImpl.this.build();
+        X509Certificate issuerCertificate = BuildFinalImpl.this.create();
 
         PublicKeyStage publicKeyStage =
             X509CertificateCreator.creator()

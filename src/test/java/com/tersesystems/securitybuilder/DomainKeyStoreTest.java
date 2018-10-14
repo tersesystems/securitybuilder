@@ -62,7 +62,7 @@ public class DomainKeyStoreTest {
             .withSHA256withRSA()
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", keyPair, 2)
-            .build();
+            .create();
 
     final Path privateKeyStorePath = Files.createTempFile(null, ".p12");
     final KeyStore pkcs12 = KeyStore.getInstance("PKCS12");

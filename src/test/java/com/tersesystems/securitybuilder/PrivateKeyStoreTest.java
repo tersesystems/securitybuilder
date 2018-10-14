@@ -96,7 +96,7 @@ public class PrivateKeyStoreTest {
               .withNotBeforeNow()
               .withDuration(Duration.ofDays(365))
               .withRootCA("CN=example.com", rsaKeyPair, 2)
-              .build();
+              .create();
       final PrivateKeyEntry entry =
           new PrivateKeyEntry(rsaKeyPair.getPrivate(), new Certificate[] {rsaCertificate});
       privateKeyStore.put("alias1", entry);
@@ -118,14 +118,14 @@ public class PrivateKeyStoreTest {
             .withSHA256withRSA()
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", rsaKeyPair, 2)
-            .build();
+            .create();
 
     final X509Certificate dsaCertificate =
         X509CertificateCreator.creator()
             .<DSAPrivateKey>withSignatureAlgorithm("SHA256withDSA")
             .withDuration(Duration.ofDays(365))
             .withRootCA("CN=example.com", dsaKeyPair, 2)
-            .build();
+            .create();
 
     final KeyStore pkcs12 = KeyStore.getInstance(KeyStore.getDefaultType());
     pkcs12.load(null);

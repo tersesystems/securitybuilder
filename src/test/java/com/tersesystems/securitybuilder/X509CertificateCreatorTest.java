@@ -7,33 +7,15 @@ import static org.assertj.core.api.Assertions.fail;
 import com.tersesystems.securitybuilder.KeyPairCreator.FinalStage;
 import com.tersesystems.securitybuilder.X509CertificateCreator.IssuerStage;
 import java.io.IOException;
-import java.security.AlgorithmConstraints;
-import java.security.AlgorithmParameters;
-import java.security.CryptoPrimitive;
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
-import java.security.Key;
-import java.security.NoSuchAlgorithmException;
 import java.security.PublicKey;
-import java.security.cert.CertPath;
-import java.security.cert.CertPathValidator;
 import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-import java.security.cert.CertificateFactory;
-import java.security.cert.PKIXCertPathChecker;
 import java.security.cert.PKIXCertPathValidatorResult;
-import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.RSAKey;
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.EnumSet;
-import java.util.Set;
 import javax.net.ssl.SSLContext;
 import org.junit.jupiter.api.Test;
 
@@ -46,24 +28,24 @@ public class X509CertificateCreatorTest {
     RSAKeyPair intermediateKeyPair = keyPairCreator.create();
     RSAKeyPair eePair = keyPairCreator.create();
 
-    IssuerStage<RSAPrivateKey> builder =
+    IssuerStage<RSAPrivateKey> creator =
         X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
     X509Certificate[] chain =
-        builder
+        creator
             .withRootCA(issuer, rootKeyPair, 2)
             .chain(
                 rootKeyPair.getPrivate(),
-                rootBuilder ->
-                    rootBuilder
+                rootCreator ->
+                    rootCreator
                         .withPublicKey(intermediateKeyPair.getPublic())
                         .withSubject("OU=intermediate CA")
                         .withCertificateAuthorityExtensions(0)
                         .chain(
                             intermediateKeyPair.getPrivate(),
-                            intBuilder ->
-                                intBuilder
+                            intCreator ->
+                                intCreator
                                     .withPublicKey(eePair.getPublic())
                                     .withSubject("CN=tersesystems.com")
                                     .withEndEntityExtensions()
@@ -73,17 +55,6 @@ public class X509CertificateCreatorTest {
     PrivateKeyStore privateKeyStore =
         PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
     TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
-
-    try {
-      final TrustAnchor anchor =
-          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
-      final PKIXCertPathValidatorResult result = validateChain("tersesystems.com", privateKeyStore,
-          anchor);
-      final PublicKey subjectPublicKey = result.getPublicKey();
-      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
-    } catch (final CertPathValidatorException cpve) {
-      fail("Cannot test exception", cpve);
-    }
 
     SSLContext sslContext =
         SSLContextBuilder.builder()
@@ -113,7 +84,7 @@ public class X509CertificateCreatorTest {
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
 
-    X509Certificate caCertificate = creator.withRootCA(issuer, rootKeyPair, 2).build();
+    X509Certificate caCertificate = creator.withRootCA(issuer, rootKeyPair, 2).create();
 
     final RSAKeyPair intermediateKeyPair = keyPairCreator.create();
     X509Certificate intermediateCaCert =
@@ -123,7 +94,7 @@ public class X509CertificateCreatorTest {
             .withPublicKey(intermediateKeyPair.getPublic())
             .withSubject("OU=intermediate CA")
             .withCertificateAuthorityExtensions(0)
-            .build();
+            .create();
 
     final RSAKeyPair eePair = keyPairCreator.create();
     X509Certificate leafCertificate =
@@ -133,16 +104,16 @@ public class X509CertificateCreatorTest {
             .withPublicKey(eePair.getPublic())
             .withSubject("CN=tersesystems.com")
             .withEndEntityExtensions()
-            .build();
+            .create();
 
-    PrivateKeyStore privateKeyStore =
-        PrivateKeyStore.create(
-            "alias", eePair.getPrivate(), leafCertificate, intermediateCaCert, caCertificate);
+    Certificate[] chain = { leafCertificate, intermediateCaCert, caCertificate };
 
     // Check that this passes a certpath validation.
     try {
-      final TrustAnchor anchor = new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
-      final PKIXCertPathValidatorResult result = validateChain("alias", privateKeyStore, anchor);
+      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
+          .withAnchor(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
+          .withCertificates(chain)
+          .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
@@ -150,94 +121,4 @@ public class X509CertificateCreatorTest {
     }
   }
 
-  PKIXCertPathValidatorResult validateChain(String alias, PrivateKeyStore privateKeyStore,
-      TrustAnchor anchor)
-      throws CertificateException, NoSuchAlgorithmException, CertPathValidatorException,
-      InvalidAlgorithmParameterException {
-    final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-    final Certificate[] chain = privateKeyStore.get(alias).getCertificateChain();
-    final CertPath certPath =
-        certificateFactory.generateCertPath(Arrays.asList(chain[0], chain[1]));
-
-    final CertPathValidator cpv = CertPathValidator.getInstance("PKIX");
-    final PKIXParameters params = new PKIXParameters(Collections.singleton(anchor));
-    params.setRevocationEnabled(false);
-
-    final SimpleChecker sc = new SimpleChecker();
-    params.addCertPathChecker(sc);
-
-    final PKIXCertPathValidatorResult result =
-        (PKIXCertPathValidatorResult) cpv.validate(certPath, params);
-    return result;
-  }
-
-  private static class SimpleChecker extends PKIXCertPathChecker {
-
-    private static final Set<CryptoPrimitive> SIGNATURE_PRIMITIVE_SET =
-        EnumSet.of(CryptoPrimitive.SIGNATURE);
-
-    public void init(final boolean forward) throws CertPathValidatorException {
-    }
-
-    public boolean isForwardCheckingSupported() {
-      return true;
-    }
-
-    public Set<String> getSupportedExtensions() {
-      return Collections.emptySet();
-    }
-
-    public void check(final Certificate cert, final Collection<String> unresolvedCritExts)
-        throws CertPathValidatorException {
-      final X509Certificate c = (X509Certificate) cert;
-      final String sa = c.getSigAlgName();
-      final Key key = c.getPublicKey();
-
-      final AlgorithmConstraints constraints = new SimpleConstraints();
-
-      if (!constraints.permits(SIGNATURE_PRIMITIVE_SET, sa, null)) {
-        throw new CertPathValidatorException("Forbidden algorithm: " + sa);
-      }
-
-      if (!constraints.permits(SIGNATURE_PRIMITIVE_SET, key)) {
-        throw new CertPathValidatorException("Forbidden key: " + key);
-      }
-    }
-  }
-
-  private static class SimpleConstraints implements AlgorithmConstraints {
-
-    public boolean permits(
-        final Set<CryptoPrimitive> primitives,
-        final String algorithm,
-        final AlgorithmParameters parameters) {
-      return permits(primitives, algorithm, null, parameters);
-    }
-
-    public boolean permits(final Set<CryptoPrimitive> primitives, final Key key) {
-      return permits(primitives, null, key, null);
-    }
-
-    public boolean permits(
-        final Set<CryptoPrimitive> primitives,
-        String algorithm,
-        final Key key,
-        final AlgorithmParameters parameters) {
-      if (algorithm == null) {
-        algorithm = key.getAlgorithm();
-      }
-
-      if (!algorithm.contains("RSA")) {
-        return false;
-      }
-
-      if (key != null) {
-        final RSAKey rsaKey = (RSAKey) key;
-        final int size = rsaKey.getModulus().bitLength();
-        return size >= 2048;
-      }
-
-      return true;
-    }
-  }
 }

@@ -82,24 +82,24 @@ public class X509CertificateCreatorTest {
     RSAKeyPair intermediateKeyPair = keyPairCreator.create();
     RSAKeyPair eePair = keyPairCreator.create();
 
-    IssuerStage<RSAPrivateKey> builder =
+    IssuerStage<RSAPrivateKey> creator =
         X509CertificateCreator.creator().withSHA256withRSA().withDuration(Duration.ofDays(365));
 
     String issuer = "CN=letsencrypt.derp,O=Root CA";
     X509Certificate[] chain =
-        builder
+        creator
             .withRootCA(issuer, rootKeyPair, 2)
             .chain(
                 rootKeyPair.getPrivate(),
-                rootBuilder ->
-                    rootBuilder
+                rootCreator ->
+                    rootCreator
                         .withPublicKey(intermediateKeyPair.getPublic())
                         .withSubject("OU=intermediate CA")
                         .withCertificateAuthorityExtensions(0)
                         .chain(
                             intermediateKeyPair.getPrivate(),
-                            intBuilder ->
-                                intBuilder
+                            intCreator ->
+                                intCreator
                                     .withPublicKey(eePair.getPublic())
                                     .withSubject("CN=tersesystems.com")
                                     .withEndEntityExtensions()
@@ -111,10 +111,10 @@ public class X509CertificateCreatorTest {
     TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
 
     try {
-      final TrustAnchor anchor =
-          new TrustAnchor(issuer, rootKeyPair.getPublic(), null);
-      final PKIXCertPathValidatorResult result = validateChain("tersesystems.com", privateKeyStore,
-          anchor);
+      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
+          .withAnchor(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
+          .withCertificates(chain)
+          .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
@@ -241,6 +241,27 @@ public class SSLContextBuilderTest {
       sslContext.createSSLEngine();
     } catch (final GeneralSecurityException e) {
       fail(e.getMessage(), e);
+    }
+  }
+}
+```
+
+### CertificateChainValidator
+
+Tests a certificate chain using CertPathValidator.
+
+```java
+public class CertificateChainValidatorTest {
+  public void testCertificate(Certificate[] chain, TrustAnchor trustAnchor) {
+    try {
+      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
+          .withAnchor(trustAnchor)
+          .withCertificates(chain)
+          .validate();
+      final PublicKey subjectPublicKey = result.getPublicKey();
+      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
+    } catch (final CertPathValidatorException cpve) {
+      fail("Cannot test exception", cpve);
     }
   }
 }
