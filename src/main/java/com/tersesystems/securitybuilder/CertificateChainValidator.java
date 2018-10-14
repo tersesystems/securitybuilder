@@ -12,6 +12,7 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathValidatorResult;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
+import java.security.cert.X509Certificate;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -25,6 +26,8 @@ public class CertificateChainValidator {
 
   public interface InitialStage {
 
+    CertificatesStage withTrustedCertificate(Certificate certificate);
+
     CertificatesStage withAnchor(TrustAnchor anchor);
 
     CertificatesStage withAnchors(Set<TrustAnchor> anchors);
@@ -34,8 +37,8 @@ public class CertificateChainValidator {
 
   public interface CertificatesStage {
     FinalStage withCertificates(Certificate[] certificates);
-    FinalStage withCertificates(List<Certificate> certificates);
-    FinalStage withCertificates(Supplier<List<Certificate>> certificates);
+    FinalStage withCertificates(List<? extends Certificate> certificates);
+    FinalStage withCertificates(Supplier<List<? extends Certificate>> certificates);
   }
 
   public interface FinalStage {
@@ -45,6 +48,11 @@ public class CertificateChainValidator {
   }
 
   private static class InitialStageImpl implements InitialStage {
+
+    @Override
+    public CertificatesStage withTrustedCertificate(final Certificate certificate) {
+      return new CertificatesStageImpl(() -> Collections.singleton(new TrustAnchor((X509Certificate) certificate, null)));
+    }
 
     @Override
     public CertificatesStage withAnchor(final TrustAnchor anchor) {
@@ -76,12 +84,12 @@ public class CertificateChainValidator {
     }
 
     @Override
-    public FinalStage withCertificates(final List<Certificate> certificates) {
+    public FinalStage withCertificates(final List<? extends Certificate> certificates) {
       return new FinalStageImpl(anchorsSupplier, () -> certificates);
     }
 
     @Override
-    public FinalStage withCertificates(final Supplier<List<Certificate>> supplier) {
+    public FinalStage withCertificates(final Supplier<List<? extends Certificate>> supplier) {
       return new FinalStageImpl(anchorsSupplier, supplier);
     }
   }
@@ -89,11 +97,11 @@ public class CertificateChainValidator {
   private static class FinalStageImpl implements FinalStage {
 
     private final Supplier<Set<TrustAnchor>> anchorsSupplier;
-    private final Supplier<List<Certificate>> certSupplier;
+    private final Supplier<List<? extends Certificate>> certSupplier;
 
     private FinalStageImpl(
         final Supplier<Set<TrustAnchor>> anchorsSupplier,
-        final Supplier<List<Certificate>> certSupplier) {
+        final Supplier<List<? extends Certificate>> certSupplier) {
       this.anchorsSupplier = anchorsSupplier;
       this.certSupplier = certSupplier;
     }
@@ -107,7 +115,7 @@ public class CertificateChainValidator {
       //params.addCertPathChecker(sc);
 
       final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
-      List<Certificate> certificates = certSupplier.get();
+      List<? extends Certificate> certificates = certSupplier.get();
       final CertPath certPath = certificateFactory.generateCertPath(certificates.subList(0, certificates.size() - 1));
       return (PKIXCertPathValidatorResult) cpv.validate(certPath, params);
     }

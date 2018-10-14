@@ -48,7 +48,7 @@ All the classes are in `com.tersesystems.securitybuilder` package.
 import com.tersesystems.securitybuilder.*;
 ```
 
-In general, if you're just using the JCA, there are some [right answers](https://gist.github.com/tqbf/be58d2d39690c3b366ad):
+In general, if you're just using the JCA, there are some [based off Latacora's Cryptographic Right Answers](https://latacora.singles/2018/04/03/cryptographic-right-answers.html):
 
 * Use RSA with 2048 bit key length and SHA-2 for public and private keys.
 * Use AES-GCM for encryption but **SEE WARNING BELOW**, and never reuse the IV.  There is no provable difference between AES-128 and AES-256, so [don't worry about it](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html) and use AES-256.  
@@ -64,6 +64,8 @@ or [scrypt](https://github.com/wg/scrypt) go with that.
 If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  In particular, low level libraries don't do key management and key rotation very well.
 
 Use [Google Tink](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md) instead, which has support for [storing keysets](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#storing-keysets), [symmetric key encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption), [digital signatures](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#digitial-signatures), [envelope encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#envelope-encryption) and [key rotation](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#key-rotation). 
+
+Google Tink doesn't do everything: in that case, I recommend looking for a fallback professional high-level library rather than rolling your own.  This will typically involve an binding on top of a C library like [lazysodium](https://github.com/terl/lazysodium-java) on top of [libsodium](https://download.libsodium.org/doc/), or a specialized crypto framework like [Noise-Java](https://github.com/rweather/noise-java) implementing the [Noise Protocol Framework](http://noiseprotocol.org/).
 
 ## JSSE (Java TLS Classes)
 
@@ -751,9 +753,9 @@ public class PasswordBuilderTest {
 
 ### KeyAgreementBuilder
 
-Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyAgreement">KeyAgreement</a> instance.
+Creates a [KeyAgreement](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyAgreement) instance.
 
-This is typically used with Diffie-Hellman, most commonly found in SSH.  Use [jsch](http://www.jcraft.com/jsch/) or a high level library if you can help it.
+This is typically used with Diffie-Hellman, most commonly found in SSH.  Use [jsch](http://www.jcraft.com/jsch/) if you want SSH, otherwise you're better off using a high level crypto library like those described in the WARNING section up top.
 
 The [canonical DH key exchange](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#DH2Ex):
 
