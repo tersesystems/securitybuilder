@@ -2,9 +2,7 @@
 
 # Security Builders
 
-The [Java Cryptography Architecture](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) lays out how to create and initialize certificates, keystores, and so on, but typically does so in frustrating ways.  
-
-This library implements a set of "fluent" API builders for the `java.security` classes, and provides more typesafe, intuitive API to access trust stores, key stores and keys.  The primary purpose of this library is to make small tasks easy, and provide better integration with the JSSE stack.
+This library implements a set of "fluent" API builders for the `java.security` classes, and provides more typesafe, intuitive API to access trust stores, key stores and keys.  The primary purpose of this library is to make small tasks easy, and provide better integration with the JSSE stack.  
 
 ## Installation
 
@@ -27,7 +25,7 @@ In your pom.xml:
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
-    <version>0.1.5</version><!-- see badge for latest version -->
+    <version>0.1.6</version><!-- see badge for latest version -->
 </dependency>
 ```
 
@@ -35,12 +33,14 @@ In your pom.xml:
 
 ```scala
 resolvers += Resolver.bintrayRepo("tersesystems", "maven") 
-libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.5"
+libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.6"
 ```
 
 ## Usage
 
-The primary use of this package is to set up test X.509 certificates, private keys and trust stores.  The assumption is that you'll be working with Java 1.8 but with decent algorithms, so there are a number of preset defaults.  Please be aware that some of the algorithms in the JCA are way, way out of date.
+The primary use of this package is to set up test X.509 certificates, private keys and trust stores.  The [Java Cryptography Architecture](https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html) lays out how to create and initialize certificates, keystores, and so on, but typically does so in frustrating ways.  
+ 
+The assumption is that you'll be working with Java 1.8 but with decent algorithms, so there are a number of preset defaults.  The builders are thread-safe and only build when you pull the trigger, but assume immutable input, so don't pass in arrays or lists that you are still fiddling with.
 
 All the classes are in `com.tersesystems.securitybuilder` package.
 
@@ -52,7 +52,7 @@ In general, if you're just using the JCA, there are some [based off Latacora's C
 
 * Use RSA with 2048 bit key length and SHA-2 for public and private keys.
 * Use AES-GCM for encryption but **SEE WARNING BELOW**, and never reuse the IV.  There is no provable difference between AES-128 and AES-256, so [don't worry about it](http://www.daemonology.net/blog/2009-06-11-cryptographic-right-answers.html) and use AES-256.  
-* If you're going over the network, you generally want full on TLS, so use JSSE.  Be aware that SSLEngine does not know that you're using HTTPS, so you need to [define hostname verification](https://tersesystems.com/blog/2014/03/23/fixing-hostname-verification/) yourself by setting `sslParameters.setEndpointIdentificationAlgorithm("HTTPS")`. 
+* If you're going over the network, you generally want full on TLS, so use JSSE with [debugjsse](https://github.com/tersesystems/debugjsse) as the provider to see what's going on under the hood.  Be aware that SSLEngine/SSLSocket does not know that you're using HTTPS, so you need to [define hostname verification](https://tersesystems.com/blog/2014/03/23/fixing-hostname-verification/) yourself by setting `sslParameters.setEndpointIdentificationAlgorithm("HTTPS")`. 
 * Use an HMAC with at least SHA256, and a secret key that has at least 96 bits of entropy -- `EntropySource.salt()` uses 256 bits.
 * Use a MessageDigest with at least SHA256.
 * Use PBKDF2 with a SHA-2 HMAC [if you have to](https://pthree.org/2016/06/28/lets-talk-password-hashing/), but if you can use [jBCrypt](http://www.mindrot.org/projects/jBCrypt/) 
@@ -60,6 +60,8 @@ or [scrypt](https://github.com/wg/scrypt) go with that.
 * There's no real need to use your own SecureRandom, and you don't need to use `useInstanceStrong`, the entropy pool is the same and [you may get blocking](https://tersesystems.com/blog/2015/12/17/the-right-way-to-use-securerandom/).  Use `EntropySource`.
 
 ### WARNING
+
+Please be aware that some of the algorithms in the JCA are way, way out of date.
 
 If you need a cryptography API, **DON'T USE THE JCA!**  Even with these builders, building your own crypto using a low level library is like [juggling chainsaws in the dark](https://www.usenix.org/sites/default/files/conference/protected-files/hotsec15_slides_green.pdf).  In particular, low level libraries don't do key management and key rotation very well.
 
@@ -171,7 +173,7 @@ public class CertificateBuilderTest {
 
 ### KeyManagerBuilder
 
-Builds a [`KeyManager`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#KeyManagerFactory) from input.  If you use `withNewSunX509()`, then you get a `X509ExtendedKeyManager` that is the default.
+Builds a [`KeyManager`](https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#KeyManagerFactory) from input.  If you use `withNewSunX509()`, then you get a `X509ExtendedKeyManager` that can differentiate between RSA / DSA keys, pick out unexpired keys, and use password specific entries out of the store (if you use the keystore builder defined below).   See [Key Managers and Key Stores](https://tersesystems.com/blog/2018/09/08/keymanagers-and-keystores/) for the gory details.
 
 Recommend using with [debugjsse](https://github.com/tersesystems/debugjsse) provider.
 
@@ -219,6 +221,8 @@ Build a [`SSLContext`](https://docs.oracle.com/javase/8/docs/technotes/guides/se
 
 You will typically want to combine this with `TrustManagerBuilder` and `KeyManagerBuilder`.
 
+Recommend using with [debugjsse](https://github.com/tersesystems/debugjsse) provider.
+
 ```java
 public class SSLContextBuilderTest {
 
@@ -250,14 +254,14 @@ public class SSLContextBuilderTest {
 
 ### CertificateChainValidator
 
-Tests a certificate chain using CertPathValidator.
+Validates a certificate chain using a PKIX [`CertPathValidator`](https://docs.oracle.com/javase/8/docs/api/java/security/cert/CertPathValidator.html).  See [Java PKI Programmer's Guide](https://docs.oracle.com/javase/8/docs/technotes/guides/security/certpath/CertPathProgGuide.html) for details, but you can safely ignore most if not all of it.
 
 ```java
 public class CertificateChainValidatorTest {
-  public void testCertificate(Certificate[] chain, TrustAnchor trustAnchor) {
+  public void testCertificate(Certificate[] chain, X509Certificate rootCertificate) {
     try {
       final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withAnchor(trustAnchor)
+          .withTrustedCertificates(rootCertificate)
           .withCertificates(chain)
           .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
@@ -674,7 +678,7 @@ public class SignatureBuilderTest {
 
 ### EntropySource
 
-Pulls from SecureRandom `/dev/urandom`, using the recommended number of random bits.
+Pulls from SecureRandom `/dev/urandom`, using the recommended number of random bits.  See [blog post](https://tersesystems.com/blog/2015/12/17/the-right-way-to-use-securerandom/) for details.
 
 ```java
 public class EntropySource {
@@ -702,7 +706,7 @@ Finally, there's some code which is useful in a pinch but which doesn't really g
 
 Makes generating an AES-GCM cipher a bit easier.  You [always](https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/) want to use an authenticated encryption mode.
 
-Again, you're better off using Google Tink's [symmetric encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption) if you're doing encryption -- and if you're going over the network, you generally want full on TLS.
+Again, you're better off using Google Tink's [symmetric encryption](https://github.com/google/tink/blob/master/docs/JAVA-HOWTO.md#symmetric-key-encryption) if you're doing encryption -- and if you're going over the network, you generally want full on TLS.  See the usage and warnings up top.
 
 ```java
 public class AuthenticatedEncryptionBuilderTest {

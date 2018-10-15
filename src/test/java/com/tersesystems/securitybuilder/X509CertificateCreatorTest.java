@@ -16,6 +16,7 @@ import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Duration;
+import java.util.Arrays;
 import javax.net.ssl.SSLContext;
 import org.junit.jupiter.api.Test;
 
@@ -52,25 +53,17 @@ public class X509CertificateCreatorTest {
                                     .chain()))
             .create();
 
-    PrivateKeyStore privateKeyStore =
-        PrivateKeyStore.create("tersesystems.com", eePair.getPrivate(), chain);
-    TrustStore trustStore = TrustStore.create(singletonList(chain[2]), cert -> "letsencrypt.derp");
-
-    SSLContext sslContext =
-        SSLContextBuilder.builder()
-            .withTLS()
-            .withKeyManager(
-                KeyManagerBuilder.builder()
-                    .withSunX509()
-                    .withPrivateKeyStore(privateKeyStore)
-                    .build())
-            .withTrustManager(
-                TrustManagerBuilder.builder()
-                    .withDefaultAlgorithm()
-                    .withTrustStore(trustStore)
-                    .build())
-            .build();
-    assertThat(sslContext).isNotNull();
+    // Check that this passes a certpath validation.
+    try {
+      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
+          .withTrustedCertificates(chain[2])
+          .withCertificates(Arrays.asList(chain))
+          .validate();
+      final PublicKey subjectPublicKey = result.getPublicKey();
+      assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
+    } catch (final CertPathValidatorException cpve) {
+      fail("Cannot test exception", cpve);
+    }
   }
 
   @Test
@@ -111,7 +104,7 @@ public class X509CertificateCreatorTest {
     // Check that this passes a certpath validation.
     try {
       final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withAnchor(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
+          .withAnchors(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
           .withCertificates(chain)
           .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();

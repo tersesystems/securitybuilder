@@ -1,21 +1,16 @@
 package com.tersesystems.securitybuilder;
 
 import java.security.GeneralSecurityException;
-import java.security.InvalidAlgorithmParameterException;
 import java.security.KeyStore;
-import java.security.NoSuchAlgorithmException;
 import java.security.cert.CertPath;
 import java.security.cert.CertPathValidator;
-import java.security.cert.CertPathValidatorException;
 import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
 import java.security.cert.CertificateFactory;
 import java.security.cert.PKIXCertPathValidatorResult;
 import java.security.cert.PKIXParameters;
 import java.security.cert.TrustAnchor;
 import java.security.cert.X509Certificate;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.function.Supplier;
@@ -34,7 +29,7 @@ public class CertificateChainValidator {
 
     CertificatesStage withKeyStore(KeyStore keyStore);
 
-    CertificatesStage withAnchor(TrustAnchor anchor);
+    CertificatesStage withAnchors(TrustAnchor... anchors);
 
     CertificatesStage withAnchors(Set<TrustAnchor> anchors);
 
@@ -42,8 +37,11 @@ public class CertificateChainValidator {
   }
 
   public interface CertificatesStage {
+
     FinalStage withCertificates(Certificate[] certificates);
+
     FinalStage withCertificates(List<? extends Certificate> certificates);
+
     FinalStage withCertificates(Supplier<List<? extends Certificate>> certificates);
   }
 
@@ -56,8 +54,9 @@ public class CertificateChainValidator {
 
     @Override
     public CertificatesStage withTrustedCertificates(final Certificate... certificates) {
-      return new CertificatesStageImpl(() -> Arrays.stream(certificates).map(certificate -> new TrustAnchor((X509Certificate) certificate, null)).collect(
-          Collectors.toSet()));
+      return new CertificatesStageImpl(() -> Arrays.stream(certificates)
+          .map(certificate -> new TrustAnchor((X509Certificate) certificate, null))
+          .collect(Collectors.toSet()));
     }
 
     @Override
@@ -74,8 +73,8 @@ public class CertificateChainValidator {
     }
 
     @Override
-    public CertificatesStage withAnchor(final TrustAnchor anchor) {
-      return new CertificatesStageImpl(() -> Collections.singleton(anchor));
+    public CertificatesStage withAnchors(final TrustAnchor... anchors) {
+      return new CertificatesStageImpl(() -> Arrays.stream(anchors).collect(Collectors.toSet()));
     }
 
     @Override
@@ -135,7 +134,8 @@ public class CertificateChainValidator {
 
       final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
       List<? extends Certificate> certificates = certSupplier.get();
-      final CertPath certPath = certificateFactory.generateCertPath(certificates.subList(0, certificates.size() - 1));
+      final CertPath certPath = certificateFactory
+          .generateCertPath(certificates.subList(0, certificates.size() - 1));
       return (PKIXCertPathValidatorResult) cpv.validate(certPath, params);
     }
   }
