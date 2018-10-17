@@ -18,7 +18,7 @@ import org.junit.jupiter.api.Test;
 class PrivateKeyBuilderTest {
 
   @Test
-  void builderWithRSA() throws GeneralSecurityException {
+  public void builderWithRSA() throws GeneralSecurityException {
     final RSAPrivateKey exampleKey =
             KeyPairCreator.creator().withRSA().withKeySize(2048).create().getPrivate();
     final RSAPrivateKeySpec rsaPrivateKeySpec =
@@ -30,7 +30,7 @@ class PrivateKeyBuilderTest {
   }
 
   @Test
-  void builderWithEC() throws GeneralSecurityException {
+  public void builderWithEC() throws GeneralSecurityException {
     final ECPrivateKey exampleKey =
             KeyPairCreator.creator().withEC().withKeySize(128).create().getPrivate();
     final ECPrivateKeySpec privateKeySpec =
@@ -42,7 +42,7 @@ class PrivateKeyBuilderTest {
   }
 
   @Test
-  void builderWithDH() throws GeneralSecurityException {
+  public  void builderWithDH() throws GeneralSecurityException {
     final DHPrivateKey exampleKey =
             KeyPairCreator.creator().withDH().withKeySize(2048).create().getPrivate();
     DHParameterSpec params = exampleKey.getParams();
@@ -56,7 +56,7 @@ class PrivateKeyBuilderTest {
 
 
   @Test
-  void builderWithDSA() throws GeneralSecurityException {
+  public void builderWithDSA() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
             KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
@@ -72,7 +72,7 @@ class PrivateKeyBuilderTest {
   }
 
   @Test
-  void builderWithAlgorithm() throws GeneralSecurityException {
+  public void builderWithAlgorithm() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
             KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =

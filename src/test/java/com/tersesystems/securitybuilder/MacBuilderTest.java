@@ -11,7 +11,7 @@ import org.junit.jupiter.api.Test;
 public class MacBuilderTest {
 
   @Test
-  void testMacBuild() throws GeneralSecurityException {
+  public void testMacBuild() throws GeneralSecurityException {
     SecretKey key = new SecretKeySpec("privatekey".getBytes(), "HmacSHA256");
 
     Mac sha256Mac = MacBuilder.builder().withAlgorithm("HmacSHA256").withKey(key).build();
@@ -22,7 +22,7 @@ public class MacBuilderTest {
   }
 
   @Test
-  void testSecretKeySpec() throws GeneralSecurityException {
+  public void testSecretKeySpec() throws GeneralSecurityException {
     Mac sha256Mac = MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
     String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
 
@@ -31,7 +31,7 @@ public class MacBuilderTest {
   }
 
   @Test
-  void testHmac() throws GeneralSecurityException {
+  public void testHmac() throws GeneralSecurityException {
     Mac sha256Mac = MacBuilder.builder().withHmacSHA256().withString("privatekey").build();
     String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
 

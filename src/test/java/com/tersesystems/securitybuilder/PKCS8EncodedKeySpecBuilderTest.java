@@ -11,7 +11,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.security.spec.X509EncodedKeySpec;
 import org.junit.jupiter.api.Test;
 
-class PKCS8EncodedKeySpecBuilderTest {
+public class PKCS8EncodedKeySpecBuilderTest {
 
   @Test
   public void testPrivateKey() throws Exception {

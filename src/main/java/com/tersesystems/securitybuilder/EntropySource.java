@@ -1,7 +1,6 @@
 package com.tersesystems.securitybuilder;
 
 import java.security.SecureRandom;
-import sun.security.jca.JCAUtil;
 
 /**
  * Provide a reasonable source of random bytes.
@@ -14,6 +13,21 @@ public class EntropySource {
   // https://crypto.stackexchange.com/a/34866 = 32 bytes (256 bits)
   // https://security.stackexchange.com/a/11224 = (128 bits is more than enough)
   public static final int DEFAULT_SALT_LENGTH = 32;
+
+  // cached SecureRandom instance
+  private static class CachedSecureRandomHolder {
+    static SecureRandom instance = new SecureRandom();
+  }
+
+  /**
+   * Get a SecureRandom instance. This method should be used in favor of calling "new SecureRandom()".
+   *
+   * That needs to iterate through the provider table to find the default SecureRandom
+   * implementation, which is fairly inefficient.
+   */
+  public static SecureRandom getSecureRandom() {
+    return CachedSecureRandomHolder.instance;
+  }
 
   /**
    * Provides an initialization vector for GCM.  This is always 12 bytes.
@@ -39,7 +53,7 @@ public class EntropySource {
   }
 
   private static final byte[] nextBytes(int length) {
-    SecureRandom secureRandom = JCAUtil.getSecureRandom();
+    SecureRandom secureRandom = getSecureRandom();
     byte[] bytes = new byte[length];
     secureRandom.nextBytes(bytes);
     return bytes;

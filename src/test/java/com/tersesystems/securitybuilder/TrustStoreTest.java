@@ -13,10 +13,10 @@ import java.security.cert.X509Certificate;
 import java.time.Duration;
 import org.junit.jupiter.api.Test;
 
-class TrustStoreTest {
+public class TrustStoreTest {
 
   @Test
-  void testSize() {
+  public void testSize() {
     try {
       final KeyStore keyStore = generateStore();
       final TrustStore trustStore = TrustStore.create(keyStore);

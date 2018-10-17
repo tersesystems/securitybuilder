@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.Date;
 import java.util.List;
 import java.util.function.Function;
-import sun.security.jca.JCAUtil;
 import sun.security.x509.AlgorithmId;
 import sun.security.x509.BasicConstraintsExtension;
 import sun.security.x509.CertificateAlgorithmId;
@@ -434,7 +433,7 @@ public class X509CertificateCreator {
           publicKey,
           privateKey,
           extensions,
-          JCAUtil.getSecureRandom());
+          EntropySource.getSecureRandom());
     }
 
 
@@ -539,7 +538,7 @@ public class X509CertificateCreator {
       this.publicKey = publicKey;
       this.privateKey = privateKey;
       this.extensions = extensions;
-      this.secureRandom = JCAUtil.getSecureRandom();
+      this.secureRandom = EntropySource.getSecureRandom();
     }
 
 

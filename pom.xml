@@ -124,6 +124,16 @@
     </resources>
     <!-- define build -->
     <plugins>
+      <!-- https://github.com/marschall/jdeps-maven-plugin -->
+      <plugin>
+        <groupId>com.github.marschall</groupId>
+        <artifactId>jdeps-maven-plugin</artifactId>
+        <version>0.5.1</version>
+        <!-- optionally any configuration -->
+        <configuration>
+          <profile>true</profile>
+        </configuration>
+      </plugin>
       <!-- Turn on Checkstyle -->
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -224,6 +234,14 @@
           </execution>
         </executions>
       </plugin>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <source>9</source>
+          <target>9</target>
+        </configuration>
+      </plugin>
     </plugins>
     <!-- Manage plugin versions -->
     <pluginManagement>
@@ -323,6 +341,12 @@
           <groupId>org.apache.maven.plugins</groupId>
           <artifactId>maven-surefire-plugin</artifactId>
           <version>${maven-surefire-plugin.version}</version>
+          <configuration>
+            <!-- https://github.com/pingidentity/java9-token-binding-negotiation/blob/master/pom.xml#L52 -->
+            <argLine>
+              --add-exports java.base/sun.security.ssl=ALL-UNNAMED --add-exports java.base/sun.security.x509=com.tersesystems.securitybuilder  --patch-module java.base=${basedir}/target/classes -Djavax.net.debug=ssl,handshake,session
+            </argLine>
+          </configuration>
         </plugin>
         <plugin>
           <groupId>org.apache.maven.plugins</groupId>
@@ -696,7 +720,6 @@
                       https://github.com/pingidentity/java9-token-binding-negotiation/blob/master/pom.xml#L39
                     -->
                     <arg>--add-exports</arg><arg>java.base/sun.security.x509=com.tersesystems.securitybuilder</arg>
-                    <arg>--add-exports</arg><arg>java.base/sun.security.jca=com.tersesystems.securitybuilder</arg>
                   </compilerArgs>
                 </configuration>
               </execution>

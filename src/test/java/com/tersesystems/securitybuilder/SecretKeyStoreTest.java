@@ -21,7 +21,7 @@ import org.junit.jupiter.api.Test;
 public class SecretKeyStoreTest {
 
   @Test
-  void testSize() {
+  public void testSize() {
     try {
       final String password = "test";
       final Map<String, ProtectionParameter> passwordMap =
@@ -49,7 +49,7 @@ public class SecretKeyStoreTest {
   }
 
   @Test
-  void testGet() {
+  public void testGet() {
     try {
       final String password = "test";
       final Map<String, ProtectionParameter> passwordMap =

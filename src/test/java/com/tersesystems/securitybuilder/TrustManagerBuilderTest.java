@@ -10,11 +10,11 @@ import javax.net.ssl.X509ExtendedTrustManager;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.condition.DisabledIfEnvironmentVariable;
 
-class TrustManagerBuilderTest {
+public class TrustManagerBuilderTest {
 
   @DisabledIfEnvironmentVariable(named = "TRAVIS", matches = "true")
   @Test
-  void builderWithDefaults() throws Exception {
+  public void builderWithDefaults() throws Exception {
     final X509ExtendedTrustManager trustManager =
         TrustManagerBuilder.builder().withDefaultAlgorithm().withDefaultKeystore().build();
     assertThat(trustManager).isNotNull();
@@ -22,7 +22,7 @@ class TrustManagerBuilderTest {
   }
 
   @Test
-  void builderWithKeyStore() throws Exception {
+  public  void builderWithKeyStore() throws Exception {
     final KeyStore keyStore = KeyStoreBuilder.empty();
     final X509ExtendedTrustManager trustManager =
         TrustManagerBuilder.builder().withDefaultAlgorithm().withKeyStore(keyStore).build();
@@ -30,7 +30,7 @@ class TrustManagerBuilderTest {
   }
 
   @Test
-  void builderWithPKIXParameters() throws Exception {
+  public void builderWithPKIXParameters() throws Exception {
     final X509Certificate certificate =
         CertificateBuilder.builder()
             .withX509()
