@@ -626,6 +626,8 @@
                 <id>default-compile</id>
                 <configuration>
                   <release>9</release>
+                  <!-- Undocumented argument to ignore "Sun internal proprietary API" warning, see http://stackoverflow.com/a/13862308/2257172 -->
+                  <compilerArgument value="-XDignore.symbol.file"/>
                 </configuration>
               </execution>
               <!-- then compile without module-info for Java 6 -->
@@ -644,6 +646,7 @@
             <!-- setup defaults for compile and testCompile -->
             <configuration>
               <release>8</release>
+              <compilerArgument value="-XDignore.symbol.file"/>
             </configuration>
           </plugin>
           <!-- Hack to extract dependencies for Javadoc plugin -->
