@@ -15,6 +15,60 @@
   <version>1.0.1-SNAPSHOT</version>
 
   <!-- ==================================================================== -->
+
+  <properties>
+    <junit.jupiter.version>5.2.0</junit.jupiter.version>
+    <junit.platform.version>1.2.0</junit.platform.version>
+    <!-- Plugin version numbers -->
+    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
+    <maven-bundle-plugin.version>2.5.4</maven-bundle-plugin.version>
+    <maven-changes-plugin.version>2.12.1</maven-changes-plugin.version>
+    <!-- v3.0.0 does not work with Eclipse -->
+    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
+    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
+    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
+    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
+    <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
+    <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
+    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
+    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
+    <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
+    <maven-javadoc-plugin.version>3.0.0-M1</maven-javadoc-plugin.version>
+    <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
+    <maven-plugin-plugin.version>3.5.2</maven-plugin-plugin.version>
+    <maven-pmd-plugin.version>3.10.0</maven-pmd-plugin.version>
+    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
+    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
+    <maven-repository-plugin.version>2.4</maven-repository-plugin.version>
+    <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
+    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
+    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
+    <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
+    <maven-surefire-report-plugin.version>2.22.0</maven-surefire-report-plugin.version>
+    <maven-toolchains-plugin.version>1.1</maven-toolchains-plugin.version>
+    <bndlib.version>3.5.0</bndlib.version>
+    <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
+    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
+    <spotbugs-maven-plugin.version>3.1.6</spotbugs-maven-plugin.version>
+    <!-- Properties for maven-compiler-plugin -->
+    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
+    <maven.compiler.source>1.8</maven.compiler.source>
+    <maven.compiler.target>1.8</maven.compiler.target>
+    <maven.compiler.fork>true</maven.compiler.fork>
+    <!-- Properties for maven-javadoc-plugin -->
+    <author>false</author>
+    <notimestamp>true</notimestamp>
+    <doclint>none</doclint>
+    <!-- Properties for maven-checkstyle-plugin -->
+    <checkstyle.version>8.12</checkstyle.version>
+    <checkstyle.config.location>src/main/checkstyle/checkstyle.xml</checkstyle.config.location>
+    <linkXRef>false</linkXRef>
+    <!-- Other properties -->
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
+  </properties>
+
+  <!-- ==================================================================== -->
   <issueManagement>
     <system>GitHub</system>
     <url>https://github.com/tersesystems/securitybuilder/issues</url>
@@ -625,9 +679,18 @@
               <execution>
                 <id>default-compile</id>
                 <configuration>
-                  <release>9</release>
+                  <source>1.9</source>
+                  <target>1.9</target>
                   <!-- Undocumented argument to ignore "Sun internal proprietary API" warning, see http://stackoverflow.com/a/13862308/2257172 -->
-                  <compilerArgument value="-XDignore.symbol.file"/>
+                  <compilerArgs>
+                    <arg>-XDignore.symbol.file</arg>
+                    <!--
+                      https://blogs.oracle.com/java/module-system-in-jdk-9
+                      https://github.com/pingidentity/java9-token-binding-negotiation/blob/master/pom.xml#L39
+                    -->
+                    <arg>--add-exports</arg><arg>java.base/sun.security.x509=com.tersesystems.securitybuilder</arg>
+                    <arg>--add-exports</arg><arg>java.base/sun.security.jca=com.tersesystems.securitybuilder</arg>
+                  </compilerArgs>
                 </configuration>
               </execution>
               <!-- then compile without module-info for Java 6 -->
@@ -645,7 +708,10 @@
             </executions>
             <!-- setup defaults for compile and testCompile -->
             <configuration>
-              <release>8</release>
+              <source>1.8</source>
+              <target>1.8</target>
+
+              <!-- Undocumented argument to ignore "Sun internal proprietary API" warning, see http://stackoverflow.com/a/13862308/2257172 -->
               <compilerArgument value="-XDignore.symbol.file"/>
             </configuration>
           </plugin>
@@ -745,7 +811,7 @@
             <version>1.1.1</version>
             <configuration>
               <releaseName>Release v${project.version}</releaseName>
-              <description>See the [change notes](https://www.threeten.org/threeten-extra/changes-report.html) for more information.</description>
+              <description>See the change notes for more information.</description>
               <tag>v${project.version}</tag>
               <overwriteArtifact>true</overwriteArtifact>
             </configuration>
@@ -778,64 +844,4 @@
     </profile>
   </profiles>
 
-  <!-- ==================================================================== -->
-
-  <!--<properties>-->
-    <!--<project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>-->
-    <!--<project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>-->
-    <!--<maven.compiler.source>1.8</maven.compiler.source>-->
-    <!--<maven.compiler.target>1.8</maven.compiler.target>-->
-  <!--</properties>-->
-
-  <properties>
-    <junit.jupiter.version>5.2.0</junit.jupiter.version>
-    <junit.platform.version>1.2.0</junit.platform.version>
-    <!-- Plugin version numbers -->
-    <maven-assembly-plugin.version>3.1.0</maven-assembly-plugin.version>
-    <maven-bundle-plugin.version>2.5.4</maven-bundle-plugin.version>
-    <maven-changes-plugin.version>2.12.1</maven-changes-plugin.version>
-    <!-- v3.0.0 does not work with Eclipse -->
-    <maven-checkstyle-plugin.version>2.17</maven-checkstyle-plugin.version>
-    <maven-clean-plugin.version>3.1.0</maven-clean-plugin.version>
-    <maven-compiler-plugin.version>3.8.0</maven-compiler-plugin.version>
-    <maven-deploy-plugin.version>2.8.2</maven-deploy-plugin.version>
-    <maven-dependency-plugin.version>3.1.1</maven-dependency-plugin.version>
-    <maven-enforcer-plugin.version>3.0.0-M1</maven-enforcer-plugin.version>
-    <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
-    <maven-install-plugin.version>2.5.2</maven-install-plugin.version>
-    <maven-jar-plugin.version>3.1.0</maven-jar-plugin.version>
-    <maven-javadoc-plugin.version>3.0.0-M1</maven-javadoc-plugin.version>
-    <maven-jxr-plugin.version>2.5</maven-jxr-plugin.version>
-    <maven-plugin-plugin.version>3.5.2</maven-plugin-plugin.version>
-    <maven-pmd-plugin.version>3.10.0</maven-pmd-plugin.version>
-    <maven-project-info-reports-plugin.version>3.0.0</maven-project-info-reports-plugin.version>
-    <maven-release-plugin.version>2.5.3</maven-release-plugin.version>
-    <maven-repository-plugin.version>2.4</maven-repository-plugin.version>
-    <maven-resources-plugin.version>3.1.0</maven-resources-plugin.version>
-    <maven-site-plugin.version>3.7.1</maven-site-plugin.version>
-    <maven-source-plugin.version>3.0.1</maven-source-plugin.version>
-    <maven-surefire-plugin.version>2.22.0</maven-surefire-plugin.version>
-    <maven-surefire-report-plugin.version>2.22.0</maven-surefire-report-plugin.version>
-    <maven-toolchains-plugin.version>1.1</maven-toolchains-plugin.version>
-    <bndlib.version>3.5.0</bndlib.version>
-    <jacoco-maven-plugin.version>0.8.1</jacoco-maven-plugin.version>
-    <nexus-staging-maven-plugin.version>1.6.8</nexus-staging-maven-plugin.version>
-    <spotbugs-maven-plugin.version>3.1.6</spotbugs-maven-plugin.version>
-    <!-- Properties for maven-compiler-plugin -->
-    <maven.compiler.compilerVersion>1.8</maven.compiler.compilerVersion>
-    <maven.compiler.source>1.8</maven.compiler.source>
-    <maven.compiler.target>1.8</maven.compiler.target>
-    <maven.compiler.fork>true</maven.compiler.fork>
-    <!-- Properties for maven-javadoc-plugin -->
-    <author>false</author>
-    <notimestamp>true</notimestamp>
-    <doclint>none</doclint>
-    <!-- Properties for maven-checkstyle-plugin -->
-    <checkstyle.version>8.12</checkstyle.version>
-    <checkstyle.config.location>src/main/checkstyle/checkstyle.xml</checkstyle.config.location>
-    <linkXRef>false</linkXRef>
-    <!-- Other properties -->
-    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-    <project.reporting.outputEncoding>UTF-8</project.reporting.outputEncoding>
-  </properties>
 </project>
