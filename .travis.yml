@@ -1,8 +1,13 @@
 sudo: false
 language: java
 jdk:
+  - oraclejdk10
+  - oraclejdk9
   - oraclejdk8
-  - openjdk8
 cache:
   directories:
-  - "$HOME/.m2"
+    - "$HOME/.m2/repository"
+before_cache:
+  - rm -rf $HOME/.m2/repository/com/tersesystems
+install:
+- mvn --version
