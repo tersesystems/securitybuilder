@@ -11,29 +11,17 @@ This library implements a set of "fluent" API builders for the `java.security` c
 In your pom.xml:
 
 ```xml
-<repositories>
-    <repository>
-        <snapshots>
-            <enabled>false</enabled>
-        </snapshots>
-        <id>bintray-tersesystems-maven</id>
-        <name>bintray</name>
-        <url>https://dl.bintray.com/tersesystems/maven</url>
-    </repository>
-</repositories>
-
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
-    <version>0.1.6</version><!-- see badge for latest version -->
+    <version>1.0.0</version><!-- see badge for latest version -->
 </dependency>
 ```
 
 ### sbt
 
 ```scala
-resolvers += Resolver.bintrayRepo("tersesystems", "maven") 
-libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "0.1.6"
+libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "1.0.0"
 ```
 
 ## Usage
