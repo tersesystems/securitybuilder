@@ -1,4 +1,4 @@
-![Maven Central](https://img.shields.io/maven-central/v/com.tersesystems.securitybuilder/securitybuilder) [![Build Status](https://travis-ci.org/tersesystems/securitybuilder.svg?branch=master)](https://travis-ci.org/tersesystems/securitybuilder)
+[![Maven Central](https://img.shields.io/maven-central/v/com.tersesystems.securitybuilder/securitybuilder)](https://search.maven.org/artifact/com.tersesystems.securitybuilder/securitybuilder) [![Build Status](https://travis-ci.org/tersesystems/securitybuilder.svg?branch=master)](https://travis-ci.org/tersesystems/securitybuilder)
 
 # Security Builders
 
