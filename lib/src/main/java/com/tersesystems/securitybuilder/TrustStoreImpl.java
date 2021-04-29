@@ -105,5 +105,8 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
     }
   }
 
-  ;
+  @Override
+  public String toString() {
+    return String.format("TrustStoreImpl(size = %s)", size());
+  }
 }
