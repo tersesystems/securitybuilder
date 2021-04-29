@@ -40,7 +40,7 @@ public class KeyStoreDefaults {
     AccessController.doPrivileged(
         (PrivilegedExceptionAction<Object>)
             () -> {
-              props.put("getKeyStore", System.getProperty("javax.net.ssl.getKeyStore", ""));
+              props.put("keyStore", System.getProperty("javax.net.ssl.keyStore", ""));
               props.put(
                   "keyStoreType",
                   System.getProperty("javax.net.ssl.keyStoreType", KeyStore.getDefaultType()));
@@ -50,7 +50,7 @@ public class KeyStoreDefaults {
               return null;
             });
 
-    final String defaultKeyStore = props.get("getKeyStore");
+    final String defaultKeyStore = props.get("keyStore");
     final String defaultKeyStoreType = props.get("keyStoreType");
     final String defaultKeyStoreProvider = props.get("keyStoreProvider");
 

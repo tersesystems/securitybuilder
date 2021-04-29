@@ -8,4 +8,9 @@ public class SecretKeyStoreImpl extends AbstractKeyStore<SecretKeyEntry> impleme
   protected SecretKeyStoreImpl(final Builder builder) {
     super(builder);
   }
+
+  @Override
+  public String toString() {
+    return String.format("SecretKeyStoreImpl(size = %s)", size());
+  }
 }

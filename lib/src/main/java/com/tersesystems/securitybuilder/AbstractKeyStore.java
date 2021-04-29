@@ -1,17 +1,11 @@
 package com.tersesystems.securitybuilder;
 
-import java.security.KeyStore;
+import java.security.*;
 import java.security.KeyStore.Builder;
 import java.security.KeyStore.ProtectionParameter;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.UnrecoverableEntryException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Set;
+import java.security.cert.Certificate;
+import java.security.interfaces.RSAPrivateCrtKey;
+import java.util.*;
 import java.util.stream.Collectors;
 
 public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<String, T> {
@@ -21,7 +15,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
   protected AbstractKeyStore(final KeyStore.Builder builder) {
     this.builder = builder;
   }
-
 
   public KeyStore getKeyStore() {
     try {
