@@ -1,0 +1,49 @@
+//Auxiliary jar files required by Maven module publications
+task sourcesJar(type: Jar, dependsOn: classes) {
+    archiveClassifier = 'sources'
+    from sourceSets.main.allSource
+}
+
+apply plugin: 'maven-publish'
+publishing { //https://docs.gradle.org/current/userguide/publishing_maven.html
+    publications {
+        maven(MavenPublication) { //name of the publication
+            from components.java
+            artifact sourcesJar
+
+            pom {
+                name = tasks.jar.archiveBaseName
+                description = "SecurityBuilder is a set of fluent builders with a typesafe API for the JCA"
+                url = "https://github.com/tersesystems/securitybuilder"
+                licenses {
+                    license {
+                        name = 'Apache2'
+                        url = 'https://github.com/tersesystems/securitybuilder/blob/master/LICENSE'
+                    }
+                }
+                developers {
+                    developer {
+                        id = 'tersesystems'
+                        name = 'Terse Systems'
+                        url = 'https://github.com/tersesystems'
+                    }
+                }
+                scm {
+                    url = 'https://github.com/tersesystems/securitybuilder.git'
+                }
+            }
+        }
+    }
+
+    repositories {
+        // useful for testing - running "publish" will create artifacts/pom in a local dir
+        maven { url = "$rootDir/build/repo" }
+    }
+}
+
+apply plugin: 'signing'
+signing { // https://docs.gradle.org/current/userguide/signing_plugin.html
+    // Give up on using PGP_KEY, leverage gpg-agent and release locally
+    useGpgCmd()
+    sign publishing.publications.maven
+}
