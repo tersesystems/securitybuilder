@@ -1,10 +1,64 @@
 plugins {
-    id 'java'
-    id "com.github.hierynomus.license" version "0.15.0"
-    id 'com.diffplug.gradle.spotless'  version '3.24.3'
+    id 'java-library'
+    id 'com.diffplug.spotless'  version '5.14.0'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id "org.shipkit.shipkit-auto-version" version "1.1.19"
     //id 'org.inferred.processors'    version '2.3.0'
 }
 
 apply from: "gradle/release.gradle"
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+compileJava {
+    targetCompatibility = "1.8"
+    sourceCompatibility = "1.8"
+}
+
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+    options.addStringOption('source', '1.8')
+    options.addBooleanOption('html5', true)
+}
+
+spotless {
+    freshmark {
+        target('README.md')
+        propertiesFile('gradle.properties')
+        propertiesFile('version.properties')
+    }
+
+    java {
+        googleJavaFormat()
+    }
+}
+
+dependencies {
+
+    // java.security.debug
+
+    // https://mvnrepository.com/artifact/org.slieb/throwable-interfaces
+    implementation(group: 'org.slieb', name: 'throwable-interfaces', version: '1.13') {
+        transitive = false
+    }
+
+    // Use JUnit Jupiter API for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+
+    // Use JUnit Jupiter Engine for testing.
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+}
+
+tasks.named('test') {
+    // Use junit platform for unit tests.
+    useJUnitPlatform()
+}
