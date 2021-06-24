@@ -12,7 +12,6 @@ import java.security.spec.EncodedKeySpec;
 import java.security.spec.KeySpec;
 import java.security.spec.RSAPublicKeySpec;
 import javax.crypto.interfaces.DHPublicKey;
-import javax.crypto.spec.DHParameterSpec;
 import javax.crypto.spec.DHPublicKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 

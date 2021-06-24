@@ -3,8 +3,6 @@ package com.tersesystems.securitybuilder;
 import java.security.*;
 import java.security.KeyStore.Builder;
 import java.security.KeyStore.ProtectionParameter;
-import java.security.cert.Certificate;
-import java.security.interfaces.RSAPrivateCrtKey;
 import java.util.*;
 import java.util.stream.Collectors;
 

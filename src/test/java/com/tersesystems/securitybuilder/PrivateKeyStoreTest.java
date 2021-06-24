@@ -3,12 +3,8 @@ package com.tersesystems.securitybuilder;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
-import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
 import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.KeyStore;
 import java.security.KeyStore.PrivateKeyEntry;
 import java.security.cert.Certificate;
@@ -16,9 +12,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.DSAPrivateKey;
 import java.time.Duration;
 import java.util.Arrays;
-import java.util.Enumeration;
-import java.util.Iterator;
-import java.util.Properties;
+
 import org.junit.jupiter.api.Test;
 
 public class PrivateKeyStoreTest {

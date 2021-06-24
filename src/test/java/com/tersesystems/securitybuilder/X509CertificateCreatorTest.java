@@ -1,6 +1,5 @@
 package com.tersesystems.securitybuilder;
 
-import static java.util.Collections.singletonList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.fail;
 
@@ -17,7 +16,7 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Duration;
 import java.util.Arrays;
-import javax.net.ssl.SSLContext;
+
 import org.junit.jupiter.api.Test;
 
 public class X509CertificateCreatorTest {

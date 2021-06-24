@@ -8,3 +8,51 @@ plugins {
 }
 
 apply from: "gradle/release.gradle"
+
+plugins {
+    // Apply the java-library plugin for API and implementation separation.
+    id 'java-library'
+}
+
+repositories {
+    // Use Maven Central for resolving dependencies.
+    mavenCentral()
+}
+
+compileJava {
+    targetCompatibility = "1.8"
+    sourceCompatibility = "1.8"
+}
+
+
+tasks.withType(Javadoc) {
+    options.addStringOption('Xdoclint:none', '-quiet')
+    options.addStringOption('encoding', 'UTF-8')
+    options.addStringOption('charSet', 'UTF-8')
+    options.addStringOption('source', '1.8')
+    options.addBooleanOption('html5', true)
+}
+
+dependencies {
+
+    // java.security.debug
+
+    // https://mvnrepository.com/artifact/org.slieb/throwable-interfaces
+    implementation(group: 'org.slieb', name: 'throwable-interfaces', version: '1.13') {
+        transitive = false
+    }
+
+    // Use JUnit Jupiter API for testing.
+    testImplementation 'org.junit.jupiter:junit-jupiter-api:5.7.1'
+
+    // Use JUnit Jupiter Engine for testing.
+    testRuntimeOnly 'org.junit.jupiter:junit-jupiter-engine'
+
+    // https://mvnrepository.com/artifact/org.assertj/assertj-core
+    testImplementation group: 'org.assertj', name: 'assertj-core', version: '3.19.0'
+}
+
+tasks.named('test') {
+    // Use junit platform for unit tests.
+    useJUnitPlatform()
+}

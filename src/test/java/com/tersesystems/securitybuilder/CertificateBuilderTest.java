@@ -5,15 +5,10 @@ import static org.assertj.core.api.Assertions.fail;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.security.GeneralSecurityException;
-import java.security.Key;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
-import java.security.interfaces.ECPrivateKey;
-import java.security.interfaces.ECPublicKey;
-import java.security.spec.X509EncodedKeySpec;
-import java.util.Arrays;
+
 import org.junit.jupiter.api.Test;
 
 public class CertificateBuilderTest {
