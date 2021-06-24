@@ -4,6 +4,8 @@
 
 This library implements a set of "fluent" API builders for the `java.security` classes, and provides more typesafe, intuitive API to access trust stores, key stores and keys.  The primary purpose of this library is to make small tasks easy, and provide better integration with the JSSE stack.  
 
+Also check out [pgpainless](https://github.com/pgpainless/pgpainless) which does roughly the same thing with PGP API.
+
 ## Installation
 
 ### Maven

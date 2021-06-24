@@ -8,6 +8,3 @@ plugins {
 }
 
 apply from: "gradle/release.gradle"
-
-sourceCompatibility = 8
-targetCompatibility = 8
