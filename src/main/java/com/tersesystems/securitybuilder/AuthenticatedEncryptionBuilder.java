@@ -10,7 +10,8 @@ import javax.crypto.spec.GCMParameterSpec;
 /**
  * Creates a symmetric cipher builder, using AES/GCM/NoPadding.
  *
- * See <a href="https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/">How
+ * <p>See <a
+ * href="https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/">How
  * to choose an Authenticated Encryption mode</a> for why you want this.
  */
 public class AuthenticatedEncryptionBuilder {
@@ -97,5 +98,4 @@ public class AuthenticatedEncryptionBuilder {
       return cipher;
     }
   }
-
 }

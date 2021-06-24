@@ -7,14 +7,14 @@ import javax.crypto.spec.PBEKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates an encrypted password.  This is a wrapper around SecretKeyFactory.
+ * Creates an encrypted password. This is a wrapper around SecretKeyFactory.
  *
- * Please see the
- * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">SunJCE Provider</a>
- * for the options.
+ * <p>Please see the <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">SunJCE
+ * Provider</a> for the options.
  *
- * In practice, PBKDF2 with a SHA-2 hash is as weak as you could allow, and given the choice you would
- * be much better picking Argon2 / scrypt / bcrypt over PBKDF2.
+ * <p>In practice, PBKDF2 with a SHA-2 hash is as weak as you could allow, and given the choice you
+ * would be much better picking Argon2 / scrypt / bcrypt over PBKDF2.
  */
 public class PasswordBuilder {
 
@@ -82,7 +82,6 @@ public class PasswordBuilder {
     public PasswordStage withPBKDF2WithHmacSHA512() {
       return new PasswordStageImpl(() -> SecretKeyFactory.getInstance("PBKDF2WithHmacSHA512"));
     }
-
   }
 
   private static class PasswordStageImpl implements PasswordStage {
@@ -127,7 +126,8 @@ public class PasswordBuilder {
 
     SaltStageImpl(
         final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier,
-        final char[] password, final int iterations) {
+        final char[] password,
+        final int iterations) {
 
       this.supplier = supplier;
       this.password = password;
@@ -149,7 +149,9 @@ public class PasswordBuilder {
 
     KeyLengthStageImpl(
         final SupplierWithThrowable<SecretKeyFactory, GeneralSecurityException> supplier,
-        final char[] password, final int iterations, final byte[] salt) {
+        final char[] password,
+        final int iterations,
+        final byte[] salt) {
 
       this.supplier = supplier;
       this.password = password;
@@ -159,8 +161,12 @@ public class PasswordBuilder {
 
     @Override
     public BuildFinal withKeyLength(final int keyLength) {
-      return new SecretKeySpecBuildFinal(() -> (PBEKey) supplier.getWithThrowable()
-          .generateSecret(new PBEKeySpec(password, salt, iterations, keyLength)));
+      return new SecretKeySpecBuildFinal(
+          () ->
+              (PBEKey)
+                  supplier
+                      .getWithThrowable()
+                      .generateSecret(new PBEKeySpec(password, salt, iterations, keyLength)));
     }
   }
 
@@ -191,5 +197,4 @@ public class PasswordBuilder {
       return secretKeySupplier.getWithThrowable();
     }
   }
-
 }

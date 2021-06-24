@@ -17,8 +17,7 @@ public class KeyManagerKeyStoreBuilder extends PasswordSpecificKeyStoreBuilder {
   }
 
   public static KeyStore.Builder newInstance(
-      final KeyStore keyStore,
-      final Function<String, ProtectionParameter> passwordFunction) {
+      final KeyStore keyStore, final Function<String, ProtectionParameter> passwordFunction) {
     Objects.requireNonNull(keyStore);
     Objects.requireNonNull(passwordFunction);
 
@@ -45,8 +44,7 @@ public class KeyManagerKeyStoreBuilder extends PasswordSpecificKeyStoreBuilder {
   }
 
   @Override
-  public ProtectionParameter getProtectionParameter(final String alias)
-      throws KeyStoreException {
+  public ProtectionParameter getProtectionParameter(final String alias) throws KeyStoreException {
     // alias is lowercased keystore alias with prefixed numbers :-/
     // parse the alias
     final int firstDot = alias.indexOf('.');

@@ -7,19 +7,26 @@ import javax.crypto.SecretKey;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Generates a SecretKey using <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyGenerator">KeyGenerator</a> algorithms.
+ * Generates a SecretKey using <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#KeyGenerator">KeyGenerator</a>
+ * algorithms.
  *
- * If you are pulling in an existing secret key from input, use SecretKeyBuilder.
+ * <p>If you are pulling in an existing secret key from input, use SecretKeyBuilder.
  */
 public class SecretKeyGenerator {
 
   public interface InitialStage {
 
     InitializeStage withAES();
+
     InitializeStage withHmacSHA1();
+
     InitializeStage withHmacSHA224();
+
     InitializeStage withHmacSHA256();
+
     InitializeStage withHmacSHA384();
+
     InitializeStage withHmacSHA512();
 
     InitializeStage withAlgorithm(String algorithm);
@@ -93,29 +100,32 @@ public class SecretKeyGenerator {
 
     @Override
     public BuildFinal withRandom(final SecureRandom random) {
-      return new BuildFinalImpl(() -> {
-        KeyGenerator keyGenerator = supplier.getWithThrowable();
-        keyGenerator.init(random);
-        return keyGenerator.generateKey();
-      });
+      return new BuildFinalImpl(
+          () -> {
+            KeyGenerator keyGenerator = supplier.getWithThrowable();
+            keyGenerator.init(random);
+            return keyGenerator.generateKey();
+          });
     }
 
     @Override
     public BuildFinal withKeySize(final int keySize) {
-      return new BuildFinalImpl(() -> {
-        KeyGenerator keyGenerator = supplier.getWithThrowable();
-        keyGenerator.init(keySize);
-        return keyGenerator.generateKey();
-      });
+      return new BuildFinalImpl(
+          () -> {
+            KeyGenerator keyGenerator = supplier.getWithThrowable();
+            keyGenerator.init(keySize);
+            return keyGenerator.generateKey();
+          });
     }
 
     @Override
     public BuildFinal withKeySizeAndRandom(final int keySize, final SecureRandom random) {
-      return new BuildFinalImpl(() -> {
-        KeyGenerator keyGenerator = supplier.getWithThrowable();
-        keyGenerator.init(keySize, random);
-        return keyGenerator.generateKey();
-      });
+      return new BuildFinalImpl(
+          () -> {
+            KeyGenerator keyGenerator = supplier.getWithThrowable();
+            keyGenerator.init(keySize, random);
+            return keyGenerator.generateKey();
+          });
     }
   }
 
@@ -123,8 +133,7 @@ public class SecretKeyGenerator {
 
     private final SupplierWithThrowable<SecretKey, GeneralSecurityException> supplier;
 
-    BuildFinalImpl(
-        final SupplierWithThrowable<SecretKey, GeneralSecurityException> supplier) {
+    BuildFinalImpl(final SupplierWithThrowable<SecretKey, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
@@ -137,5 +146,4 @@ public class SecretKeyGenerator {
   public static InitialStage generate() {
     return new InitialStageImpl();
   }
-
 }

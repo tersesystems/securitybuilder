@@ -13,13 +13,10 @@ import java.security.PrivilegedExceptionAction;
 import java.util.HashMap;
 import java.util.Map;
 
-/**
- * Generates some keystores from configuration, and provides empty keystores.
- */
+/** Generates some keystores from configuration, and provides empty keystores. */
 public class KeyStoreDefaults {
 
-  private KeyStoreDefaults() {
-  }
+  private KeyStoreDefaults() {}
 
   // https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#CustomizingStores
   // https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#T6

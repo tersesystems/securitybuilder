@@ -16,7 +16,8 @@ public class AuthenticatedEncryptionBuilderTest {
     // https://blog.cryptographyengineering.com/2012/05/19/how-to-choose-authenticated-encryption/
 
     final SecretKey aesSecretKey = SecretKeyGenerator.generate().withAES().withKeySize(128).build();
-    final SecretKeySpec secretKeySpec = new SecretKeySpec(aesSecretKey.getEncoded(), aesSecretKey.getAlgorithm());
+    final SecretKeySpec secretKeySpec =
+        new SecretKeySpec(aesSecretKey.getEncoded(), aesSecretKey.getAlgorithm());
     IvStage builder = AuthenticatedEncryptionBuilder.builder().withSecretKey(secretKeySpec);
 
     byte[] gcmIV = EntropySource.gcmIV();

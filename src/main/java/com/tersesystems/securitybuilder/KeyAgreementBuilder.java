@@ -7,12 +7,15 @@ import javax.crypto.KeyAgreement;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyAgreement">KeyAgreement</a> instance.
+ * Creates a <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#KeyAgreement">KeyAgreement</a>
+ * instance.
  */
 public class KeyAgreementBuilder {
 
   public interface InitialStage {
     InitStage withAlgorithm(String algorithm);
+
     InitStage withAlgorithmAndProvider(String algorithm, String provider);
 
     InitStage withECDH();
@@ -62,28 +65,29 @@ public class KeyAgreementBuilder {
 
     @Override
     public BuildFinal withKey(final PrivateKey key) {
-      return new BuildFinalImpl(() -> {
-        KeyAgreement keyAgreement = supplier.getWithThrowable();
-        keyAgreement.init(key);
-        return keyAgreement;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            KeyAgreement keyAgreement = supplier.getWithThrowable();
+            keyAgreement.init(key);
+            return keyAgreement;
+          });
     }
 
     @Override
     public BuildFinal withKeyAndSpec(final PrivateKey key, final AlgorithmParameterSpec params) {
-      return new BuildFinalImpl(() -> {
-        KeyAgreement keyAgreement = supplier.getWithThrowable();
-        keyAgreement.init(key, params);
-        return keyAgreement;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            KeyAgreement keyAgreement = supplier.getWithThrowable();
+            keyAgreement.init(key, params);
+            return keyAgreement;
+          });
     }
   }
 
   private static class BuildFinalImpl implements BuildFinal {
     private final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier;
 
-    BuildFinalImpl(
-        final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier) {
+    BuildFinalImpl(final SupplierWithThrowable<KeyAgreement, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
@@ -96,5 +100,4 @@ public class KeyAgreementBuilder {
   public static InitialStage builder() {
     return new InitialStageImpl();
   }
-
 }

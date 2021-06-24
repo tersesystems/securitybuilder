@@ -8,15 +8,15 @@ import org.slieb.throwables.FunctionWithThrowable;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Constitutes an secret key from inputs.  This is a wrapper around SecretKeySpec.
+ * Constitutes an secret key from inputs. This is a wrapper around SecretKeySpec.
  *
- * Please see the
- * <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">SunJCE Provider</a>
- * for most of the decent options.  In practice, this means AES.
+ * <p>Please see the <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/SunProviders.html#SunJCEProvider">SunJCE
+ * Provider</a> for most of the decent options. In practice, this means AES.
  *
- * If you are generating a new secret key, use SecretKeyGenerator.
+ * <p>If you are generating a new secret key, use SecretKeyGenerator.
  *
- * If you are creating secret keys from passwords, use the PasswordBuilder.
+ * <p>If you are creating secret keys from passwords, use the PasswordBuilder.
  */
 public class SecretKeyBuilder {
 
@@ -24,9 +24,7 @@ public class SecretKeyBuilder {
 
     DataStage withAES();
 
-    /**
-     * Uses an algorithm for SecretKeySpec.
-     */
+    /** Uses an algorithm for SecretKeySpec. */
     DataStage withSecretKeySpec(String algorithm);
   }
 
@@ -57,13 +55,13 @@ public class SecretKeyBuilder {
 
   private static class SecretKeySpecDataStageImpl implements DataStage {
 
-    private final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException> keySpecFunction;
+    private final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException>
+        keySpecFunction;
 
     SecretKeySpecDataStageImpl(
         final FunctionWithThrowable<byte[], SecretKey, GeneralSecurityException> keySpecFunction) {
       this.keySpecFunction = keySpecFunction;
     }
-
 
     @Override
     public BuildFinal withData(final byte[] bytes) {
@@ -80,7 +78,6 @@ public class SecretKeyBuilder {
       this.keySpecSupplier = keySpecSupplier;
     }
 
-
     public SecretKey build() throws GeneralSecurityException {
       return keySpecSupplier.getWithThrowable();
     }
@@ -94,7 +91,6 @@ public class SecretKeyBuilder {
         final SupplierWithThrowable<SecretKey, GeneralSecurityException> secretKeySupplier) {
       this.secretKeySupplier = secretKeySupplier;
     }
-
 
     public SecretKey build() throws GeneralSecurityException {
       return secretKeySupplier.getWithThrowable();

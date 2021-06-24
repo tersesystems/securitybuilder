@@ -11,13 +11,14 @@ public class PasswordBuilderTest {
   public void testPasswordSpec() throws Exception {
     byte[] salt = EntropySource.salt();
 
-    PBEKey passwordBasedEncryptionKey = PasswordBuilder.builder()
-        .withPBKDF2WithHmacSHA512()
-        .withPassword("hello world".toCharArray())
-        .withIterations(1000)
-        .withSalt(salt)
-        .withKeyLength(64 * 8)
-        .build();
+    PBEKey passwordBasedEncryptionKey =
+        PasswordBuilder.builder()
+            .withPBKDF2WithHmacSHA512()
+            .withPassword("hello world".toCharArray())
+            .withIterations(1000)
+            .withSalt(salt)
+            .withKeyLength(64 * 8)
+            .build();
 
     byte[] encryptedPassword = passwordBasedEncryptionKey.getEncoded();
     assertThat(passwordBasedEncryptionKey.getAlgorithm()).isEqualTo("PBKDF2WithHmacSHA512");

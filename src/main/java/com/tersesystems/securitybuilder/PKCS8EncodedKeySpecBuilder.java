@@ -5,8 +5,6 @@ import static javax.crypto.Cipher.DECRYPT_MODE;
 
 import java.io.Reader;
 import java.security.GeneralSecurityException;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateFactory;
 import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -20,10 +18,12 @@ import org.slieb.throwables.SupplierWithThrowable;
 /**
  * Reads a PEM encoded private key into a PKCS8EncodedKeySpec.
  *
- * Note that if you try PKCS8EncodedKeySpec directly, you'll get an exception because it can't deal
- * with the header.  This fixes that.
+ * <p>Note that if you try PKCS8EncodedKeySpec directly, you'll get an exception because it can't
+ * deal with the header. This fixes that.
  *
- * See <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#EncodedKeySpec">encoded key spec</a>.
+ * <p>See <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#EncodedKeySpec">encoded
+ * key spec</a>.
  */
 public class PKCS8EncodedKeySpecBuilder {
 
@@ -37,8 +37,7 @@ public class PKCS8EncodedKeySpecBuilder {
               "-+END\\s+.*PRIVATE\\s+KEY[^-]*-+", // Footer
           CASE_INSENSITIVE);
 
-  private PKCS8EncodedKeySpecBuilder() {
-  }
+  private PKCS8EncodedKeySpecBuilder() {}
 
   public static ContentStage builder() {
     return new ContentStageImpl();
@@ -77,7 +76,6 @@ public class PKCS8EncodedKeySpecBuilder {
           });
     }
 
-
     @Override
     public PasswordStage withReader(final Reader reader) {
       return new PasswordStageImpl(
@@ -108,7 +106,6 @@ public class PKCS8EncodedKeySpecBuilder {
       this.supplier = supplier;
     }
 
-
     @Override
     public BuildFinal withPassword(final char[] password) {
       return new BuildFinalImpl(
@@ -128,7 +125,6 @@ public class PKCS8EncodedKeySpecBuilder {
           });
     }
 
-
     @Override
     public BuildFinal withNoPassword() {
       return new BuildFinalImpl(() -> new PKCS8EncodedKeySpec(supplier.getWithThrowable()));
@@ -142,7 +138,6 @@ public class PKCS8EncodedKeySpecBuilder {
     BuildFinalImpl(final SupplierWithThrowable<PKCS8EncodedKeySpec, Exception> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public PKCS8EncodedKeySpec build() throws Exception {

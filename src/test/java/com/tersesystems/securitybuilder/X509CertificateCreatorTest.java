@@ -16,7 +16,6 @@ import java.security.cert.X509Certificate;
 import java.security.interfaces.RSAPrivateKey;
 import java.time.Duration;
 import java.util.Arrays;
-
 import org.junit.jupiter.api.Test;
 
 public class X509CertificateCreatorTest {
@@ -54,10 +53,11 @@ public class X509CertificateCreatorTest {
 
     // Check that this passes a certpath validation.
     try {
-      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withTrustedCertificates(chain[2])
-          .withCertificates(Arrays.asList(chain))
-          .validate();
+      final PKIXCertPathValidatorResult result =
+          CertificateChainValidator.validator()
+              .withTrustedCertificates(chain[2])
+              .withCertificates(Arrays.asList(chain))
+              .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
@@ -98,19 +98,19 @@ public class X509CertificateCreatorTest {
             .withEndEntityExtensions()
             .create();
 
-    Certificate[] chain = { leafCertificate, intermediateCaCert, caCertificate };
+    Certificate[] chain = {leafCertificate, intermediateCaCert, caCertificate};
 
     // Check that this passes a certpath validation.
     try {
-      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withAnchors(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
-          .withCertificates(chain)
-          .validate();
+      final PKIXCertPathValidatorResult result =
+          CertificateChainValidator.validator()
+              .withAnchors(new TrustAnchor(issuer, rootKeyPair.getPublic(), null))
+              .withCertificates(chain)
+              .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
       fail("Cannot test exception", cpve);
     }
   }
-
 }

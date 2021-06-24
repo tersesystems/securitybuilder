@@ -9,7 +9,8 @@ import javax.crypto.spec.SecretKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Builds the <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Mac">Mac</a>
+ * Builds the <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Mac">Mac</a>
  * class.
  */
 public class MacBuilder {
@@ -17,11 +18,15 @@ public class MacBuilder {
   public interface InitialStage {
 
     SecretKeySpecStage withHmacSHA256();
+
     SecretKeySpecStage withHmacSHA384();
+
     SecretKeySpecStage withHmacSHA512();
 
     SecretKeySpecStage withPBEWithHmacSHA256();
+
     SecretKeySpecStage withPBEWithHmacSHA384();
+
     SecretKeySpecStage withPBEWithHmacSHA512();
 
     SecretKeySpecStage withSecretKeySpec(String algorithm);
@@ -41,9 +46,7 @@ public class MacBuilder {
   public interface SecretKeySpecStage {
     BuildFinal withBytes(byte[] privateBytes);
 
-    /**
-     * Convenience method, bytes are pulled from string using StandardCharsets.UTF_8.
-     */
+    /** Convenience method, bytes are pulled from string using StandardCharsets.UTF_8. */
     BuildFinal withString(String privateString);
   }
 
@@ -94,8 +97,7 @@ public class MacBuilder {
     }
 
     @Override
-    public InitializeStage withAlgorithm(final String algorithm,
-        final String provider) {
+    public InitializeStage withAlgorithm(final String algorithm, final String provider) {
       return new InitializeStageImpl(() -> Mac.getInstance(algorithm, provider));
     }
   }
@@ -104,54 +106,58 @@ public class MacBuilder {
 
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 
-    InitializeStageImpl(
-        final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
+    InitializeStageImpl(final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
     @Override
     public BuildFinal withKey(final SecretKey key) {
-      return new BuildFinalImpl(() -> {
-        Mac mac = supplier.get();
-        mac.init(key);
-        return mac;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            Mac mac = supplier.get();
+            mac.init(key);
+            return mac;
+          });
     }
 
     @Override
     public BuildFinal withKeyAndSpec(final SecretKey key, final AlgorithmParameterSpec params) {
-      return new BuildFinalImpl(() -> {
-        Mac mac = supplier.get();
-        mac.init(key, params);
-        return mac;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            Mac mac = supplier.get();
+            mac.init(key, params);
+            return mac;
+          });
     }
   }
 
   private static class SecretKeySpecStageImpl implements SecretKeySpecStage {
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 
-    SecretKeySpecStageImpl(
-        final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
+    SecretKeySpecStageImpl(final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
     @Override
     public BuildFinal withBytes(final byte[] privateBytes) {
-      return new BuildFinalImpl(() -> {
-        Mac mac = supplier.get();
-        mac.init(new SecretKeySpec(privateBytes, mac.getAlgorithm()));
-        return mac;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            Mac mac = supplier.get();
+            mac.init(new SecretKeySpec(privateBytes, mac.getAlgorithm()));
+            return mac;
+          });
     }
 
     @Override
     public BuildFinal withString(final String privateString) {
-      return new BuildFinalImpl(() -> {
-        Mac mac = supplier.get();
-        mac.init(new SecretKeySpec(privateString.getBytes(StandardCharsets.UTF_8), mac.getAlgorithm()));
-        return mac;
-      });
+      return new BuildFinalImpl(
+          () -> {
+            Mac mac = supplier.get();
+            mac.init(
+                new SecretKeySpec(
+                    privateString.getBytes(StandardCharsets.UTF_8), mac.getAlgorithm()));
+            return mac;
+          });
     }
   }
 
@@ -159,8 +165,7 @@ public class MacBuilder {
 
     private final SupplierWithThrowable<Mac, GeneralSecurityException> supplier;
 
-    BuildFinalImpl(
-        final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
+    BuildFinalImpl(final SupplierWithThrowable<Mac, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
@@ -173,5 +178,4 @@ public class MacBuilder {
   public static InitialStage builder() {
     return new InitialStageImpl();
   }
-
 }

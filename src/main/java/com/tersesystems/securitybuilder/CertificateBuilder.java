@@ -21,12 +21,12 @@ import java.util.Objects;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * This class reads in certificates from input bytes, and will return <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#CertificateFactory">X509Certificate</a>
+ * This class reads in certificates from input bytes, and will return <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#CertificateFactory">X509Certificate</a>
  */
 public class CertificateBuilder {
 
-  private CertificateBuilder() {
-  }
+  private CertificateBuilder() {}
 
   public static InstanceStage builder() {
     return new InstanceStageImpl();
@@ -46,21 +46,15 @@ public class CertificateBuilder {
 
     BuildFinal<T> withByteBuffer(ByteBuffer byteBuffer);
 
-
     BuildFinal<T> withInputStream(InputStream inputStream);
-
 
     BuildFinal<T> withResource(String path, ClassLoader classLoader);
 
-
     BuildFinal<T> withPath(Path path);
-
 
     BuildFinal<T> withReader(Reader reader);
 
-
     BuildFinal<T> withString(String content);
-
 
     BuildFinal<T> withBytes(byte[] bytes);
 
@@ -75,21 +69,17 @@ public class CertificateBuilder {
 
     T build() throws CertificateException;
 
-
     Collection<T> chain() throws CertificateException;
-
 
     CertPath certPath() throws CertificateException;
 
-
     CRL crl() throws CertificateException, CRLException;
-
 
     Collection<? extends CRL> crls() throws CertificateException, CRLException;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<CertificateFactory, CertificateException>
-      implements InstanceStage {
+  private static class InstanceStageImpl
+      extends InstanceGenerator<CertificateFactory, CertificateException> implements InstanceStage {
 
     @Override
     public InputStage<X509Certificate> withX509() {
@@ -141,13 +131,11 @@ public class CertificateBuilder {
 
     @SuppressWarnings("unchecked")
     @Override
-    public BuildFinal<T> withResource(
-        final String path, final ClassLoader classLoader) {
+    public BuildFinal<T> withResource(final String path, final ClassLoader classLoader) {
       Objects.requireNonNull(path);
       Objects.requireNonNull(classLoader);
       return new BuildFinalImpl<>(supplier, () -> classLoader.getResourceAsStream(path));
     }
-
 
     @SuppressWarnings("unchecked")
     @Override
@@ -155,7 +143,6 @@ public class CertificateBuilder {
       Objects.requireNonNull(path);
       return new BuildFinalImpl<>(supplier, () -> Files.newInputStream(path));
     }
-
 
     @Override
     public BuildFinal<T> withReader(final Reader reader) {
@@ -179,7 +166,6 @@ public class CertificateBuilder {
       return new BuildFinalImpl<T>(supplier, inputStreamSupplier);
     }
 
-
     @Override
     public BuildFinal<T> withInputStream(final InputStream inputStream) {
       Objects.requireNonNull(inputStream);
@@ -199,13 +185,11 @@ public class CertificateBuilder {
       this.inputStreamSupplier = inputStreamSupplier;
     }
 
-
     @SuppressWarnings("unchecked")
     @Override
     public T build() throws CertificateException {
       return (T) supplier.getWithThrowable().generateCertificate(inputStreamSupplier.get());
     }
-
 
     @SuppressWarnings("unchecked")
     @Override
@@ -214,18 +198,15 @@ public class CertificateBuilder {
           supplier.getWithThrowable().generateCertificates(inputStreamSupplier.get());
     }
 
-
     @Override
     public CertPath certPath() throws CertificateException {
       return supplier.getWithThrowable().generateCertPath(inputStreamSupplier.get());
     }
 
-
     @Override
     public CRL crl() throws CertificateException, CRLException {
       return supplier.getWithThrowable().generateCRL(inputStreamSupplier.get());
     }
-
 
     @Override
     public Collection<? extends CRL> crls() throws CertificateException, CRLException {

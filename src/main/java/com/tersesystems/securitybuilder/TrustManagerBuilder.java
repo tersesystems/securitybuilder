@@ -9,12 +9,12 @@ import javax.net.ssl.X509ExtendedTrustManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#TrustManager">TrustManager</a>.
+ * Creates a <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#TrustManager">TrustManager</a>.
  */
 public class TrustManagerBuilder {
 
-  private TrustManagerBuilder() {
-  }
+  private TrustManagerBuilder() {}
 
   public static InstanceStage builder() {
     return new InstanceStageImpl();
@@ -22,12 +22,9 @@ public class TrustManagerBuilder {
 
   public interface InstanceStage {
 
-
     ParametersStage withAlgorithm(String algorithm);
 
-
     ParametersStage withAlgorithmAndProvider(String algorithm, String provider);
-
 
     ParametersStage withDefaultAlgorithm();
   }
@@ -36,25 +33,19 @@ public class TrustManagerBuilder {
 
     BuilderFinal withKeyStore(KeyStore keyStore);
 
-
     BuilderFinal withKeyStore(SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
-
 
     BuilderFinal withDefaultKeystore();
 
-
     BuilderFinal withPKIXBuilderParameters(PKIXBuilderParameters parameters);
-
 
     BuilderFinal withPKIXBuilderParameters(
         SupplierWithThrowable<PKIXBuilderParameters, Exception> params);
-
 
     BuilderFinal withTrustStore(TrustStore trustStore);
   }
 
   public interface BuilderFinal {
-
 
     X509ExtendedTrustManager build() throws Exception;
   }
@@ -68,13 +59,10 @@ public class TrustManagerBuilder {
       return new ParametersStageImpl(getInstance().withAlgorithm(algorithm));
     }
 
-
     @Override
-    public ParametersStage withAlgorithmAndProvider(
-        final String algorithm, final String provider) {
+    public ParametersStage withAlgorithmAndProvider(final String algorithm, final String provider) {
       return new ParametersStageImpl(getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
-
 
     @Override
     public ParametersStage withDefaultAlgorithm() {
@@ -93,19 +81,16 @@ public class TrustManagerBuilder {
       this.trustManagerFactory = trustManagerFactory;
     }
 
-
     @Override
     public BuilderFinal withKeyStore(final KeyStore keyStore) {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, () -> keyStore);
     }
-
 
     @Override
     public BuilderFinal withKeyStore(
         final SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier) {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, keyStoreSupplier);
     }
-
 
     @Override
     public BuilderFinal withDefaultKeystore() {
@@ -118,12 +103,10 @@ public class TrustManagerBuilder {
       return new BuilderFinalKeyStoreImpl(trustManagerFactory, trustStore::getKeyStore);
     }
 
-
     @Override
     public BuilderFinal withPKIXBuilderParameters(final PKIXBuilderParameters params) {
       return new BuilderFinalParametersImpl(trustManagerFactory, () -> params);
     }
-
 
     @Override
     public BuilderFinal withPKIXBuilderParameters(
@@ -141,12 +124,10 @@ public class TrustManagerBuilder {
 
     BuilderFinalKeyStoreImpl(
         final SupplierWithThrowable<TrustManagerFactory, GeneralSecurityException> tmf,
-
         final SupplierWithThrowable<KeyStore, Exception> keyStore) {
       this.trustManagerFactory = tmf;
       this.keyStore = keyStore;
     }
-
 
     public X509ExtendedTrustManager build() throws Exception {
       final TrustManagerFactory tmf = trustManagerFactory.getWithThrowable();
@@ -168,7 +149,6 @@ public class TrustManagerBuilder {
       this.trustManagerFactory = tmf;
       this.parameters = parameters;
     }
-
 
     @Override
     public X509ExtendedTrustManager build() throws Exception {

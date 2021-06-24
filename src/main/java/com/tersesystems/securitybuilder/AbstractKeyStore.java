@@ -39,7 +39,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
   }
 
-
   @Override
   public boolean isEmpty() {
     try {
@@ -48,7 +47,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
       throw new RuntimeKeyStoreException(e);
     }
   }
-
 
   @Override
   public boolean containsKey(final Object key) {
@@ -73,7 +71,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     return values().stream().anyMatch(thisEntry -> thisEntry.equals(entry));
   }
 
-
   @SuppressWarnings("unchecked")
   @Override
   public T get(final Object key) {
@@ -82,10 +79,7 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
       Objects.requireNonNull(alias, "Null alias!");
       try {
         return (T) getKeyStore().getEntry(alias, protectionParameter(alias));
-      } catch (
-          final NoSuchAlgorithmException
-              | UnrecoverableEntryException
-              | KeyStoreException e) {
+      } catch (final NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
         throw new RuntimeKeyStoreException(e);
       }
     }
@@ -109,7 +103,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
   }
 
-
   @SuppressWarnings("unchecked")
   @Override
   public T remove(final Object key) {
@@ -120,10 +113,9 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
           final T entry = (T) getKeyStore().getEntry(alias, protectionParameter(alias));
           getKeyStore().deleteEntry(alias);
           return entry;
-        } catch (
-            final KeyStoreException
-                | UnrecoverableEntryException
-                | NoSuchAlgorithmException e) {
+        } catch (final KeyStoreException
+            | UnrecoverableEntryException
+            | NoSuchAlgorithmException e) {
           throw new RuntimeKeyStoreException(e);
         }
       }
@@ -148,7 +140,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     keySet().forEach(this::remove);
   }
 
-
   @Override
   public Set<String> keySet() {
     try {
@@ -158,27 +149,23 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
   }
 
-
   @Override
   public Collection<T> values() {
     return keySet().stream().map(this::get).collect(Collectors.toList());
   }
 
   @SuppressWarnings("unchecked")
-
   @Override
   public Set<Entry<String, T>> entrySet() {
-    return keySet()
-        .stream()
+    return keySet().stream()
         .map(
             alias -> {
               try {
                 T privateKeyEntry = (T) getKeyStore().getEntry(alias, protectionParameter(alias));
                 return new MyEntry(alias, privateKeyEntry);
-              } catch (
-                  NoSuchAlgorithmException
-                      | UnrecoverableEntryException
-                      | KeyStoreException e) {
+              } catch (NoSuchAlgorithmException
+                  | UnrecoverableEntryException
+                  | KeyStoreException e) {
                 throw new RuntimeKeyStoreException(e);
               }
             })
@@ -195,18 +182,15 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
       this.keyEntry = keyEntry;
     }
 
-
     @Override
     public String getKey() {
       return alias;
     }
 
-
     @Override
     public T getValue() {
       return keyEntry;
     }
-
 
     @Override
     public T setValue(final T value) {
@@ -219,7 +203,6 @@ public abstract class AbstractKeyStore<T extends KeyStore.Entry> implements Map<
     }
 
     @SuppressWarnings("unchecked")
-
     @Override
     public boolean equals(final Object obj) {
       if (obj == this) {

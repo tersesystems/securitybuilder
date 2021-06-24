@@ -16,9 +16,7 @@ import java.util.Set;
 import java.util.function.Supplier;
 import java.util.stream.Collectors;
 
-/**
- * Validates a certificate chain using CertPathValidator.
- */
+/** Validates a certificate chain using CertPathValidator. */
 public class CertificateChainValidator {
 
   public interface InitialStage {
@@ -54,17 +52,24 @@ public class CertificateChainValidator {
 
     @Override
     public CertificatesStage withTrustedCertificates(final Certificate... certificates) {
-      return new CertificatesStageImpl(() -> Arrays.stream(certificates)
-          .map(certificate -> new TrustAnchor((X509Certificate) certificate, null))
-          .collect(Collectors.toSet()));
+      return new CertificatesStageImpl(
+          () ->
+              Arrays.stream(certificates)
+                  .map(certificate -> new TrustAnchor((X509Certificate) certificate, null))
+                  .collect(Collectors.toSet()));
     }
 
     @Override
     public CertificatesStage withTrustStore(final TrustStore trustStore) {
-      return new CertificatesStageImpl(() -> trustStore.entrySet().stream().map(entry -> {
-        Certificate certificate = entry.getValue().getTrustedCertificate();
-        return new TrustAnchor((X509Certificate) certificate, null);
-      }).collect(Collectors.toSet()));
+      return new CertificatesStageImpl(
+          () ->
+              trustStore.entrySet().stream()
+                  .map(
+                      entry -> {
+                        Certificate certificate = entry.getValue().getTrustedCertificate();
+                        return new TrustAnchor((X509Certificate) certificate, null);
+                      })
+                  .collect(Collectors.toSet()));
     }
 
     @Override
@@ -130,12 +135,12 @@ public class CertificateChainValidator {
 
       final PKIXParameters params = new PKIXParameters(anchorsSupplier.get());
       params.setRevocationEnabled(false);
-      //params.addCertPathChecker(sc);
+      // params.addCertPathChecker(sc);
 
       final CertificateFactory certificateFactory = CertificateFactory.getInstance("X.509");
       List<? extends Certificate> certificates = certSupplier.get();
-      final CertPath certPath = certificateFactory
-          .generateCertPath(certificates.subList(0, certificates.size() - 1));
+      final CertPath certPath =
+          certificateFactory.generateCertPath(certificates.subList(0, certificates.size() - 1));
       return (PKIXCertPathValidatorResult) cpv.validate(certPath, params);
     }
   }

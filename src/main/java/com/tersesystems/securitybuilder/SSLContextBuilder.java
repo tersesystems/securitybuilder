@@ -9,14 +9,15 @@ import javax.net.ssl.TrustManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates an <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#SSLContext">SSLContext</a>.
+ * Creates an <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#SSLContext">SSLContext</a>.
  *
- * This API takes suppliers so you can do fun things with KeyManagerBuilder and TrustManagerBuilder inline.
+ * <p>This API takes suppliers so you can do fun things with KeyManagerBuilder and
+ * TrustManagerBuilder inline.
  */
 public class SSLContextBuilder {
 
-  private SSLContextBuilder() {
-  }
+  private SSLContextBuilder() {}
 
   public static InstanceStage builder() {
     return new InstanceStageImpl();
@@ -50,27 +51,23 @@ public class SSLContextBuilder {
     SSLContext build() throws GeneralSecurityException;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<SSLContext, GeneralSecurityException>
-      implements InstanceStage {
-
+  private static class InstanceStageImpl
+      extends InstanceGenerator<SSLContext, GeneralSecurityException> implements InstanceStage {
 
     @Override
     public BuildFinal withTLS() {
       return new BuildFinalImpl(getInstance().withProtocol("TLS"));
     }
 
-
     @Override
     public BuildFinal withTLS12() {
       return new BuildFinalImpl(getInstance().withProtocol("TLSv1.2"));
     }
 
-
     @Override
     public BuildFinal withProtocol(final String protocol) {
       return new BuildFinalImpl(getInstance().withProtocol(protocol));
     }
-
 
     @Override
     public BuildFinal withProtocolAndProvider(final String protocol, final String provider) {
@@ -85,11 +82,9 @@ public class SSLContextBuilder {
     private Supplier<KeyManager> keyManagerSupplier = () -> null;
     private Supplier<SecureRandom> secureRandomSupplier = () -> null;
 
-    BuildFinalImpl(
-        final SupplierWithThrowable<SSLContext, GeneralSecurityException> supplier) {
+    BuildFinalImpl(final SupplierWithThrowable<SSLContext, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public BuildFinal withTrustManager(final TrustManager trustManager) {
@@ -97,13 +92,11 @@ public class SSLContextBuilder {
       return this;
     }
 
-
     @Override
     public BuildFinal withTrustManager(final Supplier<TrustManager> trustManagerSupplier) {
       this.trustManagerSupplier = trustManagerSupplier;
       return this;
     }
-
 
     @Override
     public BuildFinal withKeyManager(final KeyManager keyManager) {
@@ -111,13 +104,11 @@ public class SSLContextBuilder {
       return this;
     }
 
-
     @Override
     public BuildFinal withKeyManager(final Supplier<KeyManager> keyManagerSupplier) {
       this.keyManagerSupplier = keyManagerSupplier;
       return this;
     }
-
 
     @Override
     public BuildFinal withSecureRandom(final SecureRandom secureRandom) {
@@ -125,20 +116,18 @@ public class SSLContextBuilder {
       return this;
     }
 
-
     @Override
     public BuildFinal withSecureRandom(final Supplier<SecureRandom> secureRandomSupplier) {
       this.secureRandomSupplier = secureRandomSupplier;
       return this;
     }
 
-
     public SSLContext build() throws GeneralSecurityException {
       final KeyManager km = keyManagerSupplier.get();
-      final KeyManager[] kms = (km == null) ? null : new KeyManager[]{km};
+      final KeyManager[] kms = (km == null) ? null : new KeyManager[] {km};
 
       final TrustManager tm = trustManagerSupplier.get();
-      final TrustManager[] tms = (tm == null) ? null : new TrustManager[]{tm};
+      final TrustManager[] tms = (tm == null) ? null : new TrustManager[] {tm};
 
       final SSLContext sslContext = this.supplier.getWithThrowable();
       sslContext.init(kms, tms, secureRandomSupplier.get());

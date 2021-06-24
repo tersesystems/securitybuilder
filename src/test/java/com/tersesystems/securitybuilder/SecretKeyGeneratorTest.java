@@ -13,5 +13,4 @@ public class SecretKeyGeneratorTest {
     SecretKey aesSecretKey = SecretKeyGenerator.generate().withAES().withKeySize(256).build();
     assertThat(aesSecretKey.getAlgorithm()).isEqualTo("AES");
   }
-
 }

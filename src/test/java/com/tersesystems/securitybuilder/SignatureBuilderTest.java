@@ -36,8 +36,7 @@ public class SignatureBuilderTest {
   @Test
   public void testRSignature() {
     try {
-      final ECKeyPair keyPair =
-          KeyPairCreator.creator().withEC().withKeySize(256).create();
+      final ECKeyPair keyPair = KeyPairCreator.creator().withEC().withKeySize(256).create();
       final ECPrivateKey privateKey = keyPair.getPrivate();
       final ECPublicKey publicKey = keyPair.getPublic();
 
@@ -57,6 +56,4 @@ public class SignatureBuilderTest {
       Fail.fail(e.getMessage(), e);
     }
   }
-
-
 }

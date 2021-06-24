@@ -14,12 +14,12 @@ import javax.net.ssl.X509ExtendedKeyManager;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#KeyManager">KeyManager</a>.
+ * Creates a <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/jsse/JSSERefGuide.html#KeyManager">KeyManager</a>.
  */
 public class KeyManagerBuilder {
 
-  private KeyManagerBuilder() {
-  }
+  private KeyManagerBuilder() {}
 
   public static KeyManagerFactoryStage builder() {
     return new KeyManagerFactoryStageImpl();
@@ -42,9 +42,7 @@ public class KeyManagerBuilder {
 
     BuilderFinal withPrivateKeyStore(PrivateKeyStore privateKeyStore);
 
-    SunPasswordStage withKeyStore(
-        SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
-
+    SunPasswordStage withKeyStore(SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier);
 
     SunPasswordStage withDefaultKeyStore();
   }
@@ -53,12 +51,9 @@ public class KeyManagerBuilder {
 
     BuilderFinal withKeyStore(KeyStore keyStore, char[] password);
 
-
     BuilderFinal withPrivateKeyStore(PrivateKeyStore privateKeyStore);
 
-
     BuilderFinal withBuilders(List<KeyStore.Builder> builders);
-
 
     BuilderFinal withBuilders(Supplier<List<KeyStore.Builder>> builders);
 
@@ -70,21 +65,15 @@ public class KeyManagerBuilder {
 
   public interface SunPasswordStage {
 
-
     BuilderFinal withPassword(PasswordProtection passwordProtection);
-
 
     BuilderFinal withPassword(char[] password);
 
-    /**
-     * Uses the password defined in the system property `javax.net.ssl.keyStorePassword`.
-     */
-
+    /** Uses the password defined in the system property `javax.net.ssl.keyStorePassword`. */
     BuilderFinal withDefaultPassword();
   }
 
   public interface BuilderFinal {
-
 
     X509ExtendedKeyManager build() throws GeneralSecurityException;
   }
@@ -98,18 +87,15 @@ public class KeyManagerBuilder {
       return new SunParametersStageImpl();
     }
 
-
     @Override
     public SunParametersStage withSunX509(final String provider) {
       return new SunParametersStageImpl(provider);
     }
 
-
     @Override
     public NewSunParametersStage withNewSunX509() {
       return new NewSunParametersStageImpl(getInstance().withAlgorithm("NewSunX509"));
     }
-
 
     @Override
     public NewSunParametersStage withNewSunX509(final String provider) {
@@ -132,11 +118,9 @@ public class KeyManagerBuilder {
     }
 
     @Override
-    public BuilderFinal withPassword(
-        final PasswordProtection passwordProtection) {
+    public BuilderFinal withPassword(final PasswordProtection passwordProtection) {
       return withPassword(passwordProtection.getPassword());
     }
-
 
     @Override
     public BuilderFinal withPassword(final char[] password) {
@@ -148,7 +132,6 @@ public class KeyManagerBuilder {
             return keyManagerFactory;
           });
     }
-
 
     public BuilderFinal withDefaultPassword() {
       return new BuilderFinalImpl(
@@ -169,8 +152,7 @@ public class KeyManagerBuilder {
     private static final String sunX509 = "SunX509";
     private String provider = null;
 
-    SunParametersStageImpl() {
-    }
+    SunParametersStageImpl() {}
 
     SunParametersStageImpl(final String provider) {
       this.provider = provider;
@@ -182,8 +164,7 @@ public class KeyManagerBuilder {
     }
 
     @Override
-    public BuilderFinal withPrivateKeyStore(
-        final PrivateKeyStore privateKeyStore) {
+    public BuilderFinal withPrivateKeyStore(final PrivateKeyStore privateKeyStore) {
       try {
         PasswordProtection passwordProtection =
             (PasswordProtection) privateKeyStore.getBuilder().getProtectionParameter("default");
@@ -194,7 +175,6 @@ public class KeyManagerBuilder {
       }
     }
 
-
     @Override
     public SunPasswordStage withKeyStore(
         final SupplierWithThrowable<KeyStore, Exception> keyStoreSupplier) {
@@ -204,7 +184,6 @@ public class KeyManagerBuilder {
               : getInstance().withAlgorithmAndProvider(sunX509, provider),
           keyStoreSupplier);
     }
-
 
     @Override
     public SunPasswordStage withDefaultKeyStore() {
@@ -221,25 +200,20 @@ public class KeyManagerBuilder {
     }
 
     @Override
-    public BuilderFinal withPrivateKeyStore(
-        final PrivateKeyStore privateKeyStore) {
+    public BuilderFinal withPrivateKeyStore(final PrivateKeyStore privateKeyStore) {
       return withBuilders(() -> singletonList(privateKeyStore.getBuilder()));
     }
 
-
     @Override
-    public BuilderFinal withKeyStore(
-        final KeyStore keyStore, final char[] keyStorePassword) {
+    public BuilderFinal withKeyStore(final KeyStore keyStore, final char[] keyStorePassword) {
       return withBuilders(
           () -> singletonList(KeyManagerKeyStoreBuilder.newInstance(keyStore, keyStorePassword)));
     }
-
 
     @Override
     public BuilderFinal withBuilders(final List<KeyStore.Builder> builders) {
       return withBuilders(() -> builders);
     }
-
 
     @Override
     public BuilderFinal withBuilders(final Supplier<List<KeyStore.Builder>> builders) {
@@ -250,7 +224,6 @@ public class KeyManagerBuilder {
             return kmf;
           });
     }
-
 
     @Override
     public BuilderFinal withDefaultKeyStoreAndPassword() {
@@ -273,7 +246,6 @@ public class KeyManagerBuilder {
             keyManagerFactory) {
       this.keyManagerFactory = keyManagerFactory;
     }
-
 
     @Override
     public X509ExtendedKeyManager build() throws GeneralSecurityException {

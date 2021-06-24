@@ -16,10 +16,12 @@ import java.security.spec.AlgorithmParameterSpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
 /**
- * Creates a <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature">Signature</a>.
+ * Creates a <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/crypto/CryptoSpec.html#Signature">Signature</a>.
  *
- * See <a href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature">Standard Names</a> for signature
- * options.
+ * <p>See <a
+ * href="https://docs.oracle.com/javase/8/docs/technotes/guides/security/StandardNames.html#Signature">Standard
+ * Names</a> for signature options.
  */
 public class SignatureBuilder {
 
@@ -29,19 +31,26 @@ public class SignatureBuilder {
 
   public interface InstanceStage {
 
-    <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithm(String algorithm);
+    <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithm(
+        String algorithm);
 
-    <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithmAndProvider(String algorithm, String provider);
+    <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithmAndProvider(
+        String algorithm, String provider);
 
     InitializeStage<RSAPrivateKey, RSAPublicKey> withSHA256withRSA();
+
     InitializeStage<RSAPrivateKey, RSAPublicKey> withSHA384withRSA();
+
     InitializeStage<RSAPrivateKey, RSAPublicKey> withSHA512withRSA();
 
     InitializeStage<DSAPrivateKey, DSAPublicKey> withSHA256withDSA();
+
     InitializeStage<DSAPrivateKey, DSAPublicKey> withSHA512withDSA();
 
     InitializeStage<ECPrivateKey, ECPublicKey> withSHA256withECDSA();
+
     InitializeStage<ECPrivateKey, ECPublicKey> withSHA384withECDSA();
+
     InitializeStage<ECPrivateKey, ECPublicKey> withSHA512withECDSA();
   }
 
@@ -62,16 +71,19 @@ public class SignatureBuilder {
     Signature build() throws GeneralSecurityException;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<Signature, GeneralSecurityException>
-      implements InstanceStage {
+  private static class InstanceStageImpl
+      extends InstanceGenerator<Signature, GeneralSecurityException> implements InstanceStage {
 
     @Override
-    public <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithm(final String algorithm) {
+    public <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithm(
+        final String algorithm) {
       return new InitializeStageImpl<>(getInstance().withAlgorithm(algorithm));
     }
 
     @Override
-    public <PR extends PrivateKey, PU extends PublicKey> InitializeStage<PR, PU> withAlgorithmAndProvider(final String algorithm, final String provider) {
+    public <PR extends PrivateKey, PU extends PublicKey>
+        InitializeStage<PR, PU> withAlgorithmAndProvider(
+            final String algorithm, final String provider) {
       return new InitializeStageImpl<>(getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
 
@@ -116,12 +128,12 @@ public class SignatureBuilder {
     }
   }
 
-  private static class InitializeStageImpl<PR extends PrivateKey, PU extends PublicKey> implements InitializeStage<PR, PU> {
+  private static class InitializeStageImpl<PR extends PrivateKey, PU extends PublicKey>
+      implements InitializeStage<PR, PU> {
 
     private final SupplierWithThrowable<Signature, GeneralSecurityException> supplier;
 
-    InitializeStageImpl(
-        final SupplierWithThrowable<Signature, GeneralSecurityException> supplier) {
+    InitializeStageImpl(final SupplierWithThrowable<Signature, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
 
@@ -135,7 +147,6 @@ public class SignatureBuilder {
           });
     }
 
-
     @Override
     public BuildFinal signing(final PR privateKey, final SecureRandom secureRandom) {
       return new BuildFinalImpl(
@@ -146,7 +157,6 @@ public class SignatureBuilder {
           });
     }
 
-
     @Override
     public BuildFinal verifying(final Certificate certificate) {
       return new BuildFinalImpl(
@@ -156,7 +166,6 @@ public class SignatureBuilder {
             return signature;
           });
     }
-
 
     @Override
     public BuildFinal verifying(final PU publicKey) {

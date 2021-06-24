@@ -22,28 +22,28 @@ class PKCS8EncodedKeySpecBuilderTest {
     assertThat(keySpec.getFormat()).isEqualTo("PKCS#8");
   }
 
-
   @Test
   public void testPublicKey() throws Exception {
     RSAKeyPair keyPair = KeyPairCreator.creator().withRSA().withKeySize(2048).create();
-    Signature signingSig = SignatureBuilder.builder().withSHA256withRSA().signing(keyPair.getPrivate()).build();
+    Signature signingSig =
+        SignatureBuilder.builder().withSHA256withRSA().signing(keyPair.getPrivate()).build();
 
     byte[] someData = "hello world!".getBytes(StandardCharsets.UTF_8);
     signingSig.update(someData);
     byte[] signed = signingSig.sign();
     byte[] rawPublicBytes = keyPair.getPublic().getEncoded();
 
-    // Assume only the raw bytes are available down here: the certificate and the signature show that the
+    // Assume only the raw bytes are available down here: the certificate and the signature show
+    // that the
     // data was signed by this signature...
     X509EncodedKeySpec pubKeySpec = new X509EncodedKeySpec(rawPublicBytes);
     RSAPublicKey pubKey = PublicKeyBuilder.builder().withRSA().withKeySpec(pubKeySpec).build();
 
     // Should have some shortcuts for SHA256withRSA
-    Signature verifyingSig = SignatureBuilder.builder().withSHA256withRSA().verifying(pubKey).build();
+    Signature verifyingSig =
+        SignatureBuilder.builder().withSHA256withRSA().verifying(pubKey).build();
     verifyingSig.update(someData);
 
     assertThat(verifyingSig.verify(signed)).isTrue();
   }
-
-
 }

@@ -15,9 +15,7 @@ import javax.crypto.interfaces.DHPrivateKey;
 import javax.crypto.spec.DHPrivateKeySpec;
 import org.slieb.throwables.SupplierWithThrowable;
 
-/**
- * Builds a private key from input bytes.
- */
+/** Builds a private key from input bytes. */
 public class PrivateKeyBuilder {
 
   public static InstanceStage builder() {
@@ -63,20 +61,17 @@ public class PrivateKeyBuilder {
     BuildFinal<T> withKeySpec(EncodedKeySpec keySpec);
   }
 
-
-
   public interface BuildFinal<T extends PrivateKey> {
     T build() throws GeneralSecurityException;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
-      implements InstanceStage {
+  private static class InstanceStageImpl
+      extends InstanceGenerator<KeyFactory, GeneralSecurityException> implements InstanceStage {
 
     @Override
     public <T extends PrivateKey> PrivateKeySpecStage<T> withAlgorithm(final String algorithm) {
       return new PrivateKeySpecStageImpl<>(getInstance().withAlgorithm(algorithm));
     }
-
 
     @Override
     public <T extends PrivateKey> PrivateKeySpecStage<T> withAlgorithmAndProvider(
@@ -89,7 +84,6 @@ public class PrivateKeyBuilder {
     public RSAPrivateKeySpecStage withRSA() {
       return new RSAPrivateKeySpecStageImpl(getInstance().withAlgorithm("RSA"));
     }
-
 
     @Override
     public ECPrivateKeySpecStage withEC() {
@@ -107,7 +101,8 @@ public class PrivateKeyBuilder {
     }
   }
 
-  private static class PrivateKeySpecStageImpl<T extends PrivateKey> implements PrivateKeySpecStage<T> {
+  private static class PrivateKeySpecStageImpl<T extends PrivateKey>
+      implements PrivateKeySpecStage<T> {
 
     private final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier;
 
@@ -115,7 +110,6 @@ public class PrivateKeyBuilder {
         final SupplierWithThrowable<KeyFactory, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @SuppressWarnings("unchecked")
     @Override

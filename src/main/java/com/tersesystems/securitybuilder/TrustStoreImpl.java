@@ -8,9 +8,7 @@ import java.security.cert.Certificate;
 import java.util.Objects;
 import java.util.Optional;
 
-/**
- * A keystore containing trusted certificate entries.
- */
+/** A keystore containing trusted certificate entries. */
 public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
     implements TrustStore {
 
@@ -18,11 +16,9 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
     super(builder);
   }
 
-
   public TrustedCertificateEntry putCertificate(String key, Certificate certificate) {
     return put(key, new KeyStore.TrustedCertificateEntry(certificate));
   }
-
 
   @Override
   public Optional<String> getCertificateAlias(final Certificate certificate)
@@ -59,7 +55,6 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       return alias;
     }
 
-
     @Override
     public KeyStore.TrustedCertificateEntry getValue() {
       try {
@@ -69,10 +64,8 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       }
     }
 
-
     @Override
-    public KeyStore.TrustedCertificateEntry setValue(
-        final KeyStore.TrustedCertificateEntry value) {
+    public KeyStore.TrustedCertificateEntry setValue(final KeyStore.TrustedCertificateEntry value) {
       try {
         getKeyStore().setEntry(alias, value, null);
         return value;
@@ -80,7 +73,6 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
         throw new RuntimeKeyStoreException(e);
       }
     }
-
 
     @Override
     public boolean equals(final Object o) {
@@ -95,7 +87,7 @@ public class TrustStoreImpl extends AbstractKeyStore<TrustedCertificateEntry>
       final TrustedCertificateEntry thatCertEntry = that.getValue();
       return Objects.equals(alias, that.alias)
           && Objects.equals(
-          thisCertEntry.getTrustedCertificate(), thatCertEntry.getTrustedCertificate())
+              thisCertEntry.getTrustedCertificate(), thatCertEntry.getTrustedCertificate())
           && Objects.equals(thisCertEntry.getAttributes(), thatCertEntry.getAttributes());
     }
 

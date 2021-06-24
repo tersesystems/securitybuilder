@@ -29,10 +29,7 @@ public class PrivateKeyStoreImpl extends AbstractKeyStore<PrivateKeyEntry>
           throw new RuntimeKeyStoreException(e);
         }
         return (PrivateKeyEntry) keyStore.getEntry(alias, protectionParameter(alias));
-      } catch (
-              final NoSuchAlgorithmException
-                      | UnrecoverableEntryException
-                      | KeyStoreException e) {
+      } catch (final NoSuchAlgorithmException | UnrecoverableEntryException | KeyStoreException e) {
         throw new RuntimeKeyStoreException(e);
       }
     }

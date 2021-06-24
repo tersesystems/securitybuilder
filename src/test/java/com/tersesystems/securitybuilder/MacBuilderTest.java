@@ -18,16 +18,19 @@ public class MacBuilderTest {
     String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
 
     assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+    assertThat(output)
+        .isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
   }
 
   @Test
   void testSecretKeySpec() throws GeneralSecurityException {
-    Mac sha256Mac = MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
+    Mac sha256Mac =
+        MacBuilder.builder().withSecretKeySpec("HmacSHA256").withString("privatekey").build();
     String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
 
     assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+    assertThat(output)
+        .isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
   }
 
   @Test
@@ -36,14 +39,13 @@ public class MacBuilderTest {
     String output = byteArrayToHex(sha256Mac.doFinal("test".getBytes()));
 
     assertThat(sha256Mac.getAlgorithm()).isEqualTo("HmacSHA256");
-    assertThat(output).isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
+    assertThat(output)
+        .isEqualTo("27f0d5331806fb9f21247b19bee883a7cfe54c069d6e28edccc2cff8e78c4a74");
   }
-
 
   static String byteArrayToHex(byte[] a) {
     StringBuilder sb = new StringBuilder(a.length * 2);
-    for(byte b: a)
-      sb.append(String.format("%02x", b));
+    for (byte b : a) sb.append(String.format("%02x", b));
     return sb.toString();
   }
 }

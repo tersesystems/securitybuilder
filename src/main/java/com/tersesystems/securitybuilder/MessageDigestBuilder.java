@@ -5,9 +5,7 @@ import static java.security.MessageDigest.getInstance;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
-/**
- * Generates some handy message digests.
- */
+/** Generates some handy message digests. */
 public class MessageDigestBuilder {
 
   /**

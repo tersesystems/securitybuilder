@@ -13,8 +13,7 @@ import org.slieb.throwables.SupplierWithThrowable;
 
 public class KeyStoreBuilder {
 
-  private KeyStoreBuilder() {
-  }
+  private KeyStoreBuilder() {}
 
   public static InstanceStage builder() {
     return new InstanceStageImpl();
@@ -27,11 +26,11 @@ public class KeyStoreBuilder {
   public static KeyStore empty(final String type) {
     try {
       return new BuilderFinalImpl(
-          () -> {
-            KeyStore keyStore = KeyStore.getInstance(type);
-            keyStore.load(null);
-            return keyStore;
-          })
+              () -> {
+                KeyStore keyStore = KeyStore.getInstance(type);
+                keyStore.load(null);
+                return keyStore;
+              })
           .build();
     } catch (final Exception e) {
       throw new IllegalStateException(e);
@@ -41,11 +40,11 @@ public class KeyStoreBuilder {
   public static KeyStore empty(final String type, final String provider) {
     try {
       return new BuilderFinalImpl(
-          () -> {
-            KeyStore keyStore = KeyStore.getInstance(type, provider);
-            keyStore.load(null);
-            return keyStore;
-          })
+              () -> {
+                KeyStore keyStore = KeyStore.getInstance(type, provider);
+                keyStore.load(null);
+                return keyStore;
+              })
           .build();
     } catch (final Exception e) {
       throw new IllegalStateException(e);
@@ -54,15 +53,11 @@ public class KeyStoreBuilder {
 
   public interface InstanceStage {
 
-
     ParametersStage withType(String type);
-
 
     ParametersStage withTypeAndProvider(String type, String provider);
 
-
     ParametersStage withDefaultType();
-
 
     DomainParametersStage withDomainType();
   }
@@ -77,9 +72,7 @@ public class KeyStoreBuilder {
 
     PasswordStage withInputStream(InputStream inputStream);
 
-
     PasswordStage withPath(Path path);
-
 
     PasswordStage withFile(File file);
   }
@@ -88,37 +81,31 @@ public class KeyStoreBuilder {
 
     BuilderFinal withPassword(char[] password);
 
-
     BuilderFinal withNoPassword();
   }
 
   public interface BuilderFinal {
 
-
     KeyStore build() throws Exception;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<KeyStore, GeneralSecurityException>
-      implements InstanceStage {
-
+  private static class InstanceStageImpl
+      extends InstanceGenerator<KeyStore, GeneralSecurityException> implements InstanceStage {
 
     @Override
     public ParametersStage withDefaultType() {
       return new ParametersStageImpl(getInstance().withDefaultType());
     }
 
-
     @Override
     public ParametersStage withType(final String type) {
       return new ParametersStageImpl(getInstance().withType(type));
     }
 
-
     @Override
     public DomainParametersStage withDomainType() {
       return new DomainParametersStageImpl(getInstance().withType("DKS"));
     }
-
 
     @Override
     public ParametersStage withTypeAndProvider(final String type, final String provider) {
@@ -134,18 +121,15 @@ public class KeyStoreBuilder {
       this.supplier = supplier;
     }
 
-
     @Override
     public PasswordStage withInputStream(final InputStream inputStream) {
       return new PasswordStageImpl(supplier, () -> inputStream);
     }
 
-
     @Override
     public PasswordStage withPath(final Path path) {
       return new PasswordStageImpl(supplier, () -> Files.newInputStream(path));
     }
-
 
     @Override
     public PasswordStage withFile(final File file) {
@@ -162,11 +146,9 @@ public class KeyStoreBuilder {
       this.supplier = supplier;
     }
 
-
     @Override
     public BuilderFinal withURIAndPasswordMap(
-        final URI uri,
-        final Map<String, KeyStore.ProtectionParameter> passwordMap) {
+        final URI uri, final Map<String, KeyStore.ProtectionParameter> passwordMap) {
       return new BuilderFinalImpl(
           () -> {
             final KeyStore keyStore = supplier.getWithThrowable();
@@ -188,7 +170,6 @@ public class KeyStoreBuilder {
       this.inputStream = inputStream;
     }
 
-
     @Override
     public BuilderFinal withPassword(final char[] password) {
       return new BuilderFinalImpl(
@@ -198,7 +179,6 @@ public class KeyStoreBuilder {
             return keyStore;
           });
     }
-
 
     @Override
     public BuilderFinal withNoPassword() {

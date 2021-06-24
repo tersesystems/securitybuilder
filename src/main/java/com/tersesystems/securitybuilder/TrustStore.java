@@ -16,7 +16,6 @@ import java.util.function.Function;
 
 public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry> {
 
-
   static TrustStore create(final KeyStore keyStore) {
     return new TrustStoreImpl(
         new Builder() {
@@ -26,7 +25,6 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
             return keyStore;
           }
 
-
           @Override
           public ProtectionParameter getProtectionParameter(final String alias)
               throws KeyStoreException {
@@ -35,8 +33,7 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
         });
   }
 
-  static TrustStore create(
-      final Map<? extends String, ? extends Certificate> certificates) {
+  static TrustStore create(final Map<? extends String, ? extends Certificate> certificates) {
     TrustStore trustStore = create();
     certificates.forEach(
         (alias, cert) -> {
@@ -57,8 +54,7 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
   }
 
   static TrustStore create(
-      final CertStore certStore,
-      final Function<Certificate, String> aliasFunction) {
+      final CertStore certStore, final Function<Certificate, String> aliasFunction) {
     try {
       TrustStore trustStore = create();
       certStore
@@ -94,6 +90,5 @@ public interface TrustStore extends Map<String, KeyStore.TrustedCertificateEntry
 
   TrustedCertificateEntry putCertificate(String key, Certificate certificate);
 
-  Optional<String> getCertificateAlias(Certificate certificate)
-      throws RuntimeKeyStoreException;
+  Optional<String> getCertificateAlias(Certificate certificate) throws RuntimeKeyStoreException;
 }

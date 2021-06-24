@@ -23,13 +23,10 @@ public class PublicKeyBuilder {
 
   public interface InstanceStage {
 
-
     <PK extends PublicKey> ParametersStage<PK> withAlgorithm(String algorithm);
-
 
     <PK extends PublicKey> ParametersStage<PK> withAlgorithmAndProvider(
         String algorithm, String provider);
-
 
     RSAParametersStage withRSA();
 
@@ -68,15 +65,13 @@ public class PublicKeyBuilder {
     PK build() throws GeneralSecurityException;
   }
 
-  private static class InstanceStageImpl extends InstanceGenerator<KeyFactory, GeneralSecurityException>
-      implements InstanceStage {
-
+  private static class InstanceStageImpl
+      extends InstanceGenerator<KeyFactory, GeneralSecurityException> implements InstanceStage {
 
     @Override
     public <PK extends PublicKey> ParametersStage<PK> withAlgorithm(final String algorithm) {
       return new ParametersStageImpl<>(getInstance().withAlgorithm(algorithm));
     }
-
 
     @Override
     public <PK extends PublicKey> ParametersStage<PK> withAlgorithmAndProvider(
@@ -84,18 +79,15 @@ public class PublicKeyBuilder {
       return new ParametersStageImpl<>(getInstance().withAlgorithmAndProvider(algorithm, provider));
     }
 
-
     @Override
     public RSAParametersStage withRSA() {
       return new RSAParametersStageImpl(getInstance().withAlgorithm("RSA"));
     }
 
-
     @Override
     public ECParametersStage withEC() {
       return new ECParametersStageImpl(getInstance().withAlgorithm("EC"));
     }
-
 
     @Override
     public DSAParametersStage withDSA() {
@@ -214,7 +206,6 @@ public class PublicKeyBuilder {
     BuildFinalImpl(final SupplierWithThrowable<PK, GeneralSecurityException> supplier) {
       this.supplier = supplier;
     }
-
 
     @Override
     public PK build() throws GeneralSecurityException {

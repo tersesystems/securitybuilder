@@ -3,13 +3,11 @@ package com.tersesystems.securitybuilder;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
-/**
- * A generic type safe keypair.
- */
+/** A generic type safe keypair. */
 public interface KeyPair<PBK extends PublicKey, PVK extends PrivateKey> {
 
-  static <KP extends KeyPair, PBK extends PublicKey, PVK extends PrivateKey> KeyPair<PBK, PVK> create(
-      java.security.KeyPair keyPair) {
+  static <KP extends KeyPair, PBK extends PublicKey, PVK extends PrivateKey>
+      KeyPair<PBK, PVK> create(java.security.KeyPair keyPair) {
     return new KeyPair<PBK, PVK>() {
       @Override
       @SuppressWarnings("unchecked")

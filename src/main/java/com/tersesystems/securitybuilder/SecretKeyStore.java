@@ -7,15 +7,11 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.function.Supplier;
 
-/**
- * Provides a Map interface over SecretKeyEntry, using a backing KeyStore.
- */
+/** Provides a Map interface over SecretKeyEntry, using a backing KeyStore. */
 public interface SecretKeyStore extends Map<String, SecretKeyEntry> {
 
-
   static SecretKeyStore create(
-      final KeyStore keyStore,
-      final Function<String, ProtectionParameter> passwordFunction) {
+      final KeyStore keyStore, final Function<String, ProtectionParameter> passwordFunction) {
     final KeyStore.Builder builder =
         PasswordSpecificKeyStoreBuilder.newInstance(keyStore, passwordFunction);
     return create(builder);

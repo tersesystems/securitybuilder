@@ -52,14 +52,15 @@ public class CertificateChainValidatorTest {
             .withEndEntityExtensions()
             .create();
 
-    Certificate[] chain = { leafCertificate, intermediateCaCert, caCertificate };
+    Certificate[] chain = {leafCertificate, intermediateCaCert, caCertificate};
 
     // Check that this passes a certpath validation.
     try {
-      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withTrustedCertificates(caCertificate)
-          .withCertificates(chain)
-          .validate();
+      final PKIXCertPathValidatorResult result =
+          CertificateChainValidator.validator()
+              .withTrustedCertificates(caCertificate)
+              .withCertificates(chain)
+              .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
@@ -100,20 +101,21 @@ public class CertificateChainValidatorTest {
             .withEndEntityExtensions()
             .create();
 
-    Certificate[] chain = { leafCertificate, intermediateCaCert, caCertificate };
-    TrustStore trustStore = TrustStore.create(singletonList(caCertificate), cert -> "letsencrypt.derp");
+    Certificate[] chain = {leafCertificate, intermediateCaCert, caCertificate};
+    TrustStore trustStore =
+        TrustStore.create(singletonList(caCertificate), cert -> "letsencrypt.derp");
 
     // Check that this passes a certpath validation.
     try {
-      final PKIXCertPathValidatorResult result = CertificateChainValidator.validator()
-          .withTrustStore(trustStore)
-          .withCertificates(chain)
-          .validate();
+      final PKIXCertPathValidatorResult result =
+          CertificateChainValidator.validator()
+              .withTrustStore(trustStore)
+              .withCertificates(chain)
+              .validate();
       final PublicKey subjectPublicKey = result.getPublicKey();
       assertThat(subjectPublicKey).isEqualTo(eePair.getPublic());
     } catch (final CertPathValidatorException cpve) {
       fail("Cannot test exception", cpve);
     }
   }
-
 }

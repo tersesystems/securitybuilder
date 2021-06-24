@@ -8,7 +8,8 @@ class KeyPairCreatorTest {
 
   @Test
   void testWithAlgorithm() throws GeneralSecurityException {
-    final KeyPair keyPair = KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).create();
+    final KeyPair keyPair =
+        KeyPairCreator.creator().withAlgorithm("RSA").withKeySize(2048).create();
     Assertions.assertThat(keyPair.getPublic().getAlgorithm()).isEqualTo("RSA");
   }
 

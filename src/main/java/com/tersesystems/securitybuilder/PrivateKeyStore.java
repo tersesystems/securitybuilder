@@ -12,12 +12,10 @@ import java.util.Map;
  * Sets up a private keystore that is set up the way that the default SunX509 keymanager expects --
  * that is, all the private keys have the same password.
  *
- * <p>For keystores that have all individual passwords, i.e. "NewSunX509" keymanager style, we
- * can't
+ * <p>For keystores that have all individual passwords, i.e. "NewSunX509" keymanager style, we can't
  * use the map interface as noted here.
  */
 public interface PrivateKeyStore extends Map<String, PrivateKeyEntry> {
-
 
   static PrivateKeyStore create(final KeyStore.Builder builder) {
     return new PrivateKeyStoreImpl(builder);
@@ -45,9 +43,7 @@ public interface PrivateKeyStore extends Map<String, PrivateKeyEntry> {
   }
 
   static PrivateKeyStore create(
-      final String alias,
-      final PrivateKey privateKey,
-      final Certificate... chain) {
+      final String alias, final PrivateKey privateKey, final Certificate... chain) {
     PrivateKeyEntry entry = new PrivateKeyEntry(privateKey, chain);
     return create(alias, entry, new PasswordProtection("".toCharArray()));
   }

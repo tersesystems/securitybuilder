@@ -1,18 +1,12 @@
 plugins {
-    id 'java'
-    id "com.github.hierynomus.license" version "0.15.0"
-    id 'com.diffplug.gradle.spotless'  version '3.24.3'
+    id 'java-library'
+    id 'com.diffplug.spotless'  version '5.14.0'
     id "io.github.gradle-nexus.publish-plugin" version "1.1.0"
     id "org.shipkit.shipkit-auto-version" version "1.1.19"
     //id 'org.inferred.processors'    version '2.3.0'
 }
 
 apply from: "gradle/release.gradle"
-
-plugins {
-    // Apply the java-library plugin for API and implementation separation.
-    id 'java-library'
-}
 
 repositories {
     // Use Maven Central for resolving dependencies.
@@ -31,6 +25,18 @@ tasks.withType(Javadoc) {
     options.addStringOption('charSet', 'UTF-8')
     options.addStringOption('source', '1.8')
     options.addBooleanOption('html5', true)
+}
+
+spotless {
+    freshmark {
+        target('README.md')
+        propertiesFile('gradle.properties')
+        propertiesFile('version.properties')
+    }
+
+    java {
+        googleJavaFormat()
+    }
 }
 
 dependencies {

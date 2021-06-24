@@ -1,6 +1,7 @@
 package com.tersesystems.securitybuilder;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+
 import java.security.NoSuchAlgorithmException;
 import org.junit.jupiter.api.Test;
 

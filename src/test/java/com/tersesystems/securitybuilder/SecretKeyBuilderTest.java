@@ -11,10 +11,7 @@ public class SecretKeyBuilderTest {
   public void testAES() throws Exception {
     byte[] aesKeyData = "abc123".getBytes();
 
-    SecretKey secretKey = SecretKeyBuilder.builder()
-        .withAES()
-        .withData(aesKeyData)
-        .build();
+    SecretKey secretKey = SecretKeyBuilder.builder().withAES().withData(aesKeyData).build();
 
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
   }
@@ -23,12 +20,9 @@ public class SecretKeyBuilderTest {
   public void testSecretKeySpec() throws Exception {
     byte[] aesKeyData = "abc123".getBytes();
 
-    SecretKey secretKey = SecretKeyBuilder.builder()
-        .withSecretKeySpec("AES")
-        .withData(aesKeyData)
-        .build();
+    SecretKey secretKey =
+        SecretKeyBuilder.builder().withSecretKeySpec("AES").withData(aesKeyData).build();
 
     assertThat(secretKey.getAlgorithm()).isEqualTo("AES");
   }
-
 }

@@ -6,9 +6,7 @@ import java.security.spec.AlgorithmParameterSpec;
 import java.util.function.Function;
 import org.slieb.throwables.SupplierWithThrowable;
 
-/**
- * Generates new KeyPair.  Use with AlgorithmParameterGenerator if you need more inputs.
- */
+/** Generates new KeyPair. Use with AlgorithmParameterGenerator if you need more inputs. */
 public class KeyPairCreator {
 
   public static InstanceStage creator() {
@@ -26,13 +24,17 @@ public class KeyPairCreator {
     InitializeStage<ECKeyPair> withEC();
 
     InitializeStage<DSAKeyPair> withDSA();
+
     InitializeStage<DHKeyPair> withDH();
   }
 
   public interface InitializeStage<SKP extends KeyPair<?, ?>> {
     FinalStage<SKP> withKeySize(int keySize);
+
     FinalStage<SKP> withKeySizeAndSecureRandom(int keySize, SecureRandom sr);
+
     FinalStage<SKP> withKeySpec(AlgorithmParameterSpec spec);
+
     FinalStage<SKP> withKeySpecAndSecureRandom(AlgorithmParameterSpec spec, SecureRandom sr);
   }
 
@@ -51,7 +53,6 @@ public class KeyPairCreator {
           getInstance().withAlgorithm(algorithm), keyPair -> (KP) KeyPair.create(keyPair));
     }
 
-
     @Override
     @SuppressWarnings("unchecked")
     public <KP extends KeyPair<?, ?>> InitializeStage<KP> withAlgorithm(
@@ -61,18 +62,15 @@ public class KeyPairCreator {
           keyPair -> (KP) KeyPair.create(keyPair));
     }
 
-
     @Override
     public InitializeStage<RSAKeyPair> withRSA() {
       return new InitializeStageImpl<>(getInstance().withAlgorithm("RSA"), RSAKeyPair::create);
     }
 
-
     @Override
     public InitializeStage<ECKeyPair> withEC() {
       return new InitializeStageImpl<>(getInstance().withAlgorithm("EC"), ECKeyPair::create);
     }
-
 
     @Override
     public InitializeStage<DSAKeyPair> withDSA() {
@@ -85,18 +83,20 @@ public class KeyPairCreator {
     }
   }
 
-  private static class InitializeStageImpl<KP extends KeyPair<?, ?>> implements InitializeStage<KP> {
+  private static class InitializeStageImpl<KP extends KeyPair<?, ?>>
+      implements InitializeStage<KP> {
 
-    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier;
+    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException>
+        supplier;
     private final Function<java.security.KeyPair, KP> transform;
 
     InitializeStageImpl(
-        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier,
+        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException>
+            supplier,
         final Function<java.security.KeyPair, KP> transform) {
       this.supplier = supplier;
       this.transform = transform;
     }
-
 
     @Override
     public FinalStage<KP> withKeySize(final int keySize) {
@@ -109,7 +109,6 @@ public class KeyPairCreator {
           transform);
     }
 
-
     @Override
     public FinalStage<KP> withKeySizeAndSecureRandom(final int keySize, final SecureRandom sr) {
       return new FinalStageImpl<>(
@@ -121,7 +120,6 @@ public class KeyPairCreator {
           transform);
     }
 
-
     @Override
     public FinalStage<KP> withKeySpec(final AlgorithmParameterSpec spec) {
       return new FinalStageImpl<>(
@@ -132,7 +130,6 @@ public class KeyPairCreator {
           },
           transform);
     }
-
 
     @Override
     public FinalStage<KP> withKeySpecAndSecureRandom(
@@ -149,16 +146,17 @@ public class KeyPairCreator {
 
   private static class FinalStageImpl<KP extends KeyPair<?, ?>> implements FinalStage<KP> {
 
-    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier;
+    private final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException>
+        supplier;
     private final Function<java.security.KeyPair, KP> transform;
 
     FinalStageImpl(
-        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException> supplier,
+        final SupplierWithThrowable<java.security.KeyPairGenerator, GeneralSecurityException>
+            supplier,
         Function<java.security.KeyPair, KP> transform) {
       this.supplier = supplier;
       this.transform = transform;
     }
-
 
     @Override
     public KP create() throws GeneralSecurityException {

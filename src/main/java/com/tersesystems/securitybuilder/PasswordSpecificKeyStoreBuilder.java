@@ -22,8 +22,7 @@ public class PasswordSpecificKeyStoreBuilder extends KeyStore.Builder {
   }
 
   public static KeyStore.Builder newInstance(
-      final KeyStore keyStore,
-      final Function<String, ProtectionParameter> passwordFunction) {
+      final KeyStore keyStore, final Function<String, ProtectionParameter> passwordFunction) {
     Objects.requireNonNull(keyStore);
     Objects.requireNonNull(passwordFunction);
 

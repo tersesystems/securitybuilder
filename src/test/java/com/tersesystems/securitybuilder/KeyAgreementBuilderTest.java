@@ -18,10 +18,8 @@ public class KeyAgreementBuilderTest {
   @Test
   public void testKeyAgreement() throws GeneralSecurityException {
     ECKeyPair kp = KeyPairCreator.creator().withEC().withKeySize(256).create();
-    KeyAgreement keyAgreement = KeyAgreementBuilder.builder()
-        .withECDH()
-        .withKey(kp.getPrivate())
-        .build();
+    KeyAgreement keyAgreement =
+        KeyAgreementBuilder.builder().withECDH().withKey(kp.getPrivate()).build();
 
     assertThat(keyAgreement.getAlgorithm()).isEqualTo("ECDH");
   }
@@ -34,46 +32,50 @@ public class KeyAgreementBuilderTest {
     DHKeyPair aliceKpair = KeyPairCreator.creator().withDH().withKeySize(2048).create();
 
     // Alice creates and initializes her DH KeyAgreement object
-    KeyAgreement aliceKeyAgree = KeyAgreementBuilder.builder()
-        .withDH()
-        .withKey(aliceKpair.getPrivate())
-        .build();
+    KeyAgreement aliceKeyAgree =
+        KeyAgreementBuilder.builder().withDH().withKey(aliceKpair.getPrivate()).build();
 
     // Alice encodes her public key, and sends it over to Bob.
     byte[] alicePubKeyEnc = aliceKpair.getPublic().getEncoded();
 
-    //* Let's turn over to Bob. Bob has received Alice's public key
-    //* in encoded format.
-    //* He instantiates a DH public key from the encoded key material.
-    DHPublicKey alicePubKey = PublicKeyBuilder.builder().withDH()
-        .withKeySpec(new X509EncodedKeySpec(alicePubKeyEnc)).build();
+    // * Let's turn over to Bob. Bob has received Alice's public key
+    // * in encoded format.
+    // * He instantiates a DH public key from the encoded key material.
+    DHPublicKey alicePubKey =
+        PublicKeyBuilder.builder()
+            .withDH()
+            .withKeySpec(new X509EncodedKeySpec(alicePubKeyEnc))
+            .build();
 
-    //* Bob gets the DH parameters associated with Alice's public key.
-    //* He must use the same parameters when he generates his own key
-    //* pair.
+    // * Bob gets the DH parameters associated with Alice's public key.
+    // * He must use the same parameters when he generates his own key
+    // * pair.
     DHParameterSpec dhParamFromAlicePubKey = alicePubKey.getParams();
 
     // Bob creates his own DH key pair
-    DHKeyPair bobKpair = KeyPairCreator.creator().withDH().withKeySpec(dhParamFromAlicePubKey)
-        .create();
+    DHKeyPair bobKpair =
+        KeyPairCreator.creator().withDH().withKeySpec(dhParamFromAlicePubKey).create();
 
     // Bob creates and initializes his DH KeyAgreement object
-    KeyAgreement bobKeyAgree = KeyAgreementBuilder.builder().withDH().withKey(bobKpair.getPrivate())
-        .build();
+    KeyAgreement bobKeyAgree =
+        KeyAgreementBuilder.builder().withDH().withKey(bobKpair.getPrivate()).build();
 
     // Bob encodes his public key, and sends it over to Alice.
     byte[] bobPubKeyEnc = bobKpair.getPublic().getEncoded();
 
-    //* Alice uses Bob's public key for the first (and only) phase
-    //* of her version of the DH protocol.
-    //* Before she can do so, she has to instantiate a DH public key
-    //* from Bob's encoded key material.
-    DHPublicKey bobPubKey = PublicKeyBuilder.builder().withDH()
-        .withKeySpec(new X509EncodedKeySpec(bobPubKeyEnc)).build();
+    // * Alice uses Bob's public key for the first (and only) phase
+    // * of her version of the DH protocol.
+    // * Before she can do so, she has to instantiate a DH public key
+    // * from Bob's encoded key material.
+    DHPublicKey bobPubKey =
+        PublicKeyBuilder.builder()
+            .withDH()
+            .withKeySpec(new X509EncodedKeySpec(bobPubKeyEnc))
+            .build();
     aliceKeyAgree.doPhase(bobPubKey, true);
 
-    //* Bob uses Alice's public key for the first (and only) phase
-    //* of his version of the DH protocol.
+    // * Bob uses Alice's public key for the first (and only) phase
+    // * of his version of the DH protocol.
     bobKeyAgree.doPhase(alicePubKey, true);
 
     // At this stage, both Alice and Bob have completed the DH key
@@ -90,13 +92,14 @@ public class KeyAgreementBuilderTest {
 
     // Bob encrypts, using AES in GCM mode
     final byte[] iv = EntropySource.gcmIV();
-    Cipher bobCipher = AuthenticatedEncryptionBuilder.builder().withSecretKey(bobAesKey).withIv(iv)
-        .encrypt();
+    Cipher bobCipher =
+        AuthenticatedEncryptionBuilder.builder().withSecretKey(bobAesKey).withIv(iv).encrypt();
     byte[] cleartext = "This is just an example".getBytes();
     byte[] ciphertext = bobCipher.doFinal(cleartext);
 
     // Alice decrypts, using AES in GCM mode
-    Cipher aliceCipher = AuthenticatedEncryptionBuilder.builder().withSecretKey(aliceAesKey).withIv(iv).decrypt();
+    Cipher aliceCipher =
+        AuthenticatedEncryptionBuilder.builder().withSecretKey(aliceAesKey).withIv(iv).decrypt();
     byte[] recovered = aliceCipher.doFinal(ciphertext);
     assertThat(Arrays.equals(cleartext, recovered)).isTrue();
   }
@@ -105,8 +108,9 @@ public class KeyAgreementBuilderTest {
    * Converts a byte to hex digit and writes to the supplied buffer
    */
   private static void byte2hex(byte b, StringBuffer buf) {
-    char[] hexChars = {'0', '1', '2', '3', '4', '5', '6', '7', '8',
-        '9', 'A', 'B', 'C', 'D', 'E', 'F'};
+    char[] hexChars = {
+      '0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F'
+    };
     int high = ((b & 0xf0) >> 4);
     int low = (b & 0x0f);
     buf.append(hexChars[high]);

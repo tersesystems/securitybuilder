@@ -20,7 +20,7 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithRSA() throws GeneralSecurityException {
     final RSAPrivateKey exampleKey =
-            KeyPairCreator.creator().withRSA().withKeySize(2048).create().getPrivate();
+        KeyPairCreator.creator().withRSA().withKeySize(2048).create().getPrivate();
     final RSAPrivateKeySpec rsaPrivateKeySpec =
         new RSAPrivateKeySpec(exampleKey.getModulus(), exampleKey.getPrivateExponent());
     final RSAPrivateKey privateKey =
@@ -32,7 +32,7 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithEC() throws GeneralSecurityException {
     final ECPrivateKey exampleKey =
-            KeyPairCreator.creator().withEC().withKeySize(128).create().getPrivate();
+        KeyPairCreator.creator().withEC().withKeySize(128).create().getPrivate();
     final ECPrivateKeySpec privateKeySpec =
         new ECPrivateKeySpec(exampleKey.getS(), exampleKey.getParams());
     final ECPrivateKey privateKey =
@@ -44,7 +44,7 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithDH() throws GeneralSecurityException {
     final DHPrivateKey exampleKey =
-            KeyPairCreator.creator().withDH().withKeySize(2048).create().getPrivate();
+        KeyPairCreator.creator().withDH().withKeySize(2048).create().getPrivate();
     DHParameterSpec params = exampleKey.getParams();
     final DHPrivateKeySpec privateKeySpec =
         new DHPrivateKeySpec(exampleKey.getX(), params.getP(), params.getG());
@@ -54,11 +54,10 @@ class PrivateKeyBuilderTest {
     assertThat(privateKey).isNotNull();
   }
 
-
   @Test
   void builderWithDSA() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
-            KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
+        KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(
             exampleKey.getX(),
@@ -74,7 +73,7 @@ class PrivateKeyBuilderTest {
   @Test
   void builderWithAlgorithm() throws GeneralSecurityException {
     final DSAPrivateKey exampleKey =
-            KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
+        KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPrivate();
     final DSAPrivateKeySpec privateKeySpec =
         new DSAPrivateKeySpec(
             exampleKey.getX(),

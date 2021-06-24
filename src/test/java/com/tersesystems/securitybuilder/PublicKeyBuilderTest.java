@@ -18,7 +18,8 @@ public class PublicKeyBuilderTest {
   public void testWithAlgorithm() throws GeneralSecurityException {
     ECPublicKey pk = KeyPairCreator.creator().withEC().withKeySize(256).create().getPublic();
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pk.getEncoded());
-    PublicKey publicKey = PublicKeyBuilder.builder().withAlgorithm("EC").withKeySpec(keySpec).build();
+    PublicKey publicKey =
+        PublicKeyBuilder.builder().withAlgorithm("EC").withKeySpec(keySpec).build();
     assertThat(Arrays.equals(pk.getEncoded(), publicKey.getEncoded())).isTrue();
   }
 
@@ -42,8 +43,7 @@ public class PublicKeyBuilderTest {
   public void testDSAPublicKey() throws GeneralSecurityException {
     DSAPublicKey pk = KeyPairCreator.creator().withDSA().withKeySize(1024).create().getPublic();
     X509EncodedKeySpec keySpec = new X509EncodedKeySpec(pk.getEncoded());
-    DSAPublicKey publicKey =
-        PublicKeyBuilder.builder().withDSA().withKeySpec(keySpec).build();
+    DSAPublicKey publicKey = PublicKeyBuilder.builder().withDSA().withKeySpec(keySpec).build();
     assertThat(Arrays.equals(pk.getEncoded(), publicKey.getEncoded())).isTrue();
   }
 
@@ -54,5 +54,4 @@ public class PublicKeyBuilderTest {
     DHPublicKey publicKey = PublicKeyBuilder.builder().withDH().withKeySpec(keySpec).build();
     assertThat(Arrays.equals(pk.getEncoded(), publicKey.getEncoded())).isTrue();
   }
-
 }
