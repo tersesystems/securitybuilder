@@ -16,14 +16,14 @@ In your pom.xml:
 <dependency>
     <groupId>com.tersesystems.securitybuilder</groupId>
     <artifactId>securitybuilder</artifactId>
-    <version>1.0.0</version><!-- see badge for latest version -->
+    <version>1.0.1</version><!-- see badge for latest version -->
 </dependency>
 ```
 
 ### sbt
 
 ```scala
-libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "1.0.0"
+libraryDependencies += "com.tersesystems.securitybuilder" % "securitybuilder" % "1.0.1"
 ```
 
 ## Usage
