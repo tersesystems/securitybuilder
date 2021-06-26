@@ -20,6 +20,8 @@ publishing { //https://docs.gradle.org/current/userguide/publishing_maven.html
 
             pom {
                 name = tasks.jar.archiveBaseName
+                packaging 'jar'
+
                 description = "SecurityBuilder is a set of fluent builders with a typesafe API for the JCA"
                 url = "https://github.com/tersesystems/securitybuilder"
                 licenses {
